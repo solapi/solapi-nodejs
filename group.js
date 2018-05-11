@@ -42,11 +42,15 @@ module.exports = class Group {
     return data
   }
   static async getInfo (group) {
-    const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4//groups/${group.getGroupId()}`, { headers: { Authorization: getAuth() } })
+    const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups/${group.getGroupId()}`, { headers: { Authorization: getAuth() } })
     return data
   }
   static async getMyGroupList (group) {
-    const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4//groups`, { headers: { Authorization: getAuth() } })
+    const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups`, { headers: { Authorization: getAuth() } })
+    return data
+  }
+  static async sendSimpleMessage (message = {}, agent = {}) {
+    const data = await asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/send`, { headers: { Authorization: getAuth() }, form: { message, agent } })
     return data
   }
   getGroupId () {

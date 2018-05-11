@@ -172,5 +172,22 @@ describe('test', () => {
       const data = await group.getMessageList()
       expect(data).to.have.lengthOf(2)
     })
+    it('심플 메시지 (정상)', async () => {
+      console.log(await Group.sendSimpleMessage({
+        to: getPhoneNumber(),
+        from: getPhoneNumber(),
+        text: 'TEST'
+      }))
+    })
+    it('심플 메시지 (에러)', async () => {
+      let data
+      try {
+        await Group.sendSimpleMessage()
+      } catch (err) {
+        data = err
+      }
+      expect(data.errorCode).equal('ValidationError')
+      expect(data.errorMessage).equal('child "body" fails because [child "message" fails because ["message" is required]')
+    })
   })
 })
