@@ -36,6 +36,15 @@ module.exports = class Group {
     const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/list${query}`, { headers: { Authorization: getAuth() } })
     return data
   }
+
+  static async deleteGroup (group) {
+    const data = await asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${group.getGroupId()}`, { headers: { Authorization: getAuth() } })
+    return data
+  }
+  static async getInfo (group) {
+    const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4//groups/${group.getGroupId()}`, { headers: { Authorization: getAuth() } })
+    return data
+  }
   getGroupId () {
     if (!this.groupId) throw new Error('그룹을 생성하고 사용해주세요.')
     return this.groupId
