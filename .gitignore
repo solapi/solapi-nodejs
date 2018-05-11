@@ -1,11 +1,4 @@
-npm-debug.log
-.DS_Store
-node_modules/
 .vscode/
-public/
+node_modules/
 config.json
-log.txt
-out/
-*.swp
-.idea/
 package-lock.json
