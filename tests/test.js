@@ -187,7 +187,7 @@ describe('test', () => {
         data = err
       }
       expect(data.errorCode).equal('ValidationError')
-      expect(data.errorMessage).equal('child "body" fails because [child "message" fails because ["message" is required]')
+      expect(data.errorMessage).equal('child "body" fails because [child "message" fails because ["message" is required]]')
     })
   })
 })
