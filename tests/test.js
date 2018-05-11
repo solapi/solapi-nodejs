@@ -34,11 +34,6 @@ describe('test', () => {
       await group.createGroup()
       expect(group.getGroupId()).to.not.equal(undefined)
     })
-    it('그룹 생성 (그룹 아이디 확인)', async () => {
-      const group = new Group()
-      await group.createGroup()
-      expect(group.getGroupId()).to.not.equal(undefined)
-    })
     it('그룹 생성 (agent 확인)', async () => {
       const group = new Group({ appVersion: '1.0.0' })
       await group.createGroup()
@@ -89,18 +84,32 @@ describe('test', () => {
       expect(data.errorCount).to.equal(0)
       expect(await group.sendMessages()).to.deep.equal({})
     })
-    it('그룹 메시지 발송 (메시지가 없음)', async () => {
+    it('그룹 메시지 삭제 (정상)', async () => {
       const group = new Group()
       await group.createGroup()
+      const data = await group.deleteGroup()
+      expect(data.log[1].message).to.match(/삭제/)
+    })
+    it('그룹 메시지 삭제 (PENDING 이 아닌경우)', async () => {
+      const group = new Group()
+      await group.createGroup()
+      await group.addGroupMessage({
+        to: getPhoneNumber(),
+        from: getPhoneNumber(),
+        text: 'TEST'
+      })
+      expect(await group.sendMessages()).to.deep.equal({})
       let data = {}
       try {
-        await group.sendMessages()
+        await group.deleteGroup()
       } catch (err) {
         data = err
       }
       expect(data.errorCode).to.equal('ResourceNotFound')
       expect(data.errorMessage).to.equal('해당 그룹에 메시지가 존재하지 않습니다.')
     })
+  })
+  describe('message', () => {
     it('메시지 리스트 조회 (그룹 생성 전)', async () => {
       const group = new Group()
       let data = {}
@@ -112,6 +121,22 @@ describe('test', () => {
       expect(data.message).to.equal('그룹을 생성하고 사용해주세요.')
     })
     it('메시지 리스트 조회 (정상)', async () => {
+      const group = new Group()
+      await group.createGroup()
+      await group.addGroupMessage({
+        to: getPhoneNumber(),
+        from: getPhoneNumber(),
+        text: 'TEST'
+      })
+      await group.addGroupMessage({
+        to: getPhoneNumber(),
+        from: getPhoneNumber(),
+        text: 'TEST'
+      })
+      const data = await group.getMessageList()
+      expect(data).to.have.lengthOf(2)
+    })
+    it('메시지 조회 (정상)', async () => {
       const group = new Group()
       await group.createGroup()
       await group.addGroupMessage({
