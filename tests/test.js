@@ -87,7 +87,7 @@ describe('test', () => {
     it('그룹 삭제 (정상)', async () => {
       const group = new Group()
       await group.createGroup()
-      const data = await group.deleteGroup()
+      const data = await Group.deleteGroup(group)
       expect(data.log[1].message).to.match(/삭제/)
     })
     it('그룹 삭제 (PENDING 이 아닌경우)', async () => {
@@ -101,7 +101,7 @@ describe('test', () => {
       expect(await group.sendMessages()).to.deep.equal({})
       let data = {}
       try {
-        await group.deleteGroup()
+        await Group.deleteGroup(group)
       } catch (err) {
         data = err
       }

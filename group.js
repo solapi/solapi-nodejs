@@ -31,13 +31,14 @@ module.exports = class Group {
     const data = await asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/send`, { headers: { Authorization: getAuth() } })
     return data
   }
-  async deleteGroup () {
-    const data = await asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}`, { headers: { Authorization: getAuth() } })
-    return data
-  }
   async getMessageList (queryObject = { groupId: this.getGroupId() }) {
     const query = `?${qs.stringify(queryObject)}`
     const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/list${query}`, { headers: { Authorization: getAuth() } })
+    return data
+  }
+
+  static async deleteGroup (group) {
+    const data = await asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${group.getGroupId()}`, { headers: { Authorization: getAuth() } })
     return data
   }
   static async getInfo (group) {
