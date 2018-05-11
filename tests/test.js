@@ -124,6 +124,10 @@ describe('test', () => {
       }
       expect(data.message).to.equal('그룹을 생성하고 사용해주세요.')
     })
+    it('그릅 목록 조회 (성공)', async () => {
+      const groupList = await Group.getMyGroupList()
+      expect(groupList).to.have.all.keys('offset', 'limit', 'totalCount', 'groupList')
+    })
   })
   describe('message', () => {
     it('메시지 리스트 조회 (그룹 생성 전)', async () => {
