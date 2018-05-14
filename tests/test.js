@@ -137,7 +137,7 @@ describe('test', () => {
         text: 'TEST'
       })
       expect(data.errorCount).to.equal(0)
-      expect(await group.setScheduledDate(new Date(new Date(Date.now() + (1000 * 60 * 60 * 10)).toLocaleString()).toISOString().split('.')[0].replace('T', ' '))).to.deep.equal({})
+      expect(await group.setScheduledDate(new Date(Date.now() + (1000 * 60 * 60 * 10)).toISOString().split('.')[0].replace('T', ' '))).to.deep.equal({})
     })
     it('그릅 예약 (실패)', async () => {
       const group = new Group()
