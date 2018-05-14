@@ -35,12 +35,12 @@ describe('test', () => {
       expect(group.getGroupId()).to.not.equal(undefined)
     })
     it('그룹 생성 (agent 확인)', async () => {
-      const group = new Group({ appVersion: '1.0.0' })
+      const group = new Group({ agent: { appVersion: '1.0.0' } })
       await group.createGroup()
       expect(group.groupData.agent.appVersion).to.equal('1.0.0')
     })
     it('그룹 메시지 추가 (그룹 생성 전)', async () => {
-      const group = new Group({ appVersion: '1.0.0' })
+      const group = new Group({ agent: { appVersion: '1.0.0' } })
       try {
         await group.addGroupMessage()
       } catch (err) {
@@ -112,7 +112,7 @@ describe('test', () => {
       const group = new Group()
       await group.createGroup()
       const data = await Group.getInfo(group)
-      expect(data).to.have.all.keys('agent', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion')
+      expect(data).to.have.all.keys('agent', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'scheduledDate')
     })
     it('그릅 정보 조회 (생성 전)', async () => {
       const group = new Group()
@@ -127,6 +127,28 @@ describe('test', () => {
     it('그릅 목록 조회 (성공)', async () => {
       const groupList = await Group.getMyGroupList()
       expect(groupList).to.have.all.keys('offset', 'limit', 'totalCount', 'groupList')
+    })
+    it('그릅 예약 (성공)', async () => {
+      const group = new Group()
+      await group.createGroup()
+      const data = await group.addGroupMessage({
+        to: getPhoneNumber(),
+        from: getPhoneNumber(),
+        text: 'TEST'
+      })
+      expect(data.errorCount).to.equal(0)
+      expect(await group.setScheduledDate(new Date(new Date(Date.now() + (1000 * 60 * 60 * 10)).toLocaleString()).toISOString().split('.')[0].replace('T', ' '))).to.deep.equal({})
+    })
+    it('그릅 예약 (실패)', async () => {
+      const group = new Group()
+      await group.createGroup()
+      let data
+      try {
+        await group.setScheduledDate()
+      } catch (err) {
+        data = err
+      }
+      expect(data).to.have.all.keys('errorCode', 'errorMessage')
     })
   })
   describe('message', () => {
