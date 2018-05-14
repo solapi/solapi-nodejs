@@ -105,8 +105,8 @@ describe('test', () => {
       } catch (err) {
         data = err
       }
-      expect(data.errorCode).to.equal('ResourceNotFound')
-      expect(data.errorMessage).to.equal('해당 그룹에 메시지가 존재하지 않습니다.')
+      expect(data.errorCode).to.equal('NotOperationalStatus')
+      expect(data.errorMessage).to.equal('PENDING 상태의 그룹만 삭제할 수 있습니다. 현재 상태는 SENDING 입니다.')
     })
     it('그릅 정보 조회 (정상)', async () => {
       const group = new Group()
@@ -173,11 +173,11 @@ describe('test', () => {
       expect(data).to.have.lengthOf(2)
     })
     it('심플 메시지 (정상)', async () => {
-      console.log(await Group.sendSimpleMessage({
+      expect(await Group.sendSimpleMessage({
         to: getPhoneNumber(),
         from: getPhoneNumber(),
         text: 'TEST'
-      }))
+      })).to.have.all.keys('groupId', 'to', 'from', 'type', 'statusMessage', 'messageId', 'statusCode')
     })
     it('심플 메시지 (에러)', async () => {
       let data
