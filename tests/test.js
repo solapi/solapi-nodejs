@@ -87,7 +87,7 @@ describe('test', () => {
     it('그룹 삭제 (정상)', async () => {
       const group = new Group()
       await group.createGroup()
-      const data = await Group.deleteGroup(group)
+      const data = await Group.deleteGroup(group.getGroupId())
       expect(data.log[1].message).to.match(/삭제/)
     })
     it('그룹 삭제 (PENDING 이 아닌경우)', async () => {
@@ -101,7 +101,7 @@ describe('test', () => {
       expect(await group.sendMessages()).to.deep.equal({})
       let data = {}
       try {
-        await Group.deleteGroup(group)
+        await Group.deleteGroup(group.getGroupId())
       } catch (err) {
         data = err
       }
@@ -111,14 +111,14 @@ describe('test', () => {
     it('그릅 정보 조회 (정상)', async () => {
       const group = new Group()
       await group.createGroup()
-      const data = await Group.getInfo(group)
+      const data = await Group.getInfo(group.getGroupId())
       expect(data).to.have.all.keys('agent', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'scheduledDate')
     })
     it('그릅 정보 조회 (생성 전)', async () => {
       const group = new Group()
       let data = {}
       try {
-        await Group.getInfo(group)
+        await Group.getInfo(group.getGroupId())
       } catch (err) {
         data = err
       }
