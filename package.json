@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "node ./node_modules/standard/bin/cmd.js",
-    "test": "export NODE_ENV=test && npm run lint && ./node_modules/mocha/bin/mocha ./tests/**/*.js --require mocha-clean --reporter=mocha-better-spec-reporter --exit"
+    "test": "export API_KEY=$API_KEY && export API_SECRET=$API_SECRET && export NODE_ENV=test && npm run lint && ./node_modules/mocha/bin/mocha ./tests/**/*.js --require mocha-clean --reporter=mocha-better-spec-reporter --exit"
   },
   "repository": {
     "type": "git",
