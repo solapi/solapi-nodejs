@@ -4,7 +4,8 @@ node_js:
 install:
 - npm install
 script:
-- npm test
+  - export API_KEY=${API_KEY} && export API_SECRET=${API_SECRET} && export PHONE_NUMBER=${PHONE_NUMBER}
+  - npm test
 env:
   global:
   - secure: i7pKzANm6FDzlVIaiqOjMzopPhoW+RfdixNZq/dmold4owEBmPfSVbDSIERg3NYSYB+iIt9o1renXO1LjpBt2Rs/1iqPcJ3m2CzhG50hSZkh/DANy44pKO7hVnVgtX2e4V2iOwr3Fe9e6T/BELcISancK6IvuKjTqorRpFYs+L8d1Su/s0uRSYTnRoUrEWggg+5EIQcPWrie2FoVD3atIudlfkuHXyrMrYPpHjqUzk8CsJLp8Jd8QYHTuT/G1pWWtuqM+LINrIEVRbooGVv/oHu02DNc9Ml0EykImX6ZzbvFFvgG5LnRs52j4m37NUY1btAAIgPHanSNhnUM+gYAp+asCxlfy9cj5Kz+A9oUpJ901U9w+Pd8g6xQLQrShfZBFlan9cKeYT9RL9SXQk665gHWbL6mTyfXnFzbmihYSK9qGldxJ2dl7JvjLMfw4ofwW2A8RZ7Y/X9kIP4MhFo+yrpXf/kTifBhtz7SvZhkUPMdH9sUGNWzvSTgn78KzXqTdd6Bj3pRD1APLRcFWFGcXRrWoJQsdC1mvTwyf44Pj3xMmD9lj1aZd7N/FAR90/+NbqBVDzo0D3i+XUCzUTGIKx68NgjBEkSOSy/1kUgQw9TFcUzxwN6sNfw5QiSSPdkQHmRWrkGhY1++wm9yTK7gNkvNwfxGNr/SjRtZM/P41RA=
