@@ -4,8 +4,8 @@
   "description": "Javascript 용 COOLSMS SDK Version 4",
   "main": "index.js",
   "scripts": {
-    "lint": "node ./node_modules/standard/bin/cmd.js ./**/*.js",
-    "test": "export NODE_ENV=test && npm run lint && ./node_modules/mocha/bin/mocha ./tests/**/*.js --require mocha-clean --reporter=mocha-better-spec-reporter --exit"
+    "lint": "node ./node_modules/standard/bin/cmd.js",
+    "test": "export API_KEY=$API_KEY && export API_SECRET=$API_SECRET && export NODE_ENV=test && npm run lint && ./node_modules/mocha/bin/mocha ./tests/**/*.js --require mocha-clean --reporter=mocha-better-spec-reporter --exit"
   },
   "repository": {
     "type": "git",
@@ -18,8 +18,17 @@
     "url": "https://github.com/coolsms/coolsms-sdk-js-v4/issues"
   },
   "homepage": "https://github.com/coolsms/coolsms-sdk-js-v4#readme",
-  "dependencies": {},
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "fs": "0.0.1-security",
+    "moment": "^2.22.1",
+    "path": "^0.12.7",
+    "qs": "^6.5.2",
+    "request": "^2.85.0",
+    "uniqid": "^4.1.1"
+  },
   "devDependencies": {
+    "chai": "^4.1.2",
     "mocha": "^5.0.5",
     "mocha-better-spec-reporter": "^3.1.0",
     "mocha-clean": "^1.0.0",
