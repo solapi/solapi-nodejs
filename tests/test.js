@@ -34,15 +34,32 @@ describe('test', () => {
       await group.createGroup()
       expect(group.getGroupId()).to.not.equal(undefined)
     })
-    it('그룹 생성 (agent 확인)', async () => {
-      const group = new Group({ agent: { appVersion: '1.0.0' } })
-      await group.createGroup()
-      expect(group.groupData.agent.appVersion).to.equal('1.0.0')
-    })
-    it('그룹 메시지 추가 (그룹 생성 전)', async () => {
-      const group = new Group({ agent: { appVersion: '1.0.0' } })
+    it('그룹 메시지 추가 (none message)', async () => {
+      const group = new Group()
       try {
         await group.addGroupMessage()
+      } catch (err) {
+        expect(err.message).to.equal('message 는 객체여야 합니다.')
+        group.err = err
+      }
+      expect(group.err).to.not.equal(undefined)
+    })
+    it('그룹 메시지 추가 (none autoDetectType and type)', async () => {
+      const group = new Group()
+      try {
+        await group.addGroupMessage({})
+      } catch (err) {
+        expect(err.message).to.equal('autoDetectType 또는 type 을 입력해주세요.')
+        group.err = err
+      }
+      expect(group.err).to.not.equal(undefined)
+    })
+    it('그룹 메시지 추가 (그룹 생성 전)', async () => {
+      const group = new Group()
+      try {
+        await group.addGroupMessage({
+          type: 'SMS'
+        })
       } catch (err) {
         expect(err.message).to.equal('그룹을 생성하고 사용해주세요.')
         group.err = err
@@ -55,11 +72,13 @@ describe('test', () => {
       const data = await group.addGroupMessage([{
         to: '01000000000',
         from: '01000000000',
-        text: 'TEST'
+        text: 'TEST',
+        type: 'SMS'
       }, {
         to: '01000000000',
         from: '01000000000',
-        text: 'TEST'
+        text: 'TEST',
+        type: 'SMS'
       }])
       expect(data.errorCount).to.equal(2)
     })
@@ -69,20 +88,24 @@ describe('test', () => {
       const data = await group.addGroupMessage({
         to: '01000000000',
         from: '01000000000',
-        text: 'TEST'
+        text: 'TEST',
+        type: 'SMS'
       })
       expect(data.errorCount).to.equal(1)
     })
+    let tempGroup
     it('그룹 메시지 발송 (성공)', async () => {
       const group = new Group()
+      tempGroup = group
       await group.createGroup()
       const data = await group.addGroupMessage({
         to: getPhoneNumber(),
         from: getPhoneNumber(),
-        text: 'TEST'
+        text: 'TEST',
+        type: 'SMS'
       })
       expect(data.errorCount).to.equal(0)
-      expect(await group.sendMessages()).to.deep.equal({})
+      expect(await group.sendMessages()).to.equal('Success')
     })
     it('그룹 삭제 (정상)', async () => {
       const group = new Group()
@@ -91,17 +114,9 @@ describe('test', () => {
       expect(data.log[1].message).to.match(/삭제/)
     })
     it('그룹 삭제 (PENDING 이 아닌경우)', async () => {
-      const group = new Group()
-      await group.createGroup()
-      await group.addGroupMessage({
-        to: getPhoneNumber(),
-        from: getPhoneNumber(),
-        text: 'TEST'
-      })
-      expect(await group.sendMessages()).to.deep.equal({})
       let data = {}
       try {
-        await Group.deleteGroup(group.getGroupId())
+        await Group.deleteGroup(tempGroup.getGroupId())
       } catch (err) {
         data = err
       }
@@ -112,7 +127,7 @@ describe('test', () => {
       const group = new Group()
       await group.createGroup()
       const data = await Group.getInfo(group.getGroupId())
-      expect(data).to.have.all.keys('agent', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'scheduledDate')
+      expect(data).to.have.all.keys('app', 'balance', 'countForCharge', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'price', 'sdkVersion', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'scheduledDate')
     })
     it('그릅 정보 조회 (생성 전)', async () => {
       const group = new Group()
@@ -126,7 +141,7 @@ describe('test', () => {
     })
     it('그릅 목록 조회 (성공)', async () => {
       const groupList = await Group.getMyGroupList()
-      expect(groupList).to.have.all.keys('offset', 'limit', 'totalCount', 'groupList')
+      expect(groupList).to.have.all.keys('offset', 'limit', 'groupList', 'hasNext')
     })
     it('그릅 예약 (성공)', async () => {
       const group = new Group()
@@ -134,7 +149,8 @@ describe('test', () => {
       const data = await group.addGroupMessage({
         to: getPhoneNumber(),
         from: getPhoneNumber(),
-        text: 'TEST'
+        text: 'TEST',
+        type: 'SMS'
       })
       expect(data.errorCount).to.equal(0)
       expect(await group.setScheduledDate(new Date(Date.now() + (1000 * 60 * 60 * 10)).toISOString().split('.')[0].replace('T', ' '))).to.deep.equal({})
@@ -168,48 +184,25 @@ describe('test', () => {
       await group.addGroupMessage({
         to: getPhoneNumber(),
         from: getPhoneNumber(),
-        text: 'TEST'
+        text: 'TEST',
+        type: 'SMS'
       })
       await group.addGroupMessage({
         to: getPhoneNumber(),
         from: getPhoneNumber(),
-        text: 'TEST'
+        text: 'TEST',
+        type: 'SMS'
       })
       const data = await group.getMessageList()
-      expect(data).to.have.lengthOf(2)
-    })
-    it('메시지 조회 (정상)', async () => {
-      const group = new Group()
-      await group.createGroup()
-      await group.addGroupMessage({
-        to: getPhoneNumber(),
-        from: getPhoneNumber(),
-        text: 'TEST'
-      })
-      await group.addGroupMessage({
-        to: getPhoneNumber(),
-        from: getPhoneNumber(),
-        text: 'TEST'
-      })
-      const data = await group.getMessageList()
-      expect(data).to.have.lengthOf(2)
+      expect(Object.keys(data.messageList)).to.have.lengthOf(2)
     })
     it('심플 메시지 (정상)', async () => {
       expect(await Group.sendSimpleMessage({
         to: getPhoneNumber(),
         from: getPhoneNumber(),
-        text: 'TEST'
-      })).to.have.all.keys('groupId', 'to', 'from', 'type', 'statusMessage', 'messageId', 'statusCode')
-    })
-    it('심플 메시지 (에러)', async () => {
-      let data
-      try {
-        await Group.sendSimpleMessage()
-      } catch (err) {
-        data = err
-      }
-      expect(data.errorCode).equal('ValidationError')
-      expect(data.errorMessage).equal('child "body" fails because [child "message" fails because ["message" is required]]')
+        text: 'TEST',
+        type: 'SMS'
+      })).to.have.all.keys('groupId', 'to', 'from', 'type', 'statusMessage', 'messageId', 'statusCode', 'accountId', 'country')
     })
   })
 })
