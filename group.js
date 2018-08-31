@@ -59,6 +59,10 @@ module.exports = class Group {
    */
   async addGroupMessage (messages) {
     if (!Array.isArray(messages)) messages = [messages]
+    messages.forEach(message => {
+      if (typeof message !== 'object') throw new Error('message 는 객체여야 합니다.')
+      if (!message.autoDetectType && !message.type) throw new Error('autoDetectType 또는 type 을 입력해주세요.')
+    })
     messages = JSON.stringify(messages)
     const data = await asyncRequest('put', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() }, form: { messages } })
     return data
@@ -87,7 +91,20 @@ module.exports = class Group {
    * })
    */
   async getMessageList (queryObject = { groupId: this.getGroupId() }) {
-    const query = `?${qs.stringify(queryObject)}`
+    const obj = {
+      criteria: [],
+      value: [],
+      cond: []
+    }
+    Object.keys(queryObject).forEach(key => {
+      obj.criteria.push(key)
+      obj.value.push(queryObject[key])
+      obj.cond.push('eq')
+    })
+    obj.criteria = obj.criteria.join(',')
+    obj.value = obj.value.join(',')
+    obj.cond = obj.cond.join(',')
+    const query = `?${qs.stringify(obj)}`
     const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/list${query}`, { headers: { Authorization: getAuth() } })
     return data
   }
@@ -102,7 +119,7 @@ module.exports = class Group {
    * })
    */
   async setScheduledDate (scheduledDate) {
-    const data = await asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/scheduled`, { headers: { Authorization: getAuth() }, form: { scheduledDate } })
+    const data = await asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() }, form: { scheduledDate } })
     return data
   }
 
@@ -167,6 +184,8 @@ module.exports = class Group {
    * })
    */
   static async sendSimpleMessage (message = {}, agent = {}) {
+    if (typeof message !== 'object') throw new Error('message 는 객체여야 합니다.')
+    if (!message.autoDetectType && !message.type) throw new Error('autoDetectType 또는 type 을 입력해주세요.')
     const data = await asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/send`, { headers: { Authorization: getAuth() }, form: { message, agent } })
     return data
   }
