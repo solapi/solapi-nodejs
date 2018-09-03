@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "node ./node_modules/standard/bin/cmd.js",
-    "test": "export NODE_ENV=test && npm run lint && ./node_modules/mocha/bin/mocha ./tests/**/*.js --require mocha-clean --reporter=mocha-better-spec-reporter --exit"
+    "test": "export NODE_ENV=test && npm run lint && ./node_modules/mocha/bin/mocha ./tests/**/*.js --require mocha-clean --reporter=mocha-better-spec-reporter --timeout=10000 --exit"
   },
   "repository": {
     "type": "git",
