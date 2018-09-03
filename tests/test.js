@@ -7,7 +7,7 @@
 
 const { expect } = require('chai')
 const { group: Group } = require('../')
-const { getAuth, getPhoneNumber } = require('../config')
+const { getAuth, getTo, getFrom } = require('../config')
 
 describe('test', () => {
   describe('config', () => {
@@ -99,8 +99,8 @@ describe('test', () => {
       tempGroup = group
       await group.createGroup()
       const data = await group.addGroupMessage({
-        to: getPhoneNumber(),
-        from: getPhoneNumber(),
+        to: getTo(),
+        from: getFrom(),
         text: 'TEST',
         type: 'SMS'
       })
@@ -147,8 +147,8 @@ describe('test', () => {
       const group = new Group()
       await group.createGroup()
       const data = await group.addGroupMessage({
-        to: getPhoneNumber(),
-        from: getPhoneNumber(),
+        to: getTo(),
+        from: getFrom(),
         text: 'TEST',
         type: 'SMS'
       })
@@ -182,14 +182,14 @@ describe('test', () => {
       const group = new Group()
       await group.createGroup()
       await group.addGroupMessage({
-        to: getPhoneNumber(),
-        from: getPhoneNumber(),
+        to: getTo(),
+        from: getFrom(),
         text: 'TEST',
         type: 'SMS'
       })
       await group.addGroupMessage({
-        to: getPhoneNumber(),
-        from: getPhoneNumber(),
+        to: getTo(),
+        from: getFrom(),
         text: 'TEST',
         type: 'SMS'
       })
@@ -198,8 +198,8 @@ describe('test', () => {
     })
     it('심플 메시지 (정상)', async () => {
       expect(await Group.sendSimpleMessage({
-        to: getPhoneNumber(),
-        from: getPhoneNumber(),
+        to: getTo(),
+        from: getFrom(),
         text: 'TEST',
         type: 'SMS'
       })).to.have.all.keys('groupId', 'to', 'from', 'type', 'statusMessage', 'messageId', 'statusCode', 'accountId', 'country')
