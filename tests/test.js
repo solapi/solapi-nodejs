@@ -44,12 +44,12 @@ describe('test', () => {
       }
       expect(group.err).to.not.equal(undefined)
     })
-    it('그룹 메시지 추가 (none autoDetectType and type)', async () => {
+    it('그룹 메시지 추가 (none autoTypeDetect and type)', async () => {
       const group = new Group()
       try {
         await group.addGroupMessage({})
       } catch (err) {
-        expect(err.message).to.equal('autoDetectType 또는 type 을 입력해주세요.')
+        expect(err.message).to.equal('autoTypeDetect 또는 type 을 입력해주세요.')
         group.err = err
       }
       expect(group.err).to.not.equal(undefined)
