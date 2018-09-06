@@ -61,7 +61,7 @@ module.exports = class Group {
     if (!Array.isArray(messages)) messages = [messages]
     messages.forEach(message => {
       if (typeof message !== 'object') throw new Error('message 는 객체여야 합니다.')
-      if (!message.autoDetectType && !message.type) throw new Error('autoDetectType 또는 type 을 입력해주세요.')
+      if (!message.autoTypeDetect && !message.type) throw new Error('autoTypeDetect 또는 type 을 입력해주세요.')
     })
     messages = JSON.stringify(messages)
     const data = await asyncRequest('put', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() }, form: { messages } })
@@ -185,7 +185,7 @@ module.exports = class Group {
    */
   static async sendSimpleMessage (message = {}, agent = {}) {
     if (typeof message !== 'object') throw new Error('message 는 객체여야 합니다.')
-    if (!message.autoDetectType && !message.type) throw new Error('autoDetectType 또는 type 을 입력해주세요.')
+    if (!message.autoTypeDetect && !message.type) throw new Error('autoTypeDetect 또는 type 을 입력해주세요.')
     const data = await asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/send`, { headers: { Authorization: getAuth() }, form: { message, agent } })
     return data
   }
