@@ -92,8 +92,12 @@ module.exports = class Group {
     const obj = {
       criteria: [],
       value: [],
-      cond: []
+      cond: [],
+      offset: queryObject.offset || 0,
+      limit: queryObject.limit || 20
     }
+    delete queryObject.offset
+    delete queryObject.limit
     Object.keys(queryObject).forEach(key => {
       obj.criteria.push(key)
       obj.value.push(queryObject[key])
@@ -117,6 +121,9 @@ module.exports = class Group {
    */
   setScheduledDate (scheduledDate) {
     return asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() }, form: { scheduledDate } })
+  }
+  cancelScheduled (scheduledDate) {
+    return asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() } })
   }
 
   /**
@@ -155,8 +162,9 @@ module.exports = class Group {
    *  console.log(body)
    * })
    */
-  static async getMyGroupList () {
-    return asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups`, { headers: { Authorization: getAuth() } })
+  static async getMyGroupList (query) {
+    query = qs.stringify(query)
+    return asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups?${query}`, { headers: { Authorization: getAuth() } })
   }
 
   /**
