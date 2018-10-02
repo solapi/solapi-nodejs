@@ -121,15 +121,15 @@ describe('test', () => {
         data = err
       }
       expect(data.errorCode).to.equal('NotOperationalStatus')
-      expect(data.errorMessage).to.equal('PENDING 상태의 그룹만 삭제할 수 있습니다. 현재 상태는 COMPLETE 입니다.')
+      expect(data.errorMessage).to.equal('PENDING 상태의 그룹만 삭제할 수 있습니다. 현재 상태는 SENDING 입니다.')
     })
-    it('그릅 정보 조회 (정상)', async () => {
+    it('그룹 정보 조회 (정상)', async () => {
       const group = new Group()
       await group.createGroup()
       const data = await Group.getInfo(group.getGroupId())
-      expect(data).to.have.all.keys('app', 'balance', 'countForCharge', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'price', 'sdkVersion', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'scheduledDate')
+      expect(data).to.have.all.keys('app', 'balance', 'countForCharge', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'price', 'sdkVersion', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'scheduledDate', 'flagUpdated')
     })
-    it('그릅 정보 조회 (생성 전)', async () => {
+    it('그룹 정보 조회 (생성 전)', async () => {
       const group = new Group()
       let data = {}
       try {
@@ -139,11 +139,11 @@ describe('test', () => {
       }
       expect(data.message).to.equal('그룹을 생성하고 사용해주세요.')
     })
-    it('그릅 목록 조회 (성공)', async () => {
+    it('그룹 목록 조회 (성공)', async () => {
       const groupList = await Group.getMyGroupList()
       expect(groupList).to.have.all.keys('offset', 'limit', 'groupList', 'hasNext')
     })
-    it('그릅 예약 (성공)', async () => {
+    it('그룹 예약 (성공)', async () => {
       const group = new Group()
       tempGroup = group
       await group.createGroup()
@@ -154,13 +154,15 @@ describe('test', () => {
         type: 'SMS'
       })
       expect(data.errorCount).to.equal(0)
-      expect(await group.setScheduledDate(new Date(Date.now() + (1000 * 60 * 60 * 10)).toISOString().split('.')[0].replace('T', ' '))).to.deep.equal({})
+      const date = new Date(Date.now() + (1000 * 60 * 60 * 10)).toISOString()
+      const result = await group.setScheduledDate(date)
+      expect(result).to.equals('Success')
     })
-    it('그릅 예약 취소 (성공)', async () => {
+    it('그룹 예약 취소 (성공)', async () => {
       const data = await tempGroup.cancelScheduled()
       expect(data).to.deep.equal({})
     })
-    it('그릅 예약 (실패)', async () => {
+    it('그룹 예약 (실패)', async () => {
       const group = new Group()
       await group.createGroup()
       let data
