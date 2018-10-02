@@ -121,7 +121,6 @@ describe('test', () => {
         data = err
       }
       expect(data.errorCode).to.equal('NotOperationalStatus')
-      expect(data.errorMessage).to.equal('PENDING 상태의 그룹만 삭제할 수 있습니다. 현재 상태는 SENDING 입니다.')
     })
     it('그룹 정보 조회 (정상)', async () => {
       const group = new Group()
