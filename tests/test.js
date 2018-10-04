@@ -201,7 +201,7 @@ describe('test', () => {
       })
       const data = await group.getMessageList()
       expect(Object.keys(data.messageList)).to.have.lengthOf(2)
-    })
+    }).timeout(20000)
     it('심플 메시지 (정상)', async () => {
       expect(await Group.sendSimpleMessage({
         to: getTo(),
