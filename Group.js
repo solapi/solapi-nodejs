@@ -57,11 +57,14 @@ module.exports = class Group {
    *  console.log(body)
    * })
    */
-  async addGroupMessage (messages) {
+  addGroupMessage (messages) {
     if (!Array.isArray(messages)) messages = [messages]
+    messages.forEach(message => {
+      if (typeof message !== 'object') throw new Error('message 는 객체여야 합니다.')
+      if (!message.autoTypeDetect && !message.type) throw new Error('autoTypeDetect 또는 type 을 입력해주세요.')
+    })
     messages = JSON.stringify(messages)
-    const data = await asyncRequest('put', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() }, form: { messages } })
-    return data
+    return asyncRequest('put', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() }, form: { messages } })
   }
   /**
    * 추가된 메시지들을 발송 요청합니다.
@@ -72,9 +75,8 @@ module.exports = class Group {
    *  console.log(body)
    * })
    */
-  async sendMessages () {
-    const data = await asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/send`, { headers: { Authorization: getAuth() } })
-    return data
+  sendMessages () {
+    return asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/send`, { headers: { Authorization: getAuth() } })
   }
   /**
    * 그룹에 추가된 메시지들을 불러옵니다.
@@ -86,10 +88,26 @@ module.exports = class Group {
    *  console.log(body)
    * })
    */
-  async getMessageList (queryObject = { groupId: this.getGroupId() }) {
-    const query = `?${qs.stringify(queryObject)}`
-    const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/list${query}`, { headers: { Authorization: getAuth() } })
-    return data
+  getMessageList (queryObject = { groupId: this.getGroupId() }) {
+    const obj = {
+      criteria: [],
+      value: [],
+      cond: [],
+      offset: queryObject.offset || 0,
+      limit: queryObject.limit || 20
+    }
+    delete queryObject.offset
+    delete queryObject.limit
+    Object.keys(queryObject).forEach(key => {
+      obj.criteria.push(key)
+      obj.value.push(queryObject[key])
+      obj.cond.push('eq')
+    })
+    obj.criteria = obj.criteria.join(',')
+    obj.value = obj.value.join(',')
+    obj.cond = obj.cond.join(',')
+    const query = `?${qs.stringify(obj)}`
+    return asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/list${query}`, { headers: { Authorization: getAuth() } })
   }
   /**
    * 그룹에 추가된 메시지들을 예약 발송 요청합니다.
@@ -101,9 +119,11 @@ module.exports = class Group {
    *  console.log(body)
    * })
    */
-  async setScheduledDate (scheduledDate) {
-    const data = await asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/scheduled`, { headers: { Authorization: getAuth() }, form: { scheduledDate } })
-    return data
+  setScheduledDate (scheduledDate) {
+    return asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() }, form: { scheduledDate } })
+  }
+  cancelScheduled (scheduledDate) {
+    return asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() } })
   }
 
   /**
@@ -116,9 +136,8 @@ module.exports = class Group {
    *  console.log(body)
    * })
    */
-  static async deleteGroup (groupId) {
-    const data = await asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${groupId}`, { headers: { Authorization: getAuth() } })
-    return data
+  static deleteGroup (groupId) {
+    return asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${groupId}`, { headers: { Authorization: getAuth() } })
   }
   /**
    * 그룹의 정보를 조회합니다.
@@ -131,8 +150,7 @@ module.exports = class Group {
    * })
    */
   static async getInfo (groupId) {
-    const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups/${groupId}`, { headers: { Authorization: getAuth() } })
-    return data
+    return asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups/${groupId}`, { headers: { Authorization: getAuth() } })
   }
 
   /**
@@ -144,9 +162,9 @@ module.exports = class Group {
    *  console.log(body)
    * })
    */
-  static async getMyGroupList () {
-    const data = await asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups`, { headers: { Authorization: getAuth() } })
-    return data
+  static async getMyGroupList (query) {
+    query = qs.stringify(query)
+    return asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups?${query}`, { headers: { Authorization: getAuth() } })
   }
 
   /**
@@ -166,9 +184,10 @@ module.exports = class Group {
     * console.log(body)
    * })
    */
-  static async sendSimpleMessage (message = {}, agent = {}) {
-    const data = await asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/send`, { headers: { Authorization: getAuth() }, form: { message, agent } })
-    return data
+  static sendSimpleMessage (message = {}, agent = {}) {
+    if (typeof message !== 'object') throw new Error('message 는 객체여야 합니다.')
+    if (!message.autoTypeDetect && !message.type) throw new Error('autoTypeDetect 또는 type 을 입력해주세요.')
+    return asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/send`, { headers: { Authorization: getAuth() }, form: { message, agent } })
   }
   getGroupId () {
     if (!this.groupId) throw new Error('그룹을 생성하고 사용해주세요.')
