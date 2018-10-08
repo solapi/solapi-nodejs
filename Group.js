@@ -122,7 +122,7 @@ module.exports = class Group {
   setScheduledDate (scheduledDate) {
     return asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() }, form: { scheduledDate } })
   }
-  cancelScheduled (scheduledDate) {
+  cancelScheduled () {
     return asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() } })
   }
 
@@ -165,6 +165,13 @@ module.exports = class Group {
   static async getMyGroupList (query) {
     query = qs.stringify(query)
     return asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups?${query}`, { headers: { Authorization: getAuth() } })
+  }
+
+  /**
+   * 등록된 그룹의 메시지를 삭제합니다
+   */
+  static async deleteGroupMessages () {
+    return asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() } })
   }
 
   /**
