@@ -140,6 +140,7 @@ describe('test', () => {
     })
     it('그룹 목록 조회 (성공)', async () => {
       const groupList = await Group.getMyGroupList()
+      console.log('groupList: ', groupList)
       expect(groupList).to.have.all.keys('startKey', 'limit', 'groupList', 'nextKey')
     })
     it('그룹 예약 (성공)', async () => {
