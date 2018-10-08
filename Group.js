@@ -81,7 +81,7 @@ module.exports = class Group {
   /**
    * 그룹에 추가된 메시지들을 불러옵니다.
    *
-   * @param {object} queryObject - 그룹에 추가된 메시지들을 불러옵니다. offset, limit 의 값이 들어갈 수 있습니다.
+   * @param {object} queryObject - 그룹에 추가된 메시지들을 불러옵니다. startKey, limit 의 값이 들어갈 수 있습니다.
    * @example
    * // return promise object
    * group.getMessageList().then(body => {
@@ -93,10 +93,10 @@ module.exports = class Group {
       criteria: [],
       value: [],
       cond: [],
-      offset: queryObject.offset || 0,
+      startKey: queryObject.startKey || undefined,
       limit: queryObject.limit || 20
     }
-    delete queryObject.offset
+    delete queryObject.startKey
     delete queryObject.limit
     Object.keys(queryObject).forEach(key => {
       obj.criteria.push(key)
