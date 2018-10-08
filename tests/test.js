@@ -80,7 +80,7 @@ describe('test', () => {
         text: 'TEST',
         type: 'SMS'
       }])
-      expect(data.errorCount).to.equal(1)
+      expect(data.errorCount).to.equal(2)
     })
     it('그룹 메시지 추가 (오브젝트로)', async () => {
       const group = new Group()
@@ -104,7 +104,7 @@ describe('test', () => {
         text: 'TEST',
         type: 'SMS'
       })
-      expect(data.errorCount).to.equal(2)
+      expect(data.errorCount).to.equal(0)
       expect(await group.sendMessages()).to.equal('Success')
     })
     it('그룹 삭제 (정상)', async () => {
@@ -140,7 +140,6 @@ describe('test', () => {
     })
     it('그룹 목록 조회 (성공)', async () => {
       const groupList = await Group.getMyGroupList()
-      console.log('groupList: ', groupList)
       expect(groupList).to.have.all.keys('startKey', 'limit', 'groupList', 'nextKey')
     })
     it('그룹 예약 (성공)', async () => {
