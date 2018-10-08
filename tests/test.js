@@ -91,7 +91,7 @@ describe('test', () => {
         text: 'TEST',
         type: 'SMS'
       })
-      expect(data.errorCount).to.equal(0)
+      expect(data.errorCount).to.equal(1)
     })
     let tempGroup
     it('그룹 메시지 발송 (성공)', async () => {
@@ -104,7 +104,7 @@ describe('test', () => {
         text: 'TEST',
         type: 'SMS'
       })
-      expect(data.errorCount).to.equal(0)
+      expect(data.errorCount).to.equal(2)
       expect(await group.sendMessages()).to.equal('Success')
     })
     it('그룹 삭제 (정상)', async () => {
