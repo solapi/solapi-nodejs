@@ -80,7 +80,7 @@ describe('test', () => {
         text: 'TEST',
         type: 'SMS'
       }])
-      expect(data.errorCount).to.equal(2)
+      expect(data.errorCount).to.equal(1)
     })
     it('그룹 메시지 추가 (오브젝트로)', async () => {
       const group = new Group()
@@ -91,7 +91,7 @@ describe('test', () => {
         text: 'TEST',
         type: 'SMS'
       })
-      expect(data.errorCount).to.equal(1)
+      expect(data.errorCount).to.equal(0)
     })
     let tempGroup
     it('그룹 메시지 발송 (성공)', async () => {
@@ -140,7 +140,7 @@ describe('test', () => {
     })
     it('그룹 목록 조회 (성공)', async () => {
       const groupList = await Group.getMyGroupList()
-      expect(groupList).to.have.all.keys('offset', 'limit', 'groupList', 'hasNext')
+      expect(groupList).to.have.all.keys('startKey', 'limit', 'groupList', 'nextKey')
     })
     it('그룹 예약 (성공)', async () => {
       const group = new Group()
