@@ -1,4 +1,4 @@
-const moment = require('moment-timezone')
+const moment = require('moment')
 const { config, Group } = require('../')
 config.init({
   apiKey: 'ENTER API_KEY',
@@ -15,7 +15,7 @@ async function send (message) {
     const group = new Group()
     await group.createGroup()
     await group.addGroupMessage(message)
-    const scheduledDate = moment().tz('Asia/Seoul').add(1, 'days').format('YYYY-MM-DD H:m:s')
+    const scheduledDate = moment().add(1, 'days').toISOString()
     await group.setScheduledDate(scheduledDate)
   } catch (e) {
     console.log(e)
