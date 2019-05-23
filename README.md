@@ -1,4 +1,4 @@
-# CoolSMS SDK for Javascript
+# SOLAPI SDK for Javascript
 You can send text messages, Kakaotalk in Korea using this package.
 
 ## Installing
@@ -17,7 +17,7 @@ config.init({
   apiSecret: 'ENTER API_SECRET'
 })
 send({
-  text: 'Hello CoolSMS',
+  text: 'Hello SOLAPI',
   to: 'Receiver Number',
   from: 'Sender Number'
 })
