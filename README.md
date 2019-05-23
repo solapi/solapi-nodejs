@@ -5,13 +5,13 @@ You can send text messages, Kakaotalk in Korea using this package.
 To use the SDK, simply use npm package manager CLI. Type the following into a terminal window.
 
 ```bash
-npm install solapi-sdk-v4
+npm install solapi
 ```
 
 ## Usage
 
 ```javascript
-const { config, Group } = require('solapi-sdk-v4')
+const { config, Group } = require('solapi')
 config.init({
   apiKey: 'ENTER API_KEY',
   apiSecret: 'ENTER API_SECRET'
