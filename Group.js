@@ -29,7 +29,7 @@ module.exports = class Group {
    */
   async createGroup () {
     if (this.groupId) return
-    this.groupData = await asyncRequest('post', 'https://rest.coolsms.co.kr/messages/v4/groups', { headers: { Authorization: getAuth() }, form: this.agent })
+    this.groupData = await asyncRequest('post', 'https://api.solapi.com/messages/v4/groups', { headers: { Authorization: getAuth() }, form: this.agent })
     this.groupId = this.groupData.groupId
   }
   /**
@@ -64,7 +64,7 @@ module.exports = class Group {
       if (!message.autoTypeDetect && !message.type) throw new Error('autoTypeDetect 또는 type 을 입력해주세요.')
     })
     messages = JSON.stringify(messages)
-    return asyncRequest('put', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() }, form: { messages } })
+    return asyncRequest('put', `https://api.solapi.com/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() }, form: { messages } })
   }
   /**
    * 추가된 메시지들을 발송 요청합니다.
@@ -76,7 +76,7 @@ module.exports = class Group {
    * })
    */
   sendMessages () {
-    return asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/send`, { headers: { Authorization: getAuth() } })
+    return asyncRequest('post', `https://api.solapi.com/messages/v4/groups/${this.getGroupId()}/send`, { headers: { Authorization: getAuth() } })
   }
   /**
    * 그룹에 추가된 메시지들을 불러옵니다.
@@ -107,7 +107,7 @@ module.exports = class Group {
     obj.value = obj.value.join(',')
     obj.cond = obj.cond.join(',')
     const query = `?${qs.stringify(obj)}`
-    return asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/list${query}`, { headers: { Authorization: getAuth() } })
+    return asyncRequest('get', `https://api.solapi.com/messages/v4/list${query}`, { headers: { Authorization: getAuth() } })
   }
   /**
    * 그룹에 추가된 메시지들을 예약 발송 요청합니다.
@@ -120,10 +120,10 @@ module.exports = class Group {
    * })
    */
   setScheduledDate (scheduledDate) {
-    return asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() }, form: { scheduledDate } })
+    return asyncRequest('post', `https://api.solapi.com/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() }, form: { scheduledDate } })
   }
   cancelScheduled () {
-    return asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() } })
+    return asyncRequest('delete', `https://api.solapi.com/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() } })
   }
 
   /**
@@ -137,7 +137,7 @@ module.exports = class Group {
    * })
    */
   static deleteGroup (groupId) {
-    return asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${groupId}`, { headers: { Authorization: getAuth() } })
+    return asyncRequest('delete', `https://api.solapi.com/messages/v4/groups/${groupId}`, { headers: { Authorization: getAuth() } })
   }
   /**
    * 그룹의 정보를 조회합니다.
@@ -150,7 +150,7 @@ module.exports = class Group {
    * })
    */
   static async getInfo (groupId) {
-    return asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups/${groupId}`, { headers: { Authorization: getAuth() } })
+    return asyncRequest('get', `https://api.solapi.com/messages/v4/groups/${groupId}`, { headers: { Authorization: getAuth() } })
   }
 
   /**
@@ -164,14 +164,14 @@ module.exports = class Group {
    */
   static async getMyGroupList (query) {
     query = qs.stringify(query)
-    return asyncRequest('get', `https://rest.coolsms.co.kr/messages/v4/groups?${query}`, { headers: { Authorization: getAuth() } })
+    return asyncRequest('get', `https://api.solapi.com/messages/v4/groups?${query}`, { headers: { Authorization: getAuth() } })
   }
 
   /**
    * 등록된 그룹의 메시지를 삭제합니다
    */
   static async deleteGroupMessages () {
-    return asyncRequest('delete', `https://rest.coolsms.co.kr/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() } })
+    return asyncRequest('delete', `https://api.solapi.com/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() } })
   }
 
   /**
@@ -194,7 +194,7 @@ module.exports = class Group {
   static sendSimpleMessage (message = {}, agent = {}) {
     if (typeof message !== 'object') throw new Error('message 는 객체여야 합니다.')
     if (!message.autoTypeDetect && !message.type) throw new Error('autoTypeDetect 또는 type 을 입력해주세요.')
-    return asyncRequest('post', `https://rest.coolsms.co.kr/messages/v4/send`, { headers: { Authorization: getAuth() }, form: { message, agent } })
+    return asyncRequest('post', `https://api.solapi.com/messages/v4/send`, { headers: { Authorization: getAuth() }, form: { message, agent } })
   }
   getGroupId () {
     if (!this.groupId) throw new Error('그룹을 생성하고 사용해주세요.')
