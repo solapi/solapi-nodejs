@@ -170,8 +170,8 @@ module.exports = class Group {
   /**
    * 등록된 그룹의 메시지를 삭제합니다
    */
-  static async deleteGroupMessages () {
-    return asyncRequest('delete', `https://api.solapi.com/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() } })
+  async deleteGroupMessages (messageId) {
+    return asyncRequest('delete', `https://api.solapi.com/messages/v4/groups/${this.getGroupId()}/messages`, { headers: { Authorization: getAuth() }, form: { messageIds: [messageId] } })
   }
 
   /**
