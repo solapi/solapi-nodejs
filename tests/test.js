@@ -105,7 +105,8 @@ describe('test', () => {
         type: 'SMS'
       })
       expect(data.errorCount).to.equal(0)
-      expect(await group.sendMessages()).to.equal('Success')
+      const result = await group.sendMessages()
+      expect(result).to.have.all.keys('app', 'balance', 'countForCharge', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'price', 'sdkVersion', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'scheduledDate', 'flagUpdated')
     })
     it('그룹 삭제 (정상)', async () => {
       const group = new Group()
@@ -155,11 +156,11 @@ describe('test', () => {
       expect(data.errorCount).to.equal(0)
       const date = new Date(Date.now() + (1000 * 60 * 60 * 10)).toISOString()
       const result = await group.setScheduledDate(date)
-      expect(result).to.equals('Success')
+      expect(result).to.have.all.keys('app', 'balance', 'countForCharge', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'price', 'sdkVersion', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'scheduledDate', 'flagUpdated')
     })
     it('그룹 예약 취소 (성공)', async () => {
       const data = await tempGroup.cancelScheduled()
-      expect(data).to.deep.equal({})
+      expect(data).to.have.all.keys('app', 'balance', 'countForCharge', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'price', 'sdkVersion', 'count', 'log', 'status', '_id', 'groupId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'scheduledDate', 'flagUpdated')
     })
     it('그룹 예약 (실패)', async () => {
       const group = new Group()
