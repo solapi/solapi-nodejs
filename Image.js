@@ -25,8 +25,8 @@ module.exports = class Image {
   async createImage () {
     this.imageData = await asyncRequest(
       'post',
-      'https://rest.coolsms.co.kr/images/v4/images',
-      { headers: { Authorization: getAuth() }, form: this.image }
+      'https://api.solapi.com/images/v4/images',
+      { headers: { Authorization: getAuth() }, form: { image: this.image } }
     )
     this.imageId = this.imageData.imageId
     return this.imageId
