@@ -4,7 +4,7 @@ config.init({
   apiSecret: 'ENTER API_SECRET'
 })
 send({
-  text: 'Hello Coolsms from Javascript',
+  text: 'Hello SOLAPI from Javascript',
   type: 'SMS',
   to: '수신번호',
   from: '발신번호'
