@@ -1,7 +1,7 @@
 {
-  "name": "coolsms-sdk-v4",
-  "version": "4.0.12",
-  "description": "Javascript 용 COOLSMS SDK Version 4",
+  "name": "solapi",
+  "version": "4.0.16",
+  "description": "Javascript 용 SOLAPI SDK Version 4",
   "main": "index.js",
   "scripts": {
     "lint": "node ./node_modules/standard/bin/cmd.js",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/coolsms/coolsms-sdk-js-v4.git"
+    "url": "git+https://github.com/solapi/solapi-sdk-js-v4.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/coolsms/coolsms-sdk-js-v4/issues"
+    "url": "https://github.com/solapi/solapi-sdk-js-v4/issues"
   },
-  "homepage": "https://github.com/coolsms/coolsms-sdk-js-v4#readme",
+  "homepage": "https://github.com/solapi/solapi-sdk-js-v4#readme",
   "dependencies": {
     "crypto-js": "^3.1.9-1",
     "fs": "0.0.1-security",
