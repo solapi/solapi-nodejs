@@ -5,7 +5,8 @@
  */
 
 const moment = require('moment')
-const uniqid = require('uniqid')
+const nanoidGenerate = require('nanoid/generate')
+const generate = () => nanoidGenerate('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 32)
 const HmacSHA256 = require('crypto-js/hmac-sha256')
 const fs = require('fs')
 const path = require('path')
@@ -16,7 +17,7 @@ module.exports = {
     switch (headerType) {
       case 1:
         const date = moment.utc().format()
-        const salt = uniqid()
+        const salt = generate()
         const hmacData = date + salt
         const signature = HmacSHA256(hmacData, apiSecret).toString()
         return `HMAC-SHA256 apiKey=${apiKey}, date=${date}, salt=${salt}, signature=${signature}`
