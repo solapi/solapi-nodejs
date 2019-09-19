@@ -30,7 +30,6 @@ async function send (message, agent = {}) {
 
 [Group Message](https://github.com/solapi/solapi-sdk-js-v4/blob/develop/example/groupMessage.js), 
 [Simple Message](https://github.com/solapi/solapi-sdk-js-v4/blob/develop/example/simpleMessage.js),
-[Scheduled Messages](https://github.com/solapi/solapi-sdk-js-v4/blob/develop/example/scheduleMesssage.js),
 
 [more examples can be found at solapi-v4-examples](https://github.com/solapi/examples)
 ## Opening Issues
