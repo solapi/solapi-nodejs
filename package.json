@@ -1,6 +1,6 @@
 {
   "name": "solapi",
-  "version": "4.0.16",
+  "version": "4.0.17",
   "description": "Javascript 용 SOLAPI SDK Version 4",
   "main": "index.js",
   "scripts": {
@@ -22,10 +22,10 @@
     "crypto-js": "^3.1.9-1",
     "fs": "0.0.1-security",
     "moment": "^2.22.1",
+    "nanoid": "^2.0.3",
     "path": "^0.12.7",
     "qs": "^6.5.2",
-    "request": "^2.85.0",
-    "uniqid": "^4.1.1"
+    "request": "^2.85.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
