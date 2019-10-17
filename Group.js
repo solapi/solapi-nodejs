@@ -109,22 +109,6 @@ module.exports = class Group {
     const query = `?${qs.stringify(obj)}`
     return asyncRequest('get', `https://api.solapi.com/messages/v4/list${query}`, { headers: { Authorization: getAuth() } })
   }
-  /**
-   * 그룹에 추가된 메시지들을 예약 발송 요청합니다.
-   *
-   * @param {string} scheduledDate - yyyy-MM-dd HH:mm:ss 형식으로 된 문자열입니다. 해당 시각에 발송됩니다.
-   * @example
-   * // return promise object
-   * group.setScheduledDate('2019-10-10 10:10:10').then(body => {
-   *  console.log(body)
-   * })
-   */
-  setScheduledDate (scheduledDate) {
-    return asyncRequest('post', `https://api.solapi.com/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() }, form: { scheduledDate } })
-  }
-  cancelScheduled () {
-    return asyncRequest('delete', `https://api.solapi.com/messages/v4/groups/${this.getGroupId()}/schedule`, { headers: { Authorization: getAuth() } })
-  }
 
   /**
    * 그룹 삭제를 요청합니다.
