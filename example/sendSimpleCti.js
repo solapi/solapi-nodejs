@@ -2,7 +2,6 @@ const path = require('path')
 const image2base64 = require('image-to-base64')
 const { config, Group, Storage } = require('../')
 config.init({
-  // https://solapi.com/credentials
   apiKey: 'ENTER_YOUR_API_KEY',
   apiSecret: 'ENTER_YOUR_API_SECRET'
 })
@@ -12,19 +11,39 @@ const options = {
 const storageParams = {
   // https://solapi.com/storage
   fileId: 'ENTER_YOUR_FILE_ID',
-  type: 'MMS'
+  name: 'ENTER_YOUR_IMAGE_NAME',
+  link: 'ENTER_YOUR_IMAGE_LINK',
+  type: 'KAKAO'
 }
 const messageParams = {
-  type: 'MMS',
-  subject: 'this is MMS',
-  text: 'Hello, this is MMS',
+  type: 'CTI',
+  subject: 'this is CTI',
+  text: 'Hello, this is CTI',
   to: '수신 번호',
-  // https://solapi.com/senderids
   from: '발신 번호',
-  imageId: storageParams.fileId
+  kakaoOptions: {
+    disableSms: true,
+    // https://solapi.com/kakao/plus-friends
+    pfId: 'ENTER_YOUR_PFID',
+    imageId: storageParams.fileId,
+    buttons: [
+      {
+        buttonName: '홈페이지',
+        buttonType: 'WL',
+        linkMo: 'https://solapi.com',
+        linkPc: 'https://solapi.com'
+      },
+      {
+        buttonName: '회원가입',
+        buttonType: 'WL',
+        linkMo: 'https://solapi.com/signup',
+        linkPc: 'https://solapi.com/signup'
+      }
+    ]
+  }
 }
 
-// send MMS (멀티미디어메시지)
+// send CTI (친구톡 이미지)
 const { fileId } = storageParams
 const storage = new Storage({ fileId })
 main()
@@ -35,12 +54,12 @@ async function main () {
     const image = fileList[0] || {}
     if (!image.fileId) {
       const { imagePath } = options
-      const { type } = storageParams
-      const imageOptions = { type }
+      const { type, name, link } = storageParams
+      const imageOptions = { type, name, link }
       const response = await uploadImage(imagePath, imageOptions)
       storage.setFileId(response.fileId)
     }
-    messageParams.imageId = storage.getFileId()
+    messageParams.kakaoOptions.imageId = storage.getFileId()
     const response = await send(messageParams)
     console.info(response)
   } catch (error) {
