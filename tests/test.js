@@ -192,8 +192,6 @@ describe('test', () => {
       expect(uploadResponse).to.have.all.keys('kakao', 'type', 'originalName', 'url', 'fileId', 'accountId', 'dateCreated', 'dateUpdated', 'link', 'name', 'references')
       const getResponse = await storage.get({ fileId: uploadResponse.fileId })
       expect(getResponse).to.have.all.keys('fileList', 'nextKey', 'startKey')
-      // const deleteResponse = await storage.delete({ fileId: uploadResponse.fileId })
-      // expect(deleteResponse).to.have.all.keys('fileList', 'nextKey', 'startKey')
     })
   })
 })

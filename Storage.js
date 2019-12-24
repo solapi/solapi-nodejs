@@ -61,28 +61,4 @@ module.exports = class Storage {
       headers: { Authorization: getAuth() }
     })
   }
-
-  /**
-   * 업로드 된 파일 삭제
-   *
-   * @param {object} params - 서버 요청 시 사용되는 파라미터 입니다.
-   * @example
-   * // return promise object
-   * Storage.delete({
-   *  fileId: '이미지 아이디 '
-   * }).then(body => {
-    * console.log(body)
-   * })
-   */
-  delete (params = {}) {
-    const queryString = qs.stringify({ fileId: this.fileId, ...params })
-    const uri = 'https://api.solapi.com/storage/v1/files'
-    return asyncRequest(
-      'delete',
-      uri + (queryString ? '?' + queryString : ''),
-      {
-        headers: { Authorization: getAuth() }
-      }
-    )
-  }
 }
