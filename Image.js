@@ -5,7 +5,7 @@
  */
 
 const { asyncRequest } = require('./utils')
-const { getAuth } = require('./config')
+const { getAuth, getUrl } = require('./config')
 
 module.exports = class Image {
   constructor (image) {
@@ -25,7 +25,7 @@ module.exports = class Image {
   async createImage () {
     this.imageData = await asyncRequest(
       'post',
-      'https://api.solapi.com/images/v4/images',
+      getUrl('/images/v4/images'),
       { headers: { Authorization: getAuth() }, form: { image: this.image } }
     )
     this.imageId = this.imageData.imageId

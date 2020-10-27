@@ -11,7 +11,8 @@ const HmacSHA256 = require('crypto-js/hmac-sha256')
 const fs = require('fs')
 const path = require('path')
 const config = fs.existsSync(path.join(__dirname, '/config.json')) ? require('./config.json') : {}
-let { apiKey = 'NCSVYGF1IK5PUKDA', apiSecret = 'FSD4ER2WYPZQVDBPKMLOZVAWTGYBDTRW', accessToken = '', to = '01000000000', from = '029302266' } = config
+console.log('config:', config)
+let { apiKey = 'NCSVYGF1IK5PUKDA', apiSecret = 'FSD4ER2WYPZQVDBPKMLOZVAWTGYBDTRW', domain = 'api.solapi.com', prefix = '', protocol = 'https', accessToken = '', to = '01000000000', from = '029302266' } = config
 module.exports = {
   getAuth (headerType = getHeaderType()) {
     switch (headerType) {
@@ -36,9 +37,18 @@ module.exports = {
   init (config) {
     apiKey = config.apiKey
     apiSecret = config.apiSecret
+    domain = config.domain || 'api.solapi.com'
+    prefix = config.prefix || ''
+    protocol = config.protocol || 'https'
     accessToken = config.accessToken
     to = config.to
     from = config.from
+  },
+  getUrl (path) {
+    return `${protocol}://${domain}${prefix || ''}${path}`
+  },
+  getBaseUrl () {
+    return `${protocol}://${domain}${prefix || ''}`
   }
 }
 

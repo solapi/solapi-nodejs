@@ -1,6 +1,9 @@
 {
-  "apiKey": "",
-  "apiSecret": "",
+  "apiKey": "INPUT YOUR API KEY",
+  "apiSecret": "INPUT YOUR API SECRET",
+  "domain": "api.solapi.com",
+  "prefix": "",
+  "protocol": "https",
   "accessToken": "",
   "phoneNumber": ""
 }
