@@ -6,7 +6,7 @@
 
 const qs = require('qs')
 const { asyncRequest } = require('./utils')
-const { getAuth } = require('./config')
+const { getAuth, getUrl } = require('./config')
 
 module.exports = class Storage {
   constructor (options = {}) {
@@ -36,7 +36,7 @@ module.exports = class Storage {
    */
   upload (params = {}) {
     const { file, name, type, link } = params
-    return asyncRequest('post', 'https://api.solapi.com/storage/v1/files', {
+    return asyncRequest('post', getUrl('/storage/v1/files'), {
       headers: { Authorization: getAuth() },
       form: { file, name, type, link }
     })
@@ -56,7 +56,7 @@ module.exports = class Storage {
    */
   get (params = {}) {
     const queryString = qs.stringify({ fileId: this.fileId, ...params })
-    const uri = 'https://api.solapi.com/storage/v1/files'
+    const uri = getUrl('/storage/v1/files')
     return asyncRequest('get', uri + (queryString ? '?' + queryString : ''), {
       headers: { Authorization: getAuth() }
     })
