@@ -26,7 +26,8 @@
     "nanoid": "^2.0.3",
     "path": "^0.12.7",
     "qs": "^6.9.1",
-    "request": "^2.85.0"
+    "request": "^2.85.0",
+    "request-promise": "^4.2.6"
   },
   "devDependencies": {
     "chai": "^4.1.2",
