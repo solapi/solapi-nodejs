@@ -18,11 +18,7 @@ yarn add solapi
 ```javascript
 const { config, msg } = require('../')
 
-/**
- * apiKey, apiSecret 값이 config.json에 있지 않고 외부에 있을 때 설정 예제입니다.
- */
-
-// apiKey, apiSecret 설정이 가능합니다.
+// apiKey, apiSecret 설정 (설정하지 않으면 패키지 홈의 config.json 파일의 설정을 참고합니다.)
 config.init({
   apiKey: 'ENTER_YOUR_API_KEY',
   apiSecret: 'ENTER_YOUR_API_SECRET'
