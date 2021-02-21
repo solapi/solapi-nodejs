@@ -11,7 +11,12 @@
     "type": "git",
     "url": "git+https://github.com/solapi/solapi-sdk-js-v4.git"
   },
-  "keywords": [],
+  "keywords": [
+    "solapi",
+    "sms",
+    "rest",
+    "api"
+  ],
   "author": "",
   "license": "MIT",
   "bugs": {
