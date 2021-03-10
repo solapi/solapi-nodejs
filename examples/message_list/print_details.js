@@ -7,7 +7,7 @@ async function list () {
   try {
     const result = await msg.get_messages()
     for (const [key, val] of Object.entries(result.messageList)) {
-      console.log('메시지ID:',  val.messageId)
+      console.log('메시지ID:', key)
       console.log('그룹ID:', val.groupId)
       console.log('타입:', val.type)
       console.log('국가:', val.country)

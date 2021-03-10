@@ -5,8 +5,8 @@ const { msg } = require('../../')
  */
 
 // 검색 시간은 ISO8601 포맷으로 입력
-startDate = new Date('2021/02/01/00:00:00').toISOString()
-endDate = new Date('2021/02/28/23:59:59').toISOString()
+const startDate = new Date('2021/02/01/00:00:00').toISOString()
+const endDate = new Date('2021/02/28/23:59:59').toISOString()
 
 async function list () {
   try {
