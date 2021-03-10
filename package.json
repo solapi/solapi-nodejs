@@ -1,6 +1,6 @@
 {
   "name": "solapi",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Javascript 용 SOLAPI SDK Version 4",
   "main": "index.js",
   "scripts": {
