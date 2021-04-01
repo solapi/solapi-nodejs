@@ -62,6 +62,18 @@ const send = async () => {
               {
                 buttonType: 'MD', // 상담요청하기 (상담요청하기 버튼을 누르면 메시지 내용이 상담원에게 그대로 전달됩니다.)
                 buttonName: '상담요청하기'
+              },
+              {
+                buttonType: 'AC', // 카카오톡채널 친구추가
+                buttonName: '채널추가'
+              },
+              {
+                buttonType: 'BC', // 상담톡으로 전환합니다 (상담톡 서비스 사용 시 가능)
+                buttonName: '상담톡 전환'
+              },
+              {
+                buttonType: 'BT', // 챗봇 운영시 챗봇 문의로 전환할 수 있습니다.
+                buttonName: '챗봇 문의'
               }
             ]
           }
