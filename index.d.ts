@@ -10,22 +10,15 @@ declare module 'solapi';
  * RESPONSES
  */
 
-/**
- * @deprecated
- * This should not be used.
- */
-export type SolapiUnknownJSONResponse = object;
-
-// TODO: create proper type
 type StatusCode = string;
 
 export interface SolapiCommonResponse {
-    statusCode: StatusCode;
-    statusMessage: string;
-}
-
-export interface SolapiErrorResponse extends SolapiCommonResponse {
-    errorCount: number;
+    status?: string;
+    statusCode?: StatusCode;
+    statusMessage?: string;
+    errorCount?: number;
+    errorCode?: string;
+    errorMessage?: string;
 }
 
 export interface SolapiPaginationResponse extends SolapiCommonResponse {
@@ -34,8 +27,49 @@ export interface SolapiPaginationResponse extends SolapiCommonResponse {
     limit?: number;
 }
 
+export type SolapiActionStatus = 'SENDING' | 'PENDING' | 'COMPLETE';
+export type SolapiDate = string;
+ 
 export interface SolapiLog {
+    createAt: SolapiDate;
     message: string;
+    oldBalance?: number;
+    newBalance?: number;
+    oldPoint?: number;
+    newPoint?: number;
+    totalPrice?: number;
+}
+
+export interface PerLocaleCodes<T> {
+    [locale: string]: T;
+}
+
+export interface SolapiPaymentStatus {
+    requested: number;
+    replacement: number;
+    refund: number;
+    sum: number;
+}
+
+export interface SolapiEachService<T> {
+    sms: T;
+    lms: T;
+    mms: T;
+    ata: T;
+    cta: T;
+    cti: T;
+    nsa: T;
+}
+
+export interface SolapiCommonActionResponse extends SolapiCommonResponse {
+    _id: string;
+    groupId?: string;
+    accountId: string;
+    dateCreated: SolapiDate | null;
+    dateUpdated: SolapiDate | null;
+    customFields: any;
+    
+    log: SolapiLog[];
 }
 
 
@@ -72,20 +106,33 @@ export interface LMSMessage extends MessageBase {
 
 export interface KakaoAlimtalkMessage extends MessageBase {
     type?: 'ATA';
-    kakaoOptions: {
-        pfId: string;
-        buttons: KakaoButton[];
-    };
+    kakaoOptions: KakaoAlimtalkOptions;
 }
-
 export interface KakaoChinguTalkMessage extends MessageBase {
     type?: 'CTA';
-    kakaoOptions: {
-        pfId: string;
-        buttons: KakaoButton[];
-        imageId?: string;
-    };
+    kakaoOptions: KakaoChinguTalkOptions
 }
+
+export type KakaoOptions = KakaoChinguTalkOptions | KakaoAlimtalkOptions;
+
+export interface KakaoOptionsCommon {
+    senderKey?: string | null;
+    templateCode?: string | null;
+    templateId?: string | null;
+    buttonName?: string | null;
+    buttonUrl?: string | null;
+    disableSms?: boolean;
+    buttons: KakaoButton[];
+    pfId: string | null;
+    title?: string | null;
+}
+
+export interface KakaoChinguTalkOptions extends KakaoOptionsCommon {
+    imageId?: string | null;
+}
+
+export interface KakaoAlimTalkOptions extends KakaoOptionsCommon {}
+
 
 
 
@@ -232,65 +279,63 @@ export interface GroupListResponse extends SolapiPaginationResponse {
     groupList: any;
 }
 
-// TODO: check if this interface is correct.
-export interface GroupInfoResponse extends SolapiPaginationResponse {
-    app: string;
-    balance: number;
-    countForCharge: number;
-    customFields: any[];
-
-    dateCompleted: string;
-    dateSent: string;
-    dateCreated: string;
-    dateUpdated: string;
-    flagUpdated: string;
-
-    isRefunded: boolean;
-    osPlatform: string;
-    point: string;
-    prepaid: any;
-
-    apiVersion: string;
-    sdkVersion: string;
-
-    serviceMethod: any;
-    strict: any;
-    count: number;
-    log: SolapiLog[];
-
-    // TODO: please check this later.
-    status: any;
-
-    _id: string;
-    groupId: string;
-    hint: string;
-    masterAccountId: string;
-    accountId: string;
-
-}
-
-export interface GroupDeleteResponse extends SolapiPaginationResponse {
-    // TODO: write this properly.
-    log: SolapiLog[];
-}
-
 export interface GroupMessageResponse extends SolapiMessageSendResponse  {
     groupId: string;
+}
+
+export interface GroupInfoResponse extends SolapiCommonActionResponse {
+    count: {
+        total: number;
+        sentTotal: number;
+        sentFailed: number;
+        sentSuccess: number;
+        sentPending: number;
+        sentReplacement: number;
+        refund: number;
+        registeredFailed: number;
+        registeredSuccess: number;
+    };
+    countForCharge: SolapiEachService<PerLocaleCodes<number>>;
+    balance: {
+        requested: number;
+    };
+    balance: SolapiPaymentStatus;
+    point: SolapiPaymentStatus;
+    app: {
+        profit: SolapiEachService<number>;
+        appId: string;
+        version: string;
+    }
+    serviceMethod: string;
+    sdkVersion: string | null;
+    osPlatform: string | null;
+    status: SolapiActionStatus;
+    dateSent: SolapiDate | null;
+    dateCompleted?: SolapiDate | null;
+    isRefunded?: boolean;
+    flagUpdated?: boolean;
+    prepaid?: boolean;
+    strict?: boolean;
+    masterAccountId?: string | null;
+    apiVersion: string;
+    customFields?: any;
+    hint?: string | null;
+    price: SolapiEachService<number>;
 }
 
 export class Group {
     constructor(args?: GroupConstructor);
     
-    addGroupMessage(messages: Message | Message[]): Promise<SolapiUnknownJSONResponse>;
-    sendMessages(): Promise<GroupInfoResponse>;
+    addGroupMessage(messages: Message | Message[]): Promise<SolapiActionResponse>;
+    sendMessages(): Promise<SolapiActionResponse>;
     getMessageList(queryObject?: MessageListQuery): Promise<GroupListResponse>;
     createGroup(): Promise<void>;
     
-    deleteGroupMessages(messageId: string): Promise<SolapiUnknownJSONResponse>;
+    deleteGroupMessages(messageId: string): Promise<SolapiActionResponse>;
     getGroupId(): string;
     
     static deleteGroup(groupId: string): Promise<GroupDeleteResponse>;
-    static getInfo(groupId: string): Promise<GroupInfoResponse>;
+    static getInfo(groupId: string): Promise<SolapiActionResponse>;
     
     static getMyGroupList(query?: any): Promise<GroupListResponse>;
     
@@ -345,7 +390,7 @@ export class Storage {
     setFileId(fileId: string): void;
     
     // TODO: create proper types for response
-    get(params?: FileUploadPayload): Promise<SolapiUnknownJSONResponse>;
+    get(params?: FileUploadPayload): Promise<SolapiActionResponse>;
     upload(params?: FileUploadPayload): Promise<UploadResult>;
 }
 
@@ -368,8 +413,8 @@ export type FileUploadDestinationType = 'MMS' | 'KAKAO' | 'DOCUMENT';
 export interface GetMessageQuery {
     groupId?: string;
     limit?: number;
-    startDate?: string;
-    endDate?: string;
+    startDate?: SolapiDate;
+    endDate?: SolapiDate;
     dateType?: MessageDateType;
     messageId?: string;
     statusCode?: StatusCode;
@@ -381,18 +426,8 @@ export interface GetMessageQuery {
 * MESSAGE - RESPONSE
 */
 
-export interface MessageInfoResponse {
+export interface MessageListResponse {
     [key: string]: MessageInfo;
-}
-
-// TODO: check message response and create interface properly
-export interface SolapiMessageSendResponse extends SolapiCommonResponse {
-    to: string;
-    from: string;
-    type: MessageType;
-    messageId: string;
-    accountId: string;
-    country: string;
 }
 
 
@@ -400,28 +435,57 @@ export interface SolapiMessageSendResponse extends SolapiCommonResponse {
 * MESSAGE - INFO
 */
 
+export type MessageInfoResponse = MessageInfo & SolapiCommonActionResponse;
 export type MessageInfo = SMSInfo | LMSInfo;
 
 export interface SMSInfo {
     groupId: string;
+    messageId: string;
     type: MessageType;
     country: string;
     text: string;
     from: string;
     to: string;
-    dateReceived: string;
-    status: string;
-    statusCode: string;
+    dateReceived: SolapiDate;
     reason: string;
+    networkCode: string;
     networkName: string;
     log: string;
+    replacement: boolean;
+    autoTypeDetect: boolean;
+    subject: null;
+    imageId: null;
+
+    routedQueue?: string;
+    usedQueue?: string[];
+    dataProcessed?: SolapiDate;
+    dateReported?: SolapiDate;
 }
 
 export interface LMSInfo extends SMSInfo {
     subject: string;
-    type: 'LMS' | 'MMS';
+    type: 'LMS';
 }
 
+export interface MMSInfo extends SMSInfo {
+    subject: string;
+    imageId: string | null;
+    type: 'MMS';
+}
+
+export interface KakaoInfo extends SMSInfo {
+    subject: string;
+    imageId: string | null;
+    type: 'ATA' | 'CTA';
+    kakaoOptions: KakaoOptions;
+}
+
+export interface NaverInfo extends SMSInfo {
+    subject: string;
+    imageId: string | null;
+    type: 'NSA';
+    naverOptions: NaverOptions;
+}
 
 /*
 * MESSAGE - TYPING
@@ -437,7 +501,7 @@ export namespace msg {
     // TODO: check message response and create interface properly
     function send(body: MessageQuery): Promise<SolapiMessageSendResponse>;
     
-    function get_messages(qs?: GetMessageQuery): Promise<MessageInfoResponse>;
+    function get_messages(qs?: GetMessageQuery): Promise<MessageListResponse>;
     
     function upload(body: FileUploadPayload): Promise<UploadResult>;
     function uploadMMSImage(path: string): Promise<UploadResult>;
