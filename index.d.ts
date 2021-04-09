@@ -427,10 +427,15 @@ export interface LMSInfo extends SMSInfo {
 * MESSAGE - TYPING
 */
 
+export interface MessageQuery {
+    messages: Message[];
+}
+
+
 export namespace msg {
     
     // TODO: check message response and create interface properly
-    function send(body: any): Promise<SolapiMessageSendResponse>;
+    function send(body: MessageQuery): Promise<SolapiMessageSendResponse>;
     
     function get_messages(qs?: GetMessageQuery): Promise<MessageInfoResponse>;
     
