@@ -195,11 +195,11 @@ export type HeaderType = 1 | 2;
 */
 
 export interface SolapiConfig {
-    apiKey: string;
-    apiSecret: string;
-    accessToken: string;
-    to: string;
-    from: string;
+    apiKey?: string;
+    apiSecret?: string;
+    accessToken?: string;
+    to?: string;
+    from?: string;
     domain?: string;
     prefix?: string;
     protocol?: string;
