@@ -93,8 +93,8 @@ export interface KakaoChinguTalkMessage extends MessageBase {
  * MESSAGES - BUTTONS
  */
 
-export type KakaoButton = KakaoWebLinkButton | KakaoAppLinkButton | KakaoBotKeywordButton | KakaoMDButton;
-export type KakaoButtonType = 'WL' | 'AL' | 'BK' | 'MD';
+export type KakaoButton = KakaoWebLinkButton | KakaoAppLinkButton | KakaoBotKeywordButton | KakaoMDButton | KakaoAddChannelButton | KakaoBusinessChatButton | KakaoChatBotButton;
+export type KakaoButtonType = 'WL' | 'AL' | 'BK' | 'MD' | 'AC' | 'BC' | 'BT';
 
 export interface KakaoButtonBase {
     buttonType: KakaoButtonType;
@@ -119,6 +119,18 @@ export interface KakaoBotKeywordButton extends KakaoButtonBase {
 
 export interface KakaoMDButton extends KakaoButtonBase {
     buttonType: 'MD';
+}
+
+export interface KakaoAddChannelButton extends KakaoButtonBase {
+    buttonType: 'AC';
+}
+
+export interface KakaoBusinessChatButton extends KakaoButtonBase {
+    buttonType: 'BC';
+}
+
+export interface KakaoChatBotButton extends KakaoButtonBase {
+    buttonType: 'BT';
 }
 
 
