@@ -279,11 +279,11 @@ export interface GroupMessageResponse extends SolapiMessageSendResponse  {
 }
 
 export class Group {
-    constructor(args: GroupConstructor);
+    constructor(args?: GroupConstructor);
     
     addGroupMessage(messages: Message | Message[]): Promise<SolapiUnknownJSONResponse>;
     sendMessages(): Promise<GroupInfoResponse>;
-    getMessageList(queryObject: MessageListQuery): Promise<GroupListResponse>;
+    getMessageList(queryObject?: MessageListQuery): Promise<GroupListResponse>;
     createGroup(): Promise<void>;
     
     deleteGroupMessages(messageId: string): Promise<SolapiUnknownJSONResponse>;
@@ -294,7 +294,7 @@ export class Group {
     
     static getMyGroupList(query?: any): Promise<GroupListResponse>;
     
-    static sendSimpleMessage(message: Message, agent: Agent): Promise<GroupMessageResponse>;
+    static sendSimpleMessage(message?: Message, agent?: Agent): Promise<GroupMessageResponse>;
 }
 
 
