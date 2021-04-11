@@ -12,6 +12,11 @@ send_alimtalk.js           알림톡 발송 예제
 send_chingutalk.js         친구톡 발송 예제
 ```
 
+### 네이버 톡톡(버튼 포함) 발송 예제
+```
+send_naver.js              네이버 톡톡 발송 예제
+```
+
 ### 메시지 목록 조회
 ```
 message_list (디렉토리)    메시지 목록 조회 예제
