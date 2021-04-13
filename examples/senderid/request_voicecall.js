@@ -5,7 +5,7 @@ const { msg } = require('../../')
  * 해당 전화번호로 전화를 걸어 인증번호를 알려줍니다.
  * 리턴되는 Transaction ID와 인증번호(Token)를 기록해두어 다음 Step에서 사용합니다.
  */
-const request_voicecall = async () => {
+const requestVoicecall = async () => {
   // 등록된 전화번호 중 인증받을 번호 하나를 입력합니다.
   const phoneNumber = '01000000001'
 
@@ -23,6 +23,7 @@ const request_voicecall = async () => {
   }
   try {
     const result = await msg.put(`/senderid/v1/numbers/${phoneNumber}/authenticate`, {}, options)
+    console.log('RESULT:', result)
   } catch (e) {
     console.log('statusCode:', e.statusCode)
     console.log('errorCode:', e.error.errorCode)
@@ -31,4 +32,4 @@ const request_voicecall = async () => {
     console.log('Trasaction ID: ', e.error.mfa.transactionId)
   }
 }
-request_voicecall()
+requestVoicecall()

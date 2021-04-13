@@ -4,7 +4,7 @@ const { msg } = require('../../')
  * Step 3) 인증번호 확인
  * Step 2 과정에서 획득한 정보를 모두 입력하여 인증받습니다.
  */
-const verify_token = async () => {
+const verifyToken = async () => {
   // 전화번호 입력
   const phoneNumber = '01000000001'
   // Transaction ID 입력
@@ -34,4 +34,4 @@ const verify_token = async () => {
     console.log('errorMessage:', e.error.errorMessage)
   }
 }
-verify_token()
+verifyToken()
