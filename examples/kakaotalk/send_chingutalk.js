@@ -1,5 +1,5 @@
 const path = require('path')
-const { msg } = require('../')
+const { msg } = require('../../')
 
 // 한번 요청으로 1만건의 친구톡 발송이 가능합니다.
 // 카카오톡채널 친구로 추가되어 있어야 친구톡 발송이 가능합니다.
@@ -8,7 +8,7 @@ const { msg } = require('../')
 const send = async () => {
   // 이미지 업로드
   try {
-    var { fileId } = await msg.uploadKakaoImage(path.join(__dirname, '/example.jpg'), 'https://example.com')
+    var { fileId } = await msg.uploadKakaoImage(path.join(__dirname, '../example.jpg'), 'https://example.com')
   } catch (e) {
     console.log(e)
     console.log('statusCode:', e.statusCode)
@@ -23,9 +23,10 @@ const send = async () => {
         {
           to: '01000000001',
           from: '029302266',
-          text: '카카오톡채널 친구로 추가되어 있어야 친구톡 발송이 가능합니다.',
+          text: '카카오톡채널 친구로 추가되어 있어야 친구톡 발송이 가능하며 광고를 포함하여 자유롭게 내용 입력이 가능합니다.',
           kakaoOptions: {
-            pfId: 'KA01PF200323182344986oTFz9CIabcx'
+            pfId: 'KA01PF200323182344986oTFz9CIabcx',
+            adFlag: true // 광고 표시 여부(기본값 false)
           }
         },
         {
@@ -47,7 +48,7 @@ const send = async () => {
                 buttonType: 'WL', // 웹링크
                 buttonName: '버튼 이름',
                 linkMo: 'https://m.example.com',
-                linkPc: 'https://example.com' // 템플릿 등록 시 모바일링크만 입력하였다면 linkPc 값은 입력하시면 안됩니다.
+                linkPc: 'https://example.com' // 생략 가능
               },
               {
                 buttonType: 'AL', // 앱링크
@@ -62,10 +63,6 @@ const send = async () => {
               {
                 buttonType: 'MD', // 상담요청하기 (상담요청하기 버튼을 누르면 메시지 내용이 상담원에게 그대로 전달됩니다.)
                 buttonName: '상담요청하기'
-              },
-              {
-                buttonType: 'AC', // 카카오톡채널 친구추가
-                buttonName: '채널추가'
               },
               {
                 buttonType: 'BC', // 상담톡으로 전환합니다 (상담톡 서비스 사용 시 가능)

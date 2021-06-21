@@ -1,4 +1,4 @@
-const { msg } = require('../')
+const { msg } = require('../../')
 
 /**
  * LMS 발송 (최대 1만건 동시 발송)
