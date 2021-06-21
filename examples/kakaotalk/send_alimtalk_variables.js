@@ -22,7 +22,7 @@ send({
       from: '029302266',
       kakaoOptions: {
         pfId: 'KA01PF200323182344986oTFz9CIabcx',
-        templateId: 'KA01TP200323182345741y9yF20aabcx'
+        templateId: 'KA01TP200323182345741y9yF20aabcx',
         variables: {
           '#{변수1}': '변수1의 값',
           '#{변수2}': '변수2의 값',
@@ -36,7 +36,7 @@ send({
       from: '029302266',
       kakaoOptions: {
         pfId: 'KA01PF200323182344986oTFz9CIabcx',
-        templateId: 'KA01TP200323182345741y9yF20aabcx'
+        templateId: 'KA01TP200323182345741y9yF20aabcx',
         variables: {} // 빈 Object로 입력
       }
     },
@@ -45,7 +45,7 @@ send({
       from: '029302266',
       kakaoOptions: {
         pfId: 'KA01PF200323182344986oTFz9CIabcx',
-        templateId: 'KA01TP200323182345741y9yF20aabcx'
+        templateId: 'KA01TP200323182345741y9yF20aabcx',
         variables: {
           '#{변수1}': '변수1의 값',
           '#{변수2}': '변수2의 값',

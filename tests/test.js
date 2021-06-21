@@ -108,7 +108,7 @@ describe('test', () => {
       })
       expect(data.errorCount).to.equal(0)
       const result = await group.sendMessages()
-      expect(result).to.have.all.keys('app', 'balance', 'countForCharge', 'customFields', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'prepaid', 'price', 'sdkVersion', 'serviceMethod', 'strict', 'count', 'log', 'status', '_id', 'groupId', 'hint', 'masterAccountId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'flagUpdated')
+      expect(result).to.have.all.keys('app', 'balance', 'countForCharge', 'customFields', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'prepaid', 'price', 'sdkVersion', 'serviceMethod', 'strict', 'count', 'log', 'status', '_id', 'groupId', 'hint', 'masterAccountId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'flagUpdated', 'allowDuplicates')
     })
     it('그룹 삭제 (정상)', async () => {
       const group = new Group()
@@ -129,7 +129,7 @@ describe('test', () => {
       const group = new Group()
       await group.createGroup()
       const data = await Group.getInfo(group.getGroupId())
-      expect(data).to.have.all.keys('app', 'balance', 'countForCharge', 'customFields', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'prepaid', 'price', 'sdkVersion', 'serviceMethod', 'count', 'log', 'status', 'strict', '_id', 'groupId', 'hint', 'masterAccountId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'flagUpdated')
+      expect(data).to.have.all.keys('app', 'balance', 'countForCharge', 'customFields', 'dateCompleted', 'dateSent', 'isRefunded', 'osPlatform', 'point', 'prepaid', 'price', 'sdkVersion', 'serviceMethod', 'count', 'log', 'status', 'strict', '_id', 'groupId', 'hint', 'masterAccountId', 'accountId', 'apiVersion', 'dateCreated', 'dateUpdated', 'flagUpdated', 'allowDuplicates')
     })
     it('그룹 정보 조회 (생성 전)', async () => {
       const group = new Group()
@@ -189,7 +189,7 @@ describe('test', () => {
       const storage = new Storage()
       const file = await image2base64(path.join(__dirname, '/source/tmp_img.png'))
       const uploadResponse = await storage.upload({ file })
-      expect(uploadResponse).to.have.all.keys('kakao', 'type', 'originalName', 'fileId', 'fileSize', 'height', 'accountId', 'dateCreated', 'dateUpdated', 'link', 'name', 'references', 'url', 'width')
+      expect(uploadResponse).to.have.all.keys('kakao', 'type', 'originalName', 'fileId', 'fileSize', 'height', 'accountId', 'dateCreated', 'dateUpdated', 'link', 'name', 'references', 'url', 'width', 'rcs')
       const getResponse = await storage.get({ fileId: uploadResponse.fileId })
       expect(getResponse).to.have.all.keys('fileList', 'nextKey', 'startKey')
     })
