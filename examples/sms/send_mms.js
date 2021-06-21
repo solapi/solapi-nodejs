@@ -1,5 +1,5 @@
 const path = require('path')
-const { msg } = require('../')
+const { msg } = require('../../')
 
 /**
  * MMS 발송 (최대 1만건 동시 발송)
