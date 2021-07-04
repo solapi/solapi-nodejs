@@ -2,17 +2,13 @@ const path = require('path')
 const { msg } = require('../../')
 
 /**
- * RCS MMS 발송 (카드 5개)
+ * RCS MMS 발송 (카드 3개)
  */
 
 const send = async () => {
-  // 이미지 업로드 (총 1M를 넘을 수 없음)
+  // 이미지 업로드 (1M 넘을 수 없음)
   try {
     var { fileId: sample1 } = await msg.uploadRCSImage(path.join(__dirname, './images/sample1.png'))
-    var { fileId: sample2 } = await msg.uploadRCSImage(path.join(__dirname, './images/sample2.png'))
-    var { fileId: sample3 } = await msg.uploadRCSImage(path.join(__dirname, './images/sample3.png'))
-    var { fileId: sample4 } = await msg.uploadRCSImage(path.join(__dirname, './images/sample4.png'))
-    var { fileId: sample5 } = await msg.uploadRCSImage(path.join(__dirname, './images/sample5.png'))
   } catch (e) {
     console.log('statusCode:', e.statusCode)
     console.log('errorCode:', e.error.errorCode)
@@ -31,7 +27,6 @@ const send = async () => {
           imageId: sample1,
           rcsOptions: {
             brandId: 'RC01BR210526093952685ArBrUMyeOTy', // RCSBizCenter(https://www.rcsbizcenter.com/)에서 발급받은 브랜드ID 입력
-            mmsType: 'S5', // S3 ~ S6
             buttons: [
               { buttonType: 'WL', buttonName: '버튼 1', link: 'https://nurigo.net' }
               , { buttonType: 'WL', buttonName: '버튼 2', link: 'https://nurigo.net' }
@@ -42,32 +37,6 @@ const send = async () => {
               // , { buttonType: 'CL', buttonName: '텍스트 복사', text: '복사할 텍스트 내용' }
               // , { buttonType: 'DL', buttonName: '전화 걸기', phone: '01012345678' }
               // , { buttonType: 'MS', buttonName: '메시지 보내기', phone: '01012345678', text: '보낼 메시지 내용' }
-            ],
-            additionalBody: [
-              {
-                imageId: sample2,
-                title: 'Sample 2',
-                description: 'Description 설명', // 총합 1,300자
-                buttons: [{ buttonType: 'WL', buttonName: '버튼 1', link: 'https://nurigo.net' }, { buttonType: 'WL', buttonName: '버튼 2', link: 'https://nurigo.net' }]
-              },
-              {
-                imageId: sample3,
-                title: 'Sample 3',
-                description: 'Description 설명', // 총합 1,300자
-                buttons: [{ buttonType: 'WL', buttonName: '버튼 1', link: 'https://nurigo.net' }, { buttonType: 'WL', buttonName: '버튼 2', link: 'https://nurigo.net' }]
-              },
-              {
-                imageId: sample4,
-                title: 'Sample 4',
-                description: 'Description 설명', // 총합 1,300자
-                buttons: [{ buttonType: 'WL', buttonName: '버튼 1', link: 'https://nurigo.net' }, { buttonType: 'WL', buttonName: '버튼 2', link: 'https://nurigo.net' }]
-              },
-              {
-                imageId: sample5,
-                title: 'Sample 5',
-                description: 'Description 설명', // 총합 1,300자
-                buttons: [{ buttonType: 'WL', buttonName: '버튼 1', link: 'https://nurigo.net' }, { buttonType: 'WL', buttonName: '버튼 2', link: 'https://nurigo.net' }]
-              }
             ]
           }
         }

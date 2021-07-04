@@ -6,7 +6,7 @@ const { msg } = require('../../')
  */
 
 const send = async () => {
-  // 이미지 업로드
+  // 이미지 업로드 (총 1M를 넘을 수 없음)
   try {
     var { fileId: sample1 } = await msg.uploadRCSImage(path.join(__dirname, './images/sample1.png'))
     var { fileId: sample2 } = await msg.uploadRCSImage(path.join(__dirname, './images/sample2.png'))
