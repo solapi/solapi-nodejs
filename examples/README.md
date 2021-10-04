@@ -3,6 +3,7 @@
 sms/send_sms.js               SMS 발송 예제(해외 발송 포함)
 sms/send_lms.js               LMS 발송 예제
 sms/send_mms.js               MMS 발송 예제
+sms/allow_duplicates.js       수신번호 중복 허용 예제
 rcs/send_rcs_sms.js           RCS SMS 발송 예제(버튼 발송 포함)
 rcs/send_rcs_lms.js           RCS LMS 발송 예제(버튼 발송 포함)
 ```
