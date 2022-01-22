@@ -31,7 +31,7 @@
     "fs": "0.0.1-security",
     "image-to-base64": "^2.0.1",
     "moment": "^2.22.1",
-    "nanoid": "^2.0.3",
+    "nanoid": "^3.1.31",
     "path": "^0.12.7",
     "qs": "^6.9.1",
     "request": "^2.85.0",
