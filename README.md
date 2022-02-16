@@ -1,14 +1,19 @@
-# SOLAPI SDK for Javascript
+# SOLAPI SDK for Node.js(Server Side Only)
+
 You can send text messages, Kakaotalk in Korea using this package.
 
 ## Installing
+
 To use the SDK, simply use npm package manager CLI. Type the following into a terminal window.
 
 ### npm
+
 ```bash
 npm install solapi
 ```
+
 ### yarn
+
 ```bash
 yarn add solapi
 ```
@@ -56,12 +61,16 @@ send({
 
 ## Examples
 
-[NodeJS Examples](https://github.com/solapi/solapi-sdk-js-v4/tree/master/examples), 
+[NodeJS Examples](https://github.com/solapi/solapi-sdk-js-v4/tree/master/examples),
 
 [more examples can be found at solapi repos](https://github.com/solapi)
+
 ## Opening Issues
 
-If you encounter a bug with the SOLAPI SDK for Javascript we would like to hear about it. Search the [existing issues](https://github.com/solapi/solapi-sdk-js-v4/issues) and try to make sure your problem doesn’t already exist before opening a new issue. It’s helpful if you include the version of the SDK, Node.js or browser environment and OS you’re using. Please include a stack trace and reduced repro case when appropriate, too.
+If you encounter a bug with the SOLAPI SDK for Javascript we would like to hear about it. Search
+the [existing issues](https://github.com/solapi/solapi-sdk-js-v4/issues) and try to make sure your problem doesn’t
+already exist before opening a new issue. It’s helpful if you include the version of the SDK, Node.js or browser
+environment and OS you’re using. Please include a stack trace and reduced repro case when appropriate, too.
 
 ## License
 
