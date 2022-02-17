@@ -11,6 +11,9 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
+  "env": {
+    "node": true
+  },
   "rules": {
     "quotes": [
       "error",
@@ -25,5 +28,8 @@
       }
     ],
     "@typescript-eslint/no-unused-vars": "warn"
-  }
+  },
+  "ignorePatterns": [
+    "dist/**/*"
+  ]
 }

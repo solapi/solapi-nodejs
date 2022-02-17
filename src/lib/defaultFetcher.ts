@@ -6,7 +6,7 @@ type Request = {
     method: string
 }
 
-export default async function defaultFetcher<T, R>(authParameter: AuthenticationParameter, request: Request, data: T): Promise<R> {
+export default async function defaultFetcher<T, R>(authParameter: AuthenticationParameter, request: Request, data?: T): Promise<R> {
     const authorizationHeaderData = getAuthInfo(authParameter);
     return await fetch(request.url, {
         headers: {
