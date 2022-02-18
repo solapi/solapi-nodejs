@@ -12,12 +12,11 @@ export const defaultAgent: DefaultAgentType = {
 
 abstract class DefaultMessageRequest {
     allowDuplicates: boolean;
-    appId: string | null;
+    appId: string | undefined;
     protected agent: DefaultAgentType;
 
     protected constructor() {
         this.agent = defaultAgent;
-        this.appId = null;
         this.allowDuplicates = false;
     }
 }
@@ -55,4 +54,11 @@ export class MultipleMessageSendingRequest extends DefaultMessageRequest {
 export type GetGroupMessagesRequest = {
     startKey?: string,
     limit?: number
+}
+
+export type GetGroupsRequest = {
+    startKey?: string,
+    limit?: number,
+    startDate?: Date,
+    endDate?: Date
 }

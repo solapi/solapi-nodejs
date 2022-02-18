@@ -9,7 +9,6 @@ import {
 import defaultFetcher from './lib/defaultFetcher';
 import {
     AddMessageResponse,
-    DefaultException,
     GetGroupMessagesResponse,
     GroupMessageResponse,
     RemoveGroupMessagesResponse,
@@ -43,7 +42,7 @@ export default class SolapiMessageService {
      * @param allowDuplicates 중복 수신번호 허용
      * @param appId appstore용 app id
      */
-    async sendOne(message: Message, allowDuplicates = false, appId?: string): Promise<Promise<SingleMessageSentResponse> | Promise<DefaultException>> {
+    async sendOne(message: Message, allowDuplicates = false, appId?: string): Promise<SingleMessageSentResponse> {
         const parameter = new SingleMessageSendingRequest(message, allowDuplicates, appId);
         const requestConfig = {
             method: 'POST',
@@ -59,7 +58,7 @@ export default class SolapiMessageService {
      * @param allowDuplicates 중복 수신번호 허용
      * @param appId appstore용 app id
      */
-    async sendMany(messages: Array<Message>, allowDuplicates = false, appId?: string): Promise<Promise<GroupMessageResponse> | Promise<DefaultException>> {
+    async sendMany(messages: Required<Array<Message>>, allowDuplicates = false, appId?: string): Promise<GroupMessageResponse> {
         const parameter = new MultipleMessageSendingRequest(messages, allowDuplicates, appId);
         const requestConfig = {
             method: 'POST',
@@ -94,6 +93,18 @@ export default class SolapiMessageService {
     }
 
     /**
+     * 그룹 메시지 전송 요청
+     * @param groupId 생성 된 Group ID
+     */
+    async sendGroup(groupId: GroupId): Promise<GroupMessageResponse> {
+        const requestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/messages/v4/groups/${groupId}/send`
+        };
+        return await defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
      * 그룹 내 메시지 목록 조회
      * @param groupId 생성 된 Group ID
      * @param startKey 페이징을 위한 조회 키
@@ -116,7 +127,7 @@ export default class SolapiMessageService {
      * @param groupId 생성 된 Group Id
      * @param messageIds 생성 된 메시지 ID 목록
      */
-    async removeGroupMessages(groupId: GroupId, messageIds: Array<string>): Promise<RemoveGroupMessagesResponse> {
+    async removeGroupMessages(groupId: GroupId, messageIds: Required<Array<string>>): Promise<RemoveGroupMessagesResponse> {
         const requestConfig = {
             method: 'DELETE',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/messages`

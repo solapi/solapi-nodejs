@@ -10,7 +10,7 @@ export type Count = {
     registeredSuccess: number
 }
 
-type CountryChargeStatus = Map<string, number>
+type CountryChargeStatus = Record<string, number>
 
 export type CountForCharge = {
     sms: CountryChargeStatus,

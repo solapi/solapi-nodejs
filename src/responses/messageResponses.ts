@@ -32,11 +32,6 @@ export type GroupMessageResponse = {
     dateUpdated: Date
 }
 
-export type DefaultException = {
-    errorCode: string,
-    errorMessage: string
-}
-
 export type AddMessageResult = {
     to: string,
     from: string,
@@ -56,7 +51,7 @@ export type AddMessageResponse = {
 export type GetGroupMessagesResponse = {
     startKey: string | null,
     limit: number,
-    messageList: Map<string, Message>
+    messageList: Record<string, Message>
 }
 
 export type RemoveGroupMessagesResponse = {
