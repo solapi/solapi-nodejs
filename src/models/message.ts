@@ -58,8 +58,8 @@ export enum MessageType {
 }
 
 export default class Message {
-    to!: string | null;
-    from!: string | null;
+    to: string;
+    from: string;
     text?: string;
     dateCreated?: Date;
     dateUpdated?: Date;
@@ -71,7 +71,7 @@ export default class Message {
     autoTypeDetect = true;
     kakaoOptions?: KakaoOption;
 
-    constructor(to: string | null, from: string | null, text: string, dateCreated: Date, dateUpdated: Date, groupId: string, messageId: string, imageId: string, type: MessageType, subject: string, autoTypeDetect: boolean, kakaoOptions: KakaoOption) {
+    constructor(to: string, from: string, text: string, dateCreated: Date, dateUpdated: Date, groupId: string, messageId: string, imageId: string, type: MessageType, subject: string, autoTypeDetect: boolean, kakaoOptions: KakaoOption) {
         this.to = to;
         this.from = from;
         this.text = text;

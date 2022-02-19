@@ -8,7 +8,7 @@ export type DefaultAgentType = {
 export const defaultAgent: DefaultAgentType = {
     sdkVersion: 'nodejs/5.0.0',
     osPlatform: `${process.platform} | ${process.version}`,
-}
+};
 
 abstract class DefaultMessageRequest {
     allowDuplicates: boolean;
@@ -28,7 +28,7 @@ export class SingleMessageSendingRequest extends DefaultMessageRequest {
         super();
         this.message = message;
         if (typeof allowDuplicates === 'boolean') {
-            this.allowDuplicates = allowDuplicates
+            this.allowDuplicates = allowDuplicates;
         }
         if (appId) {
             this.appId = appId;
@@ -37,13 +37,13 @@ export class SingleMessageSendingRequest extends DefaultMessageRequest {
 }
 
 export class MultipleMessageSendingRequest extends DefaultMessageRequest {
-    messages: Array<Message>
+    messages: Array<Message>;
 
     constructor(messages: Array<Message>, allowDuplicates?: boolean, appId?: string) {
         super();
         this.messages = messages;
         if (typeof allowDuplicates === 'boolean') {
-            this.allowDuplicates = allowDuplicates
+            this.allowDuplicates = allowDuplicates;
         }
         if (appId) {
             this.appId = appId;

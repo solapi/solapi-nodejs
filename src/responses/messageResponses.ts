@@ -1,5 +1,5 @@
 import Message, {MessageType} from '../models/message';
-import {App, CommonCashResponse, Count, CountForCharge, GroupId, Log} from '../types/commonTypes';
+import {App, CommonCashResponse, Count, CountForCharge, Group, GroupId, Log} from '../types/commonTypes';
 
 export type SingleMessageSentResponse = {
     groupId: string;
@@ -28,8 +28,8 @@ export type GroupMessageResponse = {
     apiVersion: string,
     groupId: string,
     price: object,
-    dateCreated: Date,
-    dateUpdated: Date
+    dateCreated: string,
+    dateUpdated: string
 }
 
 export type AddMessageResult = {
@@ -61,4 +61,11 @@ export type RemoveGroupMessagesResponse = {
         messageId: string,
         resultCode: string
     }>
+}
+
+export type GetGroupsResponse = {
+    startKey: string | null | undefined,
+    limit: number,
+    nextKey: string | null | undefined,
+    groupList: Record<GroupId, Group>
 }

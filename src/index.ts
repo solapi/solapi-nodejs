@@ -3,6 +3,7 @@ import {
     defaultAgent,
     DefaultAgentType,
     GetGroupMessagesRequest,
+    GetGroupsRequest,
     MultipleMessageSendingRequest,
     SingleMessageSendingRequest
 } from './requests/messageRequest';
@@ -10,11 +11,13 @@ import defaultFetcher from './lib/defaultFetcher';
 import {
     AddMessageResponse,
     GetGroupMessagesResponse,
+    GetGroupsResponse,
     GroupMessageResponse,
     RemoveGroupMessagesResponse,
     SingleMessageSentResponse
 } from './responses/messageResponses';
 import {GroupId} from './types/commonTypes';
+import {URLSearchParams} from 'url';
 
 type AuthInfo = {
     apiKey: string,
@@ -84,7 +87,7 @@ export default class SolapiMessageService {
      * @param groupId 생성 된 Group ID
      * @param messages 여러 메시지(문자, 알림톡 등)
      */
-    async addMessagesToGroup(groupId: GroupId, messages: Array<Message>): Promise<AddMessageResponse> {
+    async addMessagesToGroup(groupId: GroupId, messages: Required<Array<Message>>): Promise<AddMessageResponse> {
         const requestConfig = {
             method: 'PUT',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/messages`
@@ -102,6 +105,30 @@ export default class SolapiMessageService {
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/send`
         };
         return await defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 그룹 정보 조회
+     * @param data 그룹 정보 상세 조회용 request 데이터
+     */
+    async getGroups(data?: GetGroupsRequest) {
+        const apiUrl = new URL(`${this.baseUrl}/messages/v4/groups`);
+        if (data) {
+            const urlSearchParams = new URLSearchParams();
+            Object.keys(data).forEach(key => {
+                const reflectedValue = Reflect.get(data, key);
+                if (reflectedValue) {
+                    urlSearchParams.set(key, reflectedValue);
+                }
+            });
+            apiUrl.search = urlSearchParams.toString();
+        }
+        const endpoint = apiUrl.toString();
+        const requestConfig = {
+            method: 'GET',
+            url: endpoint
+        };
+        return await defaultFetcher<undefined, GetGroupsResponse>(this.authInfo, requestConfig);
     }
 
     /**

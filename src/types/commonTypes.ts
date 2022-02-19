@@ -53,3 +53,33 @@ export type App = {
 export type Log = Array<object>
 
 export type GroupId = string
+
+export type Group = {
+    count: {
+        total: number,
+        sentTotal: number,
+        sentFailed: number,
+        sentSuccess: number,
+        sentPending: number,
+        sentReplacement: number,
+        refund: number,
+        registeredFailed: number,
+        registeredSuccess: number
+    },
+    balance: CommonCashResponse,
+    point: CommonCashResponse,
+    app: App,
+    sdkVersion: string,
+    osPlatform: string,
+    log: Log,
+    status: string,
+    scheduledDate?: string,
+    dateSent?: string,
+    dateCompleted?: string,
+    isRefunded: boolean,
+    groupId: GroupId,
+    accountId: string,
+    countForCharge: CountForCharge,
+    dateCreated: string,
+    dateUpdated: string
+}
