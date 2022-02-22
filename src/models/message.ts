@@ -61,8 +61,8 @@ export default class Message {
     to: string;
     from: string;
     text?: string;
-    dateCreated?: Date;
-    dateUpdated?: Date;
+    dateCreated?: string;
+    dateUpdated?: string;
     groupId?: string;
     messageId?: string;
     imageId?: string;
@@ -71,7 +71,7 @@ export default class Message {
     autoTypeDetect = true;
     kakaoOptions?: KakaoOption;
 
-    constructor(to: string, from: string, text: string, dateCreated: Date, dateUpdated: Date, groupId: string, messageId: string, imageId: string, type: MessageType, subject: string, autoTypeDetect: boolean, kakaoOptions: KakaoOption) {
+    constructor(to: string, from: string, text: string, dateCreated: string, dateUpdated: string, groupId: string, messageId: string, imageId: string, type: MessageType, subject: string, autoTypeDetect: boolean, kakaoOptions: KakaoOption) {
         this.to = to;
         this.from = from;
         this.text = text;

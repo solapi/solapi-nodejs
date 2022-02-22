@@ -19,17 +19,17 @@ export default async function defaultFetcher<T, R>(authParameter: Authentication
     return await fetch(request.url, {
         headers: {
             'Authorization': authorizationHeaderData,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
         method: request.method
     }).then<R>(async (res) => {
         if (res.status >= 400 && res.status < 500) {
             const errorResponse: ErrorResponse = await res.json();
-            throw new DefaultError(errorResponse.errorCode, errorResponse.errorMessage);
+            await Promise.reject(new DefaultError(errorResponse.errorCode, errorResponse.errorMessage));
         } else if (res.status >= 500) {
             const responseText = await res.text();
-            throw new DefaultError('UnknownException', responseText);
+            await Promise.reject(new DefaultError('UnknownException', responseText));
         }
         return res.json();
     });

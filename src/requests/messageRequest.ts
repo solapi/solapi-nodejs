@@ -51,6 +51,22 @@ export class MultipleMessageSendingRequest extends DefaultMessageRequest {
     }
 }
 
+export class GroupMessageAddRequest {
+    messages: Array<Message>;
+
+    constructor(messages: Array<Message>) {
+        this.messages = messages;
+    }
+}
+
+export type ScheduledDateSendingRequest = {
+    scheduledDate: string
+}
+
+export type RemoveMessageIdsToGroupRequest = {
+    messageIds: Array<string>
+}
+
 export type GetGroupMessagesRequest = {
     startKey?: string,
     limit?: number
@@ -59,6 +75,6 @@ export type GetGroupMessagesRequest = {
 export type GetGroupsRequest = {
     startKey?: string,
     limit?: number,
-    startDate?: Date,
-    endDate?: Date
+    startDate?: string,
+    endDate?: string
 }

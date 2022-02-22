@@ -1,6 +1,7 @@
 import {customAlphabet} from 'nanoid';
 import {formatISO} from 'date-fns';
 import {HmacSHA256} from 'crypto-js';
+import {ApiKeyError} from '../errors/DefaultError';
 
 enum AuthenticateType {
     API_KEY,
@@ -35,7 +36,7 @@ export default function getAuthInfo(authenticationParameter: AuthenticationParam
             const date = formatISO(new Date());
             const hmacData = date + salt;
             if (!apiKey || !apiSecret) {
-                throw Error('Invalid API Secret Key');
+                throw new ApiKeyError('Invalid API Key Error');
             }
             const signature = HmacSHA256(hmacData, apiSecret).toString();
             return `HMAC-SHA256 apiKey=${apiKey}, date=${date}, salt=${salt}, signature=${signature}`;

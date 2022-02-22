@@ -3,6 +3,13 @@ export type ErrorResponse = {
     errorMessage: string
 }
 
+export class ApiKeyError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'InvalidApiKeyError';
+    }
+}
+
 export class DefaultError extends Error {
     constructor(errorCode: string, errorMessage: string) {
         super(errorMessage);
