@@ -33,20 +33,22 @@ export type CommonCashResponse = {
     sum: number
 }
 
+export type MessageTypeRecord = {
+    sms: number
+    lms: number
+    mms: number
+    ata: number
+    cta: number
+    cti: number
+    nsa: number
+    rcs_sms: number
+    rcs_lms: number
+    rcs_mms: number
+    rcs_tpl: number
+}
+
 export type App = {
-    profit: {
-        sms: number,
-        lms: number,
-        mms: number,
-        ata: number,
-        cta: number,
-        cti: number,
-        nsa: number,
-        rcs_sms: number,
-        rcs_lms: number,
-        rcs_mms: number,
-        rcs_tpl: number
-    },
+    profit: MessageTypeRecord
     appId: string | null | undefined
 }
 

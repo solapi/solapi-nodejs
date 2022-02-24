@@ -4,24 +4,31 @@ import {
     DefaultAgentType,
     GetGroupMessagesRequest,
     GetGroupsRequest,
+    GetMessagesRequest,
+    GetMessagesRequestType,
+    GetStatisticsRequest,
+    GetStatisticsRequestType,
     GroupMessageAddRequest,
     MultipleMessageSendingRequest,
     RemoveMessageIdsToGroupRequest,
+    RequestConfig,
     ScheduledDateSendingRequest,
     SingleMessageSendingRequest
 } from './requests/messageRequest';
 import defaultFetcher from './lib/defaultFetcher';
 import {
     AddMessageResponse,
-    GetGroupMessagesResponse,
     GetGroupsResponse,
+    GetMessagesResponse,
+    GetStatisticsResponse,
     GroupMessageResponse,
     RemoveGroupMessagesResponse,
     SingleMessageSentResponse
 } from './responses/messageResponses';
 import {GroupId} from './types/commonTypes';
 import queryParameterGenerator from './lib/queryParameterGenerator';
-import {formatISO, isValid, parseISO} from 'date-fns';
+import {formatISO} from 'date-fns';
+import stringDateTransfer from './lib/stringDateTrasnfer';
 
 type AuthInfo = {
     apiKey: string,
@@ -49,10 +56,10 @@ export default class SolapiMessageService {
      * @param scheduledDate 예약발송을 위한 날짜, 입력 시 예약발송 처리 됨
      * @param appId appstore용 app id
      */
-    async sendOne(message: Message, scheduledDate?: string | Date, appId?: string): Promise<SingleMessageSentResponse | GroupMessageResponse> {
+    async sendOne(message: Required<Message>, scheduledDate?: string | Date, appId?: string): Promise<SingleMessageSentResponse | GroupMessageResponse> {
         if (!scheduledDate) {
             const parameter = new SingleMessageSendingRequest(message, false, appId);
-            const requestConfig = {
+            const requestConfig: RequestConfig = {
                 method: 'POST',
                 url: `${this.baseUrl}/messages/v4/send`
             };
@@ -60,12 +67,7 @@ export default class SolapiMessageService {
         } else {
             const groupId = await this.createGroup();
             await this.addMessagesToGroup(groupId, [message]);
-            if (isValid(scheduledDate)) {
-                throw new Error('Invalid Scheduled Date');
-            }
-            if (typeof scheduledDate === 'string') {
-                scheduledDate = parseISO(scheduledDate);
-            }
+            scheduledDate = stringDateTransfer(scheduledDate);
             return await this.reserveGroup(groupId, scheduledDate);
         }
     }
@@ -81,7 +83,7 @@ export default class SolapiMessageService {
     async sendMany(messages: Required<Array<Message>>, allowDuplicates = false, scheduledDate?: string | Date, appId?: string): Promise<GroupMessageResponse> {
         if (!scheduledDate) {
             const parameter = new MultipleMessageSendingRequest(messages, allowDuplicates, appId);
-            const requestConfig = {
+            const requestConfig: RequestConfig = {
                 method: 'POST',
                 url: `${this.baseUrl}/messages/v4/send-many`
             };
@@ -89,12 +91,7 @@ export default class SolapiMessageService {
         } else {
             const groupId = await this.createGroup();
             await this.addMessagesToGroup(groupId, messages);
-            if (isValid(scheduledDate)) {
-                throw new Error('Invalid Scheduled Date');
-            }
-            if (typeof scheduledDate === 'string') {
-                scheduledDate = parseISO(scheduledDate);
-            }
+            scheduledDate = stringDateTransfer(scheduledDate);
             return await this.reserveGroup(groupId, scheduledDate);
         }
     }
@@ -103,7 +100,7 @@ export default class SolapiMessageService {
      * 그룹 생성
      */
     async createGroup(): Promise<GroupId> {
-        const requestConfig = {
+        const requestConfig: RequestConfig = {
             method: 'POST',
             url: `${this.baseUrl}/messages/v4/groups`
         };
@@ -117,7 +114,7 @@ export default class SolapiMessageService {
      * @param messages 여러 메시지(문자, 알림톡 등)
      */
     async addMessagesToGroup(groupId: GroupId, messages: Required<Array<Message>>): Promise<AddMessageResponse> {
-        const requestConfig = {
+        const requestConfig: RequestConfig = {
             method: 'PUT',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/messages`
         };
@@ -129,7 +126,7 @@ export default class SolapiMessageService {
      * @param groupId 생성 된 Group ID
      */
     async sendGroup(groupId: GroupId): Promise<GroupMessageResponse> {
-        const requestConfig = {
+        const requestConfig: RequestConfig = {
             method: 'POST',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/send`
         };
@@ -142,7 +139,7 @@ export default class SolapiMessageService {
      * @param scheduledDate 예약발송 할 날짜
      */
     async reserveGroup(groupId: GroupId, scheduledDate: Date) {
-        const requestConfig = {
+        const requestConfig: RequestConfig = {
             method: 'POST',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/schedule`
         };
@@ -158,7 +155,7 @@ export default class SolapiMessageService {
      */
     async getGroups(data?: GetGroupsRequest) {
         const endpoint = queryParameterGenerator(`${this.baseUrl}/messages/v4/groups`, data);
-        const requestConfig = {
+        const requestConfig: RequestConfig = {
             method: 'GET',
             url: endpoint
         };
@@ -170,13 +167,13 @@ export default class SolapiMessageService {
      * @param groupId 생성 된 Group ID
      * @param data startkey, limit 등 쿼리 조건 파라미터
      */
-    async getGroupMessages(groupId: GroupId, data?: GetGroupMessagesRequest): Promise<GetGroupMessagesResponse> {
+    async getGroupMessages(groupId: GroupId, data?: GetGroupMessagesRequest): Promise<GetMessagesResponse> {
         const endpoint = queryParameterGenerator(`${this.baseUrl}/messages/v4/groups/${groupId}/messages`, data);
-        const requestConfig = {
+        const requestConfig: RequestConfig = {
             method: 'GET',
             url: endpoint
         };
-        return await defaultFetcher<undefined, GetGroupMessagesResponse>(this.authInfo, requestConfig);
+        return await defaultFetcher<undefined, GetMessagesResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -185,7 +182,7 @@ export default class SolapiMessageService {
      * @param messageIds 생성 된 메시지 ID 목록
      */
     async removeGroupMessages(groupId: GroupId, messageIds: Required<Array<string>>): Promise<RemoveGroupMessagesResponse> {
-        const requestConfig = {
+        const requestConfig: RequestConfig = {
             method: 'DELETE',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/messages`
         };
@@ -197,7 +194,7 @@ export default class SolapiMessageService {
      * @param groupId 생성 된 Group ID
      */
     async removeReservationToGroup(groupId: GroupId): Promise<GroupMessageResponse> {
-        const requestConfig = {
+        const requestConfig: RequestConfig = {
             method: 'DELETE',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/schedule`
         };
@@ -209,10 +206,39 @@ export default class SolapiMessageService {
      * @param groupId
      */
     async removeGroup(groupId: GroupId) {
-        const requestConfig = {
+        const requestConfig: RequestConfig = {
             method: 'DELETE',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}`
         };
         return await defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 메시지 목록 조회
+     * @param data 상세 조건 목록
+     */
+    async getMessages(data: GetMessagesRequestType): Promise<GetMessagesResponse> {
+        const parameter = data ? new GetMessagesRequest(data) : {};
+        const endpoint = queryParameterGenerator(`${this.baseUrl}/messages/v4/list`, parameter);
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: endpoint
+        };
+        return await defaultFetcher<undefined, GetMessagesResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 통계 조회
+     * @param data 통계 상세 조건 파라미터
+     * @returns GetStatisticsResponse 통계 결과
+     */
+    async getStatistics(data?: GetStatisticsRequestType): Promise<GetStatisticsResponse> {
+        const parameter: GetStatisticsRequest | object  = data ? new GetStatisticsRequest(data) : {};
+        const endpoint = queryParameterGenerator(`${this.baseUrl}/messages/v4/statistics`, parameter);
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: endpoint
+        };
+        return await defaultFetcher<undefined, GetStatisticsResponse>(this.authInfo, requestConfig);
     }
 }

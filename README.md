@@ -23,7 +23,7 @@ yarn add solapi
 ```javascript
 const { config, msg } = require('solapi')
 
-// apiKey, apiSecret 설정 (설정하지 않으면 패키지 홈의 config.json 파일의 설정을 참고합니다.)
+// apiKey, apiSecret 설정 (설정하지 않으면 패키지 홈의 env_config.json 파일의 설정을 참고합니다.)
 config.init({
   apiKey: 'ENTER_YOUR_API_KEY',
   apiSecret: 'ENTER_YOUR_API_SECRET'

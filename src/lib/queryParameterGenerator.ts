@@ -7,7 +7,7 @@ export default function queryParameterGenerator<T extends object>(url: string, d
         Object.keys(data).forEach(key => {
             const reflectedValue = Reflect.get(data, key);
             if (reflectedValue) {
-                urlSearchParams.set(key, reflectedValue);
+                urlSearchParams.append(key, reflectedValue);
             }
         });
         apiUrl.search = urlSearchParams.toString();

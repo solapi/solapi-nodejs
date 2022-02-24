@@ -4,14 +4,12 @@ import {HmacSHA256} from 'crypto-js';
 import {ApiKeyError} from '../errors/DefaultError';
 
 enum AuthenticateType {
-    API_KEY,
-    OAUTH
+    API_KEY
 }
 
 export type AuthenticationParameter = {
     apiKey?: string
     apiSecret?: string
-    accessToken?: string
 }
 
 
@@ -22,14 +20,8 @@ export type AuthenticationParameter = {
  * @return string "Authorization value
  */
 export default function getAuthInfo(authenticationParameter: AuthenticationParameter, authType: AuthenticateType = AuthenticateType.API_KEY): string {
-    const {apiKey, apiSecret, accessToken} = authenticationParameter;
+    const {apiKey, apiSecret} = authenticationParameter;
     switch (authType) {
-        case AuthenticateType.OAUTH:
-            if (!accessToken) {
-                throw Error('Invalid Access Token');
-            }
-            return `Bearer ${accessToken}`;
-
         case AuthenticateType.API_KEY:
         default:
             const salt = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 32)();
