@@ -156,3 +156,10 @@ export class GetStatisticsRequest {
         this.masterAccountId = getStatisticsRequest.masterAccountId;
     }
 }
+
+export type FileUploadRequest = {
+    file?: string
+    type: 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS'
+    name: string
+    link: string
+}

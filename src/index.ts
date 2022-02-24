@@ -18,6 +18,7 @@ import {
 import defaultFetcher from './lib/defaultFetcher';
 import {
     AddMessageResponse,
+    GetBalanceResponse,
     GetGroupsResponse,
     GetMessagesResponse,
     GetStatisticsResponse,
@@ -218,7 +219,7 @@ export default class SolapiMessageService {
      * @param data 상세 조건 목록
      */
     async getMessages(data: GetMessagesRequestType): Promise<GetMessagesResponse> {
-        const parameter = data ? new GetMessagesRequest(data) : {};
+        const parameter: GetStatisticsRequest | object = data ? new GetMessagesRequest(data) : {};
         const endpoint = queryParameterGenerator(`${this.baseUrl}/messages/v4/list`, parameter);
         const requestConfig: RequestConfig = {
             method: 'GET',
@@ -240,5 +241,17 @@ export default class SolapiMessageService {
             url: endpoint
         };
         return await defaultFetcher<undefined, GetStatisticsResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 잔액조회
+     * @returns GetBalanceResponse
+     */
+    async getBalance(): Promise<GetBalanceResponse> {
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: `${this.baseUrl}/cash/v1/balance`
+        };
+        return await defaultFetcher<undefined, GetBalanceResponse>(this.authInfo, requestConfig);
     }
 }

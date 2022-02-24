@@ -138,3 +138,8 @@ export type GetStatisticsResponse = {
     dailyFailedCountAvg: number
     dailySuccessedCountAvg: number
 }
+
+export type GetBalanceResponse = {
+    balance: number
+    point: number
+}
