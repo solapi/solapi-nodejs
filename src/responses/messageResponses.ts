@@ -143,3 +143,10 @@ export type GetBalanceResponse = {
     balance: number
     point: number
 }
+
+export type FileUploadResponse = {
+    file: string
+    name: string
+    type: string
+    link: string | null | undefined
+}

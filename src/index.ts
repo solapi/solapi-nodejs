@@ -2,6 +2,8 @@ import Message from './models/message';
 import {
     defaultAgent,
     DefaultAgentType,
+    FileType,
+    FileUploadRequest,
     GetGroupMessagesRequest,
     GetGroupsRequest,
     GetMessagesRequest,
@@ -18,6 +20,7 @@ import {
 import defaultFetcher from './lib/defaultFetcher';
 import {
     AddMessageResponse,
+    FileUploadResponse,
     GetBalanceResponse,
     GetGroupsResponse,
     GetMessagesResponse,
@@ -30,6 +33,7 @@ import {GroupId} from './types/commonTypes';
 import queryParameterGenerator from './lib/queryParameterGenerator';
 import {formatISO} from 'date-fns';
 import stringDateTransfer from './lib/stringDateTrasnfer';
+import ImageToBase64 from 'image-to-base64';
 
 type AuthInfo = {
     apiKey: string,
@@ -234,7 +238,7 @@ export default class SolapiMessageService {
      * @returns GetStatisticsResponse 통계 결과
      */
     async getStatistics(data?: GetStatisticsRequestType): Promise<GetStatisticsResponse> {
-        const parameter: GetStatisticsRequest | object  = data ? new GetStatisticsRequest(data) : {};
+        const parameter: GetStatisticsRequest | object = data ? new GetStatisticsRequest(data) : {};
         const endpoint = queryParameterGenerator(`${this.baseUrl}/messages/v4/statistics`, parameter);
         const requestConfig: RequestConfig = {
             method: 'GET',
@@ -253,5 +257,28 @@ export default class SolapiMessageService {
             url: `${this.baseUrl}/cash/v1/balance`
         };
         return await defaultFetcher<undefined, GetBalanceResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 파일(이미지) 업로드
+     * 카카오 친구톡 이미지는 500kb, MMS는 200kb, 발신번호 서류 인증용 파일은 2mb의 제한이 있음
+     * @param filePath 해당 파일의 경로 또는 접근 가능한 이미지 URL
+     * @param fileType 저장할 파일의 유형, 예) 카카오 친구톡 용 이미지 -> KAKAO, MMS용 사진 -> MMS, 발신번호 서류 인증에 쓰이는 문서 등 -> DOCUMENT, RCS 이미지 -> RCS
+     * @param name 파일 이름
+     * @param link 파일 링크, 친구톡의 경우 필수 값
+     */
+    async uploadFile(filePath: string, fileType: FileType, name?: string, link?: string): Promise<FileUploadResponse> {
+        const encodedFile = await ImageToBase64(filePath);
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/storage/v1/file`
+        };
+        const parameter: FileUploadRequest = {
+            file: encodedFile,
+            type: fileType,
+            name,
+            link
+        };
+        return await defaultFetcher<FileUploadRequest, FileUploadResponse>(this.authInfo, requestConfig, parameter);
     }
 }

@@ -689,6 +689,11 @@
   resolved "https://registry.yarnpkg.com/@types/crypto-js/-/crypto-js-4.1.1.tgz#602859584cecc91894eb23a4892f38cfa927890d"
   integrity sha512-BG7fQKZ689HIoc5h+6D2Dgq1fABRa0RbBWKBd9SP/MVRVXROflpm5fhwyATX5duFmbStzyzyycPB8qUYKDH3NA==
 
+"@types/image-to-base64@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/image-to-base64/-/image-to-base64-2.1.0.tgz#8c77b09b7988df3a9a2a4278bbcc27efabbec379"
+  integrity sha512-UgmqJVJyPIkzzI23TWqLc9iO+hZTzNoVD0rEf+I70FeKtcxxvLIlKJ5CrejkxkvDc/8/lk9yswSYZoAv8eyOYQ==
+
 "@types/json-schema@^7.0.9":
   version "7.0.9"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.9.tgz#97edc9037ea0c38585320b28964dde3b39e4660d"
@@ -1505,6 +1510,13 @@ ignore@^5.1.8, ignore@^5.2.0:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.2.0.tgz#6d3bac8fa7fe0d45d9f9be7bac2fc279577e345a"
   integrity sha512-CmxgYGiEPCLhfLnpPp1MoRmifwEIOgjcHXxOBjv7mY96c+eWScsOP9c112ZyLdWHi0FxHjI+4uVhKYp/gcdRmQ==
 
+image-to-base64@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/image-to-base64/-/image-to-base64-2.2.0.tgz#743039f59dee15a5953a621ea8beeacbc487f99d"
+  integrity sha512-Z+aMwm/91UOQqHhrz7Upre2ytKhWejZlWV/JxUTD1sT7GWWKFDJUEV5scVQKnkzSgPHFuQBUEWcanO+ma0PSVw==
+  dependencies:
+    node-fetch "^2.6.0"
+
 import-fresh@^3.0.0, import-fresh@^3.2.1:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/import-fresh/-/import-fresh-3.3.0.tgz#37162c25fcb9ebaa2e6e53d5b4d88ce17d9e0c2b"
@@ -1735,7 +1747,7 @@ node-addon-api@^3.2.1:
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-3.2.1.tgz#81325e0a2117789c0128dab65e7e38f07ceba161"
   integrity sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==
 
-node-fetch@2.6.7:
+node-fetch@2.6.7, node-fetch@^2.6.0:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
   integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==

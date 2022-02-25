@@ -157,9 +157,11 @@ export class GetStatisticsRequest {
     }
 }
 
+export type FileType = 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS'
+
 export type FileUploadRequest = {
-    file?: string
-    type: 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS'
-    name: string
-    link: string
+    file: string
+    type: FileType
+    name?: string
+    link?: string
 }
