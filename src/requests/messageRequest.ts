@@ -166,13 +166,7 @@ export type FileUploadRequest = {
     link?: string
 }
 
-export type MessageSendingRequest = {
-    messages: Message | Array<Message>
-    scheduledDate?: string | Date
-    allowDuplicates?: boolean
-    appId?: string
-}
-
 export type CreateGroupRequest = DefaultAgentType & {
     allowDuplicates: boolean
+    appId?: string
 }

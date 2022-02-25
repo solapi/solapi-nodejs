@@ -11,7 +11,6 @@ import {
     GetStatisticsRequest,
     GetStatisticsRequestType,
     GroupMessageAddRequest,
-    MessageSendingRequest,
     MultipleMessageSendingRequest,
     RemoveMessageIdsToGroupRequest,
     RequestConfig,
@@ -33,8 +32,8 @@ import {
 import {GroupId} from './types/commonTypes';
 import queryParameterGenerator from './lib/queryParameterGenerator';
 import {formatISO} from 'date-fns';
-import stringDateTransfer from './lib/stringDateTrasnfer';
 import ImageToBase64 from 'image-to-base64';
+import stringDateTransfer from './lib/stringDateTrasnfer';
 
 type AuthInfo = {
     apiKey: string,
@@ -57,36 +56,6 @@ export default class SolapiMessageService {
     }
 
     /**
-     * 메시지 발송 기능
-     * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
-     * @param data 메시지 데이터, 예약발송을 위한 시간, 중복수신 허용 옵션 등
-     */
-    async send(data: MessageSendingRequest): Promise<SingleMessageSentResponse | GroupMessageResponse> {
-        if (!data.scheduledDate) {
-            if (data.messages instanceof Array && data.messages.length > 1) {
-                return this.sendMany(data.messages, data.allowDuplicates, data.appId);
-            } else {
-                if (data.messages instanceof Array && data.messages.length === 0) {
-                    throw new Error('Messages must have at least one object.');
-                }
-                if (data.messages instanceof Array && data.messages.length === 1) {
-                    return this.sendOne(data.messages[0], data.appId);
-                } else if (!(data.messages instanceof Array)) {
-                    return this.sendOne(data.messages, data.appId);
-                } else {
-                    throw Error('Failed to send message.');
-                }
-            }
-        } else {
-            const groupId = await this.createGroup();
-            const wrappedMessages = data.messages instanceof Array ? data.messages : [data.messages];
-            await this.addMessagesToGroup(groupId, wrappedMessages);
-            const scheduledDate = stringDateTransfer(data.scheduledDate);
-            return await this.reserveGroup(groupId, scheduledDate);
-        }
-    }
-
-    /**
      * 단일 메시지 발송 기능
      * @param message 메시지(문자, 알림톡 등)
      * @param appId appstore용 app id
@@ -98,6 +67,18 @@ export default class SolapiMessageService {
             url: `${this.baseUrl}/messages/v4/send`
         };
         return await defaultFetcher<SingleMessageSendingRequest, SingleMessageSentResponse>(this.authInfo, requestConfig, parameter);
+    }
+
+    /**
+     * 단일 메시지 예약 발송 기능
+     * @param message 메시지(문자, 알림톡 등)
+     * @param scheduledDate
+     */
+    async sendOneFuture(message: Message, scheduledDate: string | Date): Promise<GroupMessageResponse> {
+        const groupId = await this.createGroup();
+        await this.addMessagesToGroup(groupId, [message]);
+        scheduledDate = stringDateTransfer(scheduledDate);
+        return await this.reserveGroup(groupId, scheduledDate);
     }
 
     /**
@@ -117,9 +98,24 @@ export default class SolapiMessageService {
     }
 
     /**
+     * 여러 메시지 예약 발송 기능
+     * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
+     * @param messages 여러 메시지(문자, 알림톡 등)
+     * @param scheduledDate 예약 발송 일자
+     * @param allowDuplicates 중복 수신번호 허용
+     * @param appId appstore용 app id
+     */
+    async sendManyFuture(messages: Array<Message>, scheduledDate: string | Date, allowDuplicates = false, appId?: string): Promise<GroupMessageResponse> {
+        const groupId = await this.createGroup(allowDuplicates, appId);
+        await this.addMessagesToGroup(groupId, messages);
+        scheduledDate = stringDateTransfer(scheduledDate);
+        return await this.reserveGroup(groupId, scheduledDate);
+    }
+
+    /**
      * 그룹 생성
      */
-    async createGroup(allowDuplicates?: boolean): Promise<GroupId> {
+    async createGroup(allowDuplicates?: boolean, appId?: string): Promise<GroupId> {
         allowDuplicates = allowDuplicates ?? false;
         const {sdkVersion, osPlatform} = defaultAgent;
         const requestConfig: RequestConfig = {
@@ -129,7 +125,8 @@ export default class SolapiMessageService {
         return await defaultFetcher<CreateGroupRequest, GroupMessageResponse>(this.authInfo, requestConfig, {
             sdkVersion,
             osPlatform,
-            allowDuplicates
+            allowDuplicates,
+            appId
         }).then(res => res.groupId);
     }
 
