@@ -61,14 +61,15 @@ export default class SolapiMessageService {
      * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
      * @param data 메시지 데이터, 예약발송을 위한 시간, 중복수신 허용 옵션 등
      */
-    async send(data: MessageSendingRequest) {
+    async send(data: MessageSendingRequest): Promise<SingleMessageSentResponse | GroupMessageResponse> {
         if (!data.scheduledDate) {
             if (data.messages instanceof Array && data.messages.length > 1) {
                 return this.sendMany(data.messages, data.allowDuplicates, data.appId);
             } else {
                 if (data.messages instanceof Array && data.messages.length === 0) {
                     throw new Error('Messages must have at least one object.');
-                } if (data.messages instanceof Array && data.messages.length === 1) {
+                }
+                if (data.messages instanceof Array && data.messages.length === 1) {
                     return this.sendOne(data.messages[0], data.appId);
                 } else if (!(data.messages instanceof Array)) {
                     return this.sendOne(data.messages, data.appId);
@@ -291,7 +292,7 @@ export default class SolapiMessageService {
         const encodedFile = await ImageToBase64(filePath);
         const requestConfig: RequestConfig = {
             method: 'POST',
-            url: `${this.baseUrl}/storage/v1/file`
+            url: `${this.baseUrl}/storage/v1/files`
         };
         const parameter: FileUploadRequest = {
             file: encodedFile,

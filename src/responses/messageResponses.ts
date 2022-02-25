@@ -145,8 +145,7 @@ export type GetBalanceResponse = {
 }
 
 export type FileUploadResponse = {
-    file: string
-    name: string
+    fileId: string
     type: string
     link: string | null | undefined
 }

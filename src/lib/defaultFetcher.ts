@@ -20,7 +20,6 @@ export default async function defaultFetcher<T, R>(authParameter: Authentication
         headers: {
             'Authorization': authorizationHeaderData,
             'Content-Type': 'application/json',
-            'x-beta-microservices': 'messages-v4-alpha'
         },
         body: JSON.stringify(data),
         method: request.method
@@ -32,6 +31,10 @@ export default async function defaultFetcher<T, R>(authParameter: Authentication
             const responseText = await res.text();
             throw new DefaultError('UnknownException', responseText);
         }
-        return res.json();
+        try {
+            return res.json();
+        } catch (exception) {
+            throw new Error(await res.text());
+        }
     });
 }
