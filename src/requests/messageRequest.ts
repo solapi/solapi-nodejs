@@ -5,8 +5,8 @@ import {formatISO} from 'date-fns';
 import stringDateTransfer from '../lib/stringDateTrasnfer';
 
 export type DefaultAgentType = {
-    sdkVersion: string,
-    osPlatform: string,
+    sdkVersion: string
+    osPlatform: string
 };
 
 export const defaultAgent: DefaultAgentType = {
@@ -164,4 +164,15 @@ export type FileUploadRequest = {
     type: FileType
     name?: string
     link?: string
+}
+
+export type MessageSendingRequest = {
+    messages: Message | Array<Message>
+    scheduledDate?: string | Date
+    allowDuplicates?: boolean
+    appId?: string
+}
+
+export type CreateGroupRequest = DefaultAgentType & {
+    allowDuplicates: boolean
 }

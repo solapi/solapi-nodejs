@@ -1,7 +1,7 @@
 import Message from './models/message';
 import {
+    CreateGroupRequest,
     defaultAgent,
-    DefaultAgentType,
     FileType,
     FileUploadRequest,
     GetGroupMessagesRequest,
@@ -11,6 +11,7 @@ import {
     GetStatisticsRequest,
     GetStatisticsRequestType,
     GroupMessageAddRequest,
+    MessageSendingRequest,
     MultipleMessageSendingRequest,
     RemoveMessageIdsToGroupRequest,
     RequestConfig,
@@ -56,25 +57,46 @@ export default class SolapiMessageService {
     }
 
     /**
-     * 단일 메시지 발송 기능
-     * @param message 메시지(문자, 알림톡 등)
-     * @param scheduledDate 예약발송을 위한 날짜, 입력 시 예약발송 처리 됨
-     * @param appId appstore용 app id
+     * 메시지 발송 기능
+     * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
+     * @param data 메시지 데이터, 예약발송을 위한 시간, 중복수신 허용 옵션 등
      */
-    async sendOne(message: Required<Message>, scheduledDate?: string | Date, appId?: string): Promise<SingleMessageSentResponse | GroupMessageResponse> {
-        if (!scheduledDate) {
-            const parameter = new SingleMessageSendingRequest(message, false, appId);
-            const requestConfig: RequestConfig = {
-                method: 'POST',
-                url: `${this.baseUrl}/messages/v4/send`
-            };
-            return await defaultFetcher<SingleMessageSendingRequest, SingleMessageSentResponse>(this.authInfo, requestConfig, parameter);
+    async send(data: MessageSendingRequest) {
+        if (!data.scheduledDate) {
+            if (data.messages instanceof Array && data.messages.length > 1) {
+                return this.sendMany(data.messages, data.allowDuplicates, data.appId);
+            } else {
+                if (data.messages instanceof Array && data.messages.length === 0) {
+                    throw new Error('Messages must have at least one object.');
+                } if (data.messages instanceof Array && data.messages.length === 1) {
+                    return this.sendOne(data.messages[0], data.appId);
+                } else if (!(data.messages instanceof Array)) {
+                    return this.sendOne(data.messages, data.appId);
+                } else {
+                    throw Error('Failed to send message.');
+                }
+            }
         } else {
             const groupId = await this.createGroup();
-            await this.addMessagesToGroup(groupId, [message]);
-            scheduledDate = stringDateTransfer(scheduledDate);
+            const wrappedMessages = data.messages instanceof Array ? data.messages : [data.messages];
+            await this.addMessagesToGroup(groupId, wrappedMessages);
+            const scheduledDate = stringDateTransfer(data.scheduledDate);
             return await this.reserveGroup(groupId, scheduledDate);
         }
+    }
+
+    /**
+     * 단일 메시지 발송 기능
+     * @param message 메시지(문자, 알림톡 등)
+     * @param appId appstore용 app id
+     */
+    async sendOne(message: Message, appId?: string): Promise<SingleMessageSentResponse> {
+        const parameter = new SingleMessageSendingRequest(message, false, appId);
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/messages/v4/send`
+        };
+        return await defaultFetcher<SingleMessageSendingRequest, SingleMessageSentResponse>(this.authInfo, requestConfig, parameter);
     }
 
     /**
@@ -82,34 +104,32 @@ export default class SolapiMessageService {
      * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
      * @param messages 여러 메시지(문자, 알림톡 등)
      * @param allowDuplicates 중복 수신번호 허용
-     * @param scheduledDate 예약발송을 위한 날짜, 입력 시 예약발송 처리 됨
      * @param appId appstore용 app id
      */
-    async sendMany(messages: Required<Array<Message>>, allowDuplicates = false, scheduledDate?: string | Date, appId?: string): Promise<GroupMessageResponse> {
-        if (!scheduledDate) {
-            const parameter = new MultipleMessageSendingRequest(messages, allowDuplicates, appId);
-            const requestConfig: RequestConfig = {
-                method: 'POST',
-                url: `${this.baseUrl}/messages/v4/send-many`
-            };
-            return await defaultFetcher<MultipleMessageSendingRequest, GroupMessageResponse>(this.authInfo, requestConfig, parameter);
-        } else {
-            const groupId = await this.createGroup();
-            await this.addMessagesToGroup(groupId, messages);
-            scheduledDate = stringDateTransfer(scheduledDate);
-            return await this.reserveGroup(groupId, scheduledDate);
-        }
+    async sendMany(messages: Array<Message>, allowDuplicates = false, appId?: string): Promise<GroupMessageResponse> {
+        const parameter = new MultipleMessageSendingRequest(messages, allowDuplicates, appId);
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/messages/v4/send-many`
+        };
+        return await defaultFetcher<MultipleMessageSendingRequest, GroupMessageResponse>(this.authInfo, requestConfig, parameter);
     }
 
     /**
      * 그룹 생성
      */
-    async createGroup(): Promise<GroupId> {
+    async createGroup(allowDuplicates?: boolean): Promise<GroupId> {
+        allowDuplicates = allowDuplicates ?? false;
+        const {sdkVersion, osPlatform} = defaultAgent;
         const requestConfig: RequestConfig = {
             method: 'POST',
             url: `${this.baseUrl}/messages/v4/groups`
         };
-        return await defaultFetcher<DefaultAgentType, GroupMessageResponse>(this.authInfo, requestConfig, defaultAgent).then(res => res.groupId);
+        return await defaultFetcher<CreateGroupRequest, GroupMessageResponse>(this.authInfo, requestConfig, {
+            sdkVersion,
+            osPlatform,
+            allowDuplicates
+        }).then(res => res.groupId);
     }
 
     /**
