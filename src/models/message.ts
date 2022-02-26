@@ -124,7 +124,13 @@ export default class Message {
      */
     kakaoOptions?: KakaoOption;
 
-    constructor(to: string, from: string, text: string, dateCreated: string, dateUpdated: string, groupId: string, messageId: string, imageId: string, type: MessageType, subject: string, autoTypeDetect: boolean, kakaoOptions: KakaoOption) {
+    /**
+     * 해외 문자 발송을 위한 국가번호(예) "82", "1" 등)
+     */
+    country = '82';
+
+
+    constructor(to: string, from: string, text: string, dateCreated: string, dateUpdated: string, groupId: string, messageId: string, imageId: string, type: MessageType, subject: string, autoTypeDetect: boolean, kakaoOptions: KakaoOption, country: string) {
         this.to = to;
         this.from = from;
         this.text = text;
@@ -137,5 +143,6 @@ export default class Message {
         this.subject = subject;
         this.autoTypeDetect = autoTypeDetect;
         this.kakaoOptions = kakaoOptions;
+        this.country = country;
     }
 }
