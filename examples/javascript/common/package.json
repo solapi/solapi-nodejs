@@ -1,0 +1,14 @@
+{
+  "name": "solapi-common-examples",
+  "version": "1.0.0",
+  "description": "Common Examples for SOLAPI",
+  "keywords": [],
+  "author": {
+    "name": "Nurigo Team",
+    "email": "contact@nurigo.net"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "solapi": "^5.0.0-beta.19"
+  }
+}

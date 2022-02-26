@@ -4,7 +4,7 @@ const asyncify = require("express-asyncify");
 const solapi = require("solapi").default;
 const messageService = new solapi("ENTER_YOUR_API_KEY", "ENTER_YOUR_API_SECRET");
 
-// 넘어온 그룹ID로 메시지 목록을 가져오는 API를 사용하므로 API Key, API Secret이 준비되어야 합니다.
+// 넘어온 그룹 ID로 메시지 목록을 가져오는 API를 사용하므로 API Key, API Secret Key가 준비되어야 합니다.
 const app = asyncify(express());
 app.use(bodyParser.json({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: false }));

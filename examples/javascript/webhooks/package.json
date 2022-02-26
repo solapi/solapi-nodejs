@@ -1,18 +1,21 @@
 {
   "name": "solapi-webhook-sample",
   "version": "1.0.0",
-  "description": "",
+  "description": "Webhook Example(Group Report) for SOLAPI",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Nurigo Team",
+    "email": "contact@nurigo.net"
+  },
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.2",
     "express": "^4.17.3",
     "express-asyncify": "^1.0.1",
-    "solapi": "^5.0.0-beta.13"
+    "solapi": "^5.0.0-beta.18"
   }
 }
