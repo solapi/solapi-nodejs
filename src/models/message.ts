@@ -129,6 +129,11 @@ export default class Message {
      */
     country = '82';
 
+    /**
+     * 메시지 로그
+     */
+    log: Array<object>;
+
 
     constructor(to: string, from: string, text: string, dateCreated: string, dateUpdated: string, groupId: string, messageId: string, imageId: string, type: MessageType, subject: string, autoTypeDetect: boolean, kakaoOptions: KakaoOption, country: string) {
         this.to = to;

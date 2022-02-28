@@ -238,10 +238,10 @@ export default class SolapiMessageService {
 
     /**
      * 메시지 목록 조회
-     * @param data 상세 조건 목록
+     * @param data 목록 조회 상세조건 파라미터
      */
-    async getMessages(data: GetMessagesRequestType): Promise<GetMessagesResponse> {
-        const parameter: GetStatisticsRequest | object = data ? new GetMessagesRequest(data) : {};
+    async getMessages(data?: GetMessagesRequestType): Promise<GetMessagesResponse> {
+        const parameter: GetMessagesRequest | object = data ? new GetMessagesRequest(data) : {};
         const endpoint = queryParameterGenerator(`${this.baseUrl}/messages/v4/list`, parameter);
         const requestConfig: RequestConfig = {
             method: 'GET',

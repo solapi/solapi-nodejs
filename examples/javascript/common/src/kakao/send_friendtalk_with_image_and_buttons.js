@@ -19,7 +19,6 @@ messageService.uploadFile(path.join(__dirname, "../../images/example.jpg"), "KAK
       kakaoOptions: {
         pfId: "연동한 비즈니스 채널의 pfId",
         imageId: fileId,
-
       }
     }).then(res => console.log(res));
 

@@ -89,44 +89,44 @@ export type RequestConfig = {
 }
 
 export type GetMessagesRequestType = {
-    readonly startKey: string
-    readonly limit: number
-    readonly dateType: string
-    readonly startDate: string
-    readonly endDate: string
-    readonly messageId: string
-    readonly messageIds: Array<string>
-    readonly groupId: GroupId
-    readonly to: string
-    readonly from: string
-    readonly type: MessageType
-    readonly statusCode: string
-    readonly dateCreated: string
-    readonly dateUpdated: string
+    readonly startKey?: string
+    readonly limit?: number
+    readonly dateType?: string
+    readonly startDate?: string
+    readonly endDate?: string
+    readonly messageId?: string
+    readonly messageIds?: Array<string>
+    readonly groupId?: GroupId
+    readonly to?: string
+    readonly from?: string
+    readonly type?: MessageType
+    readonly statusCode?: string
+    readonly dateCreated?: string
+    readonly dateUpdated?: string
 }
 
 export class GetMessagesRequest {
-    readonly startKey: string;
-    readonly limit: number;
-    readonly dateType: string;
-    readonly startDate: string;
-    readonly endDate: string;
-    readonly messageId: string;
-    readonly messageIds: Array<string>;
-    readonly groupId: GroupId;
-    readonly to: string;
-    readonly from: string;
-    readonly type: MessageType;
-    readonly statusCode: string;
-    readonly dateCreated: string;
-    readonly dateUpdated: string;
+    readonly startKey?: string;
+    readonly limit?: number;
+    readonly dateType?: string;
+    readonly startDate?: string;
+    readonly endDate?: string;
+    readonly messageId?: string;
+    readonly messageIds?: Array<string>;
+    readonly groupId?: GroupId;
+    readonly to?: string;
+    readonly from?: string;
+    readonly type?: MessageType;
+    readonly statusCode?: string;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
 
     constructor(getMessageRequestType: GetMessagesRequestType) {
         this.startKey = getMessageRequestType.startKey;
         this.limit = getMessageRequestType.limit;
         this.dateType = getMessageRequestType.dateType;
-        this.startDate = formatISO(stringDateTransfer(getMessageRequestType.startDate));
-        this.endDate = formatISO(stringDateTransfer(getMessageRequestType.endDate));
+        if (getMessageRequestType.startDate) this.startDate = formatISO(stringDateTransfer(getMessageRequestType.startDate));
+        if (getMessageRequestType.endDate) this.endDate = formatISO(stringDateTransfer(getMessageRequestType.endDate));
         this.messageId = getMessageRequestType.messageId;
         this.messageIds = getMessageRequestType.messageIds;
         this.groupId = getMessageRequestType.groupId;
@@ -134,8 +134,8 @@ export class GetMessagesRequest {
         this.from = getMessageRequestType.from;
         this.type = getMessageRequestType.type;
         this.statusCode = getMessageRequestType.statusCode;
-        this.dateCreated = formatISO(stringDateTransfer(getMessageRequestType.dateCreated));
-        this.dateUpdated = formatISO(stringDateTransfer(getMessageRequestType.dateUpdated));
+        if (getMessageRequestType.dateCreated) this.dateCreated = formatISO(stringDateTransfer(getMessageRequestType.dateCreated));
+        if (getMessageRequestType.dateUpdated) this.dateUpdated = formatISO(stringDateTransfer(getMessageRequestType.dateUpdated));
     }
 }
 
