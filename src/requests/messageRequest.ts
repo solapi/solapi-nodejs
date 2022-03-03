@@ -89,20 +89,20 @@ export type RequestConfig = {
 }
 
 export type GetMessagesRequestType = {
-    readonly startKey?: string
-    readonly limit?: number
-    readonly dateType?: string
-    readonly startDate?: string
-    readonly endDate?: string
-    readonly messageId?: string
-    readonly messageIds?: Array<string>
-    readonly groupId?: GroupId
-    readonly to?: string
-    readonly from?: string
-    readonly type?: MessageType
-    readonly statusCode?: string
-    readonly dateCreated?: string
-    readonly dateUpdated?: string
+    startKey?: string
+    limit?: number
+    dateType?: string
+    messageId?: string
+    messageIds?: Array<string>
+    groupId?: GroupId
+    to?: string
+    from?: string
+    type?: MessageType
+    statusCode?: string
+    duration?: {
+        startDate: string
+        endDate: string
+    }
 }
 
 export class GetMessagesRequest {
@@ -118,15 +118,13 @@ export class GetMessagesRequest {
     readonly from?: string;
     readonly type?: MessageType;
     readonly statusCode?: string;
-    readonly dateCreated?: string;
-    readonly dateUpdated?: string;
 
     constructor(getMessageRequestType: GetMessagesRequestType) {
         this.startKey = getMessageRequestType.startKey;
         this.limit = getMessageRequestType.limit;
         this.dateType = getMessageRequestType.dateType;
-        if (getMessageRequestType.startDate) this.startDate = formatISO(stringDateTransfer(getMessageRequestType.startDate));
-        if (getMessageRequestType.endDate) this.endDate = formatISO(stringDateTransfer(getMessageRequestType.endDate));
+        if (getMessageRequestType.duration) this.startDate = formatISO(stringDateTransfer(getMessageRequestType.duration.startDate));
+        if (getMessageRequestType.duration) this.endDate = formatISO(stringDateTransfer(getMessageRequestType.duration.endDate));
         this.messageId = getMessageRequestType.messageId;
         this.messageIds = getMessageRequestType.messageIds;
         this.groupId = getMessageRequestType.groupId;
@@ -134,8 +132,6 @@ export class GetMessagesRequest {
         this.from = getMessageRequestType.from;
         this.type = getMessageRequestType.type;
         this.statusCode = getMessageRequestType.statusCode;
-        if (getMessageRequestType.dateCreated) this.dateCreated = formatISO(stringDateTransfer(getMessageRequestType.dateCreated));
-        if (getMessageRequestType.dateUpdated) this.dateUpdated = formatISO(stringDateTransfer(getMessageRequestType.dateUpdated));
     }
 }
 

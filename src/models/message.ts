@@ -1,64 +1,31 @@
 import KakaoOption from './kakaoOption';
 
 /**
- * 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
+ * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
+ * SMS: 단문 문자
+ * LMS: 장문 문자
+ * MMS: 사진 문자
+ * ATA: 알림톡
+ * CTA: 친구톡
+ * CTI: 사진 한장이 포함된 친구톡
+ * RCS_SMS: RCS 단문 문자
+ * RCS_LMS: RCS 장문 문자
+ * RCS_MMS: RCS 사진 문자
+ * RCS_TPL: RCS 템플릿
+ * NSA: 네이버 스마트알림(톡톡)
  */
-export enum MessageType {
-    /**
-     * 단문문자 (80 byte 미만)
-     * */
-    SMS = 'SMS',
-
-    /**
-     * 장문문자 (80 byte 이상, 2,000 byte 미만)
-     */
-    LMS = 'LMS',
-
-    /**
-     * 이미지가 포함된 문자 (80 byte 이상, 2,000 byte 미만), 200kb 이내 이미지 파일 1장 업로드 가능
-     */
-    MMS = 'MMS',
-
-    /**
-     * 카카오 알림톡
-     * */
-    ATA = 'ATA',
-
-    /**
-     * 카카오 친구톡
-     */
-    CTA = 'CTA',
-
-    /**
-     * 이미지가 포함된 카카오 친구톡(이미지 1장 업로드 가능)
-     */
-    CTI = 'CTI',
-
-    /**
-     * RCS 단문문자
-     */
-    RCS_SMS = 'RCS_SMS',
-
-    /**
-     * RCS 장문문자
-     */
-    RCS_LMS = 'RCS_LMS',
-
-    /**
-     * 이미지가 포함된 RCS 문자
-     */
-    RCS_MMS = 'RCS_MMS',
-
-    /**
-     * RCS 템플릿
-     */
-    RCS_TPL = 'RCS_TPL',
-
-    /**
-     * 네이버 스마트 알림(네이버 톡톡)
-     */
-    NSA = 'NSA'
-}
+export type MessageType =
+    'SMS'
+    | 'LMS'
+    | 'MMS'
+    | 'ATA'
+    | 'CTA'
+    | 'CTI'
+    | 'RCS_SMS'
+    | 'RCS_LMS'
+    | 'RCS_MMS'
+    | 'RCS_TPL'
+    | 'NSA';
 
 /**
  * 메시지 모델
@@ -105,9 +72,9 @@ export default class Message {
     imageId?: string;
 
     /**
-     * 메시지 유형
+     * @name MessageType 메시지 유형
      */
-    type: MessageType;
+    type?: MessageType;
 
     /**
      * 문자 제목(LMS, MMS 전용)
@@ -127,12 +94,12 @@ export default class Message {
     /**
      * 해외 문자 발송을 위한 국가번호(예) "82", "1" 등)
      */
-    country = '82';
+    country? = '82';
 
     /**
      * 메시지 로그
      */
-    log: Array<object>;
+    log?: Array<object>;
 
 
     constructor(to: string, from: string, text: string, dateCreated: string, dateUpdated: string, groupId: string, messageId: string, imageId: string, type: MessageType, subject: string, autoTypeDetect: boolean, kakaoOptions: KakaoOption, country: string) {

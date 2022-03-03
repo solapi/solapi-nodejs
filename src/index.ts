@@ -66,7 +66,7 @@ export default class SolapiMessageService {
             method: 'POST',
             url: `${this.baseUrl}/messages/v4/send`
         };
-        return await defaultFetcher<SingleMessageSendingRequest, SingleMessageSentResponse>(this.authInfo, requestConfig, parameter);
+        return defaultFetcher<SingleMessageSendingRequest, SingleMessageSentResponse>(this.authInfo, requestConfig, parameter);
     }
 
     /**
@@ -78,7 +78,7 @@ export default class SolapiMessageService {
         const groupId = await this.createGroup();
         await this.addMessagesToGroup(groupId, [message]);
         scheduledDate = stringDateTransfer(scheduledDate);
-        return await this.reserveGroup(groupId, scheduledDate);
+        return this.reserveGroup(groupId, scheduledDate);
     }
 
     /**
@@ -94,7 +94,7 @@ export default class SolapiMessageService {
             method: 'POST',
             url: `${this.baseUrl}/messages/v4/send-many`
         };
-        return await defaultFetcher<MultipleMessageSendingRequest, GroupMessageResponse>(this.authInfo, requestConfig, parameter);
+        return defaultFetcher<MultipleMessageSendingRequest, GroupMessageResponse>(this.authInfo, requestConfig, parameter);
     }
 
     /**
@@ -109,7 +109,7 @@ export default class SolapiMessageService {
         const groupId = await this.createGroup(allowDuplicates, appId);
         await this.addMessagesToGroup(groupId, messages);
         scheduledDate = stringDateTransfer(scheduledDate);
-        return await this.reserveGroup(groupId, scheduledDate);
+        return this.reserveGroup(groupId, scheduledDate);
     }
 
     /**
@@ -122,7 +122,7 @@ export default class SolapiMessageService {
             method: 'POST',
             url: `${this.baseUrl}/messages/v4/groups`
         };
-        return await defaultFetcher<CreateGroupRequest, GroupMessageResponse>(this.authInfo, requestConfig, {
+        return defaultFetcher<CreateGroupRequest, GroupMessageResponse>(this.authInfo, requestConfig, {
             sdkVersion,
             osPlatform,
             allowDuplicates,
@@ -141,7 +141,7 @@ export default class SolapiMessageService {
             method: 'PUT',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/messages`
         };
-        return await defaultFetcher<GroupMessageAddRequest, AddMessageResponse>(this.authInfo, requestConfig, new GroupMessageAddRequest(messages));
+        return defaultFetcher<GroupMessageAddRequest, AddMessageResponse>(this.authInfo, requestConfig, new GroupMessageAddRequest(messages));
     }
 
     /**
@@ -153,7 +153,7 @@ export default class SolapiMessageService {
             method: 'POST',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/send`
         };
-        return await defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -167,7 +167,7 @@ export default class SolapiMessageService {
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/schedule`
         };
         const formattedScheduledDate = formatISO(scheduledDate);
-        return await defaultFetcher<ScheduledDateSendingRequest, GroupMessageResponse>(this.authInfo, requestConfig, {
+        return defaultFetcher<ScheduledDateSendingRequest, GroupMessageResponse>(this.authInfo, requestConfig, {
             scheduledDate: formattedScheduledDate
         });
     }
@@ -182,7 +182,7 @@ export default class SolapiMessageService {
             method: 'GET',
             url: endpoint
         };
-        return await defaultFetcher<undefined, GetGroupsResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<undefined, GetGroupsResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -196,7 +196,7 @@ export default class SolapiMessageService {
             method: 'GET',
             url: endpoint
         };
-        return await defaultFetcher<undefined, GetMessagesResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<undefined, GetMessagesResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -209,7 +209,7 @@ export default class SolapiMessageService {
             method: 'DELETE',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/messages`
         };
-        return await defaultFetcher<RemoveMessageIdsToGroupRequest, RemoveGroupMessagesResponse>(this.authInfo, requestConfig, {messageIds});
+        return defaultFetcher<RemoveMessageIdsToGroupRequest, RemoveGroupMessagesResponse>(this.authInfo, requestConfig, {messageIds});
     }
 
     /**
@@ -221,7 +221,7 @@ export default class SolapiMessageService {
             method: 'DELETE',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/schedule`
         };
-        return await defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -233,21 +233,21 @@ export default class SolapiMessageService {
             method: 'DELETE',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}`
         };
-        return await defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
     }
 
     /**
      * 메시지 목록 조회
      * @param data 목록 조회 상세조건 파라미터
      */
-    async getMessages(data?: GetMessagesRequestType): Promise<GetMessagesResponse> {
+    async getMessages(data?: Readonly<GetMessagesRequestType>): Promise<GetMessagesResponse> {
         const parameter: GetMessagesRequest | object = data ? new GetMessagesRequest(data) : {};
         const endpoint = queryParameterGenerator(`${this.baseUrl}/messages/v4/list`, parameter);
         const requestConfig: RequestConfig = {
             method: 'GET',
             url: endpoint
         };
-        return await defaultFetcher<undefined, GetMessagesResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<undefined, GetMessagesResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -262,7 +262,7 @@ export default class SolapiMessageService {
             method: 'GET',
             url: endpoint
         };
-        return await defaultFetcher<undefined, GetStatisticsResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<undefined, GetStatisticsResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -274,7 +274,7 @@ export default class SolapiMessageService {
             method: 'GET',
             url: `${this.baseUrl}/cash/v1/balance`
         };
-        return await defaultFetcher<undefined, GetBalanceResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<undefined, GetBalanceResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -297,6 +297,6 @@ export default class SolapiMessageService {
             name,
             link
         };
-        return await defaultFetcher<FileUploadRequest, FileUploadResponse>(this.authInfo, requestConfig, parameter);
+        return defaultFetcher<FileUploadRequest, FileUploadResponse>(this.authInfo, requestConfig, parameter);
     }
 }

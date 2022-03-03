@@ -27,7 +27,7 @@ export default function getAuthInfo(authenticationParameter: AuthenticationParam
             const salt = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 32)();
             const date = formatISO(new Date());
             const hmacData = date + salt;
-            if (!apiKey || !apiSecret) {
+            if ((!apiKey || !apiSecret) || (apiKey === '' || apiSecret === '')) {
                 throw new ApiKeyError('Invalid API Key Error');
             }
             const signature = HmacSHA256(hmacData, apiSecret).toString();
