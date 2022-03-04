@@ -59,6 +59,7 @@ export type AddMessageResponse = {
 
 export type GetMessagesResponse = {
     startKey: string | null
+    nextKey: string | null
     limit: number
     messageList: Record<string, Message>
 }

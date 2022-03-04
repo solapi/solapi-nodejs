@@ -255,7 +255,7 @@ export default class SolapiMessageService {
      * @param data 통계 상세 조건 파라미터
      * @returns GetStatisticsResponse 통계 결과
      */
-    async getStatistics(data?: GetStatisticsRequestType): Promise<GetStatisticsResponse> {
+    async getStatistics(data?: Readonly<GetStatisticsRequestType>): Promise<GetStatisticsResponse> {
         const parameter: GetStatisticsRequest | object = data ? new GetStatisticsRequest(data) : {};
         const endpoint = queryParameterGenerator(`${this.baseUrl}/messages/v4/statistics`, parameter);
         const requestConfig: RequestConfig = {

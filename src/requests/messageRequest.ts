@@ -88,10 +88,11 @@ export type RequestConfig = {
     url: string
 }
 
+type DateType = 'CREATED' | 'UPDATED'
+
 export type GetMessagesRequestType = {
     startKey?: string
     limit?: number
-    dateType?: string
     messageId?: string
     messageIds?: Array<string>
     groupId?: GroupId
@@ -100,6 +101,7 @@ export type GetMessagesRequestType = {
     type?: MessageType
     statusCode?: string
     duration?: {
+        dateType?: DateType
         startDate: string
         endDate: string
     }
@@ -108,9 +110,7 @@ export type GetMessagesRequestType = {
 export class GetMessagesRequest {
     readonly startKey?: string;
     readonly limit?: number;
-    readonly dateType?: string;
-    readonly startDate?: string;
-    readonly endDate?: string;
+    readonly dateType?: DateType = 'CREATED';
     readonly messageId?: string;
     readonly messageIds?: Array<string>;
     readonly groupId?: GroupId;
@@ -118,11 +118,13 @@ export class GetMessagesRequest {
     readonly from?: string;
     readonly type?: MessageType;
     readonly statusCode?: string;
+    readonly startDate?: string;
+    readonly endDate?: string;
 
     constructor(getMessageRequestType: GetMessagesRequestType) {
         this.startKey = getMessageRequestType.startKey;
         this.limit = getMessageRequestType.limit;
-        this.dateType = getMessageRequestType.dateType;
+        if (getMessageRequestType.duration?.dateType) this.dateType = getMessageRequestType.duration.dateType;
         if (getMessageRequestType.duration) this.startDate = formatISO(stringDateTransfer(getMessageRequestType.duration.startDate));
         if (getMessageRequestType.duration) this.endDate = formatISO(stringDateTransfer(getMessageRequestType.duration.endDate));
         this.messageId = getMessageRequestType.messageId;
@@ -136,9 +138,11 @@ export class GetMessagesRequest {
 }
 
 export type GetStatisticsRequestType = {
-    readonly startDate: string | Date
-    readonly endDate: string | Date
-    readonly masterAccountId: string
+    duration?: {
+        startDate: string | Date
+        endDate: string | Date
+    }
+    masterAccountId: string
 }
 
 export class GetStatisticsRequest {
@@ -147,8 +151,8 @@ export class GetStatisticsRequest {
     readonly masterAccountId: string;
 
     constructor(getStatisticsRequest: GetStatisticsRequestType) {
-        this.startDate = formatISO(stringDateTransfer(getStatisticsRequest.startDate));
-        this.endDate = formatISO(stringDateTransfer(getStatisticsRequest.endDate));
+        if (getStatisticsRequest.duration) this.startDate = formatISO(stringDateTransfer(getStatisticsRequest.duration.startDate));
+        if (getStatisticsRequest.duration) this.endDate = formatISO(stringDateTransfer(getStatisticsRequest.duration.endDate));
         this.masterAccountId = getStatisticsRequest.masterAccountId;
     }
 }
