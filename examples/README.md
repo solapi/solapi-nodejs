@@ -1,36 +1,22 @@
-### 문자 발송 예제
+# SOLAPI Node.js 예제 목록(JavaScript 기준)
+
+## 발송 예제 목록
+
 ```
-sms/send_sms.js               SMS 발송 예제(해외 발송 포함)
-sms/send_lms.js               LMS 발송 예제
-sms/send_mms.js               MMS 발송 예제
-sms/allow_duplicates.js       수신번호 중복 허용 예제
-rcs/send_rcs_sms.js           RCS SMS 발송 예제(버튼 발송 포함)
-rcs/send_rcs_lms.js           RCS LMS 발송 예제(버튼 발송 포함)
+./javascript/common/src/kakao/*   카카오 알림톡/친구톡 발송 예제
+./javascript/common/src/sms/*     문자(SMS, LMS, MMS) 발송 예제
 ```
 
-### 카카오톡(알림톡, 친구톡, 친구톡 이미지) 발송 예제
+## 조회 예제(문자, 알림톡 등 통합)
+
 ```
-kakaotalk/send_alimtalk_variables.js    변수값만 입력하여 알림톡 발송
-kakaotalk/send_alimtalk.js              알림톡 발송 예제
-kakaotalk/send_chingutalk.js            친구톡 발송 예제
+./javascript/common/src/inquiry/get_balance.js     잔액 조회 예제
+./javascript/common/src/inquiry/get_messages.js    메시지 발송 현황 조회(대기 건 포함)
+./javascript/common/src/inquiry/get_statistics.js  전체 통계 조회
 ```
 
-### 네이버 톡톡(버튼 포함) 발송 예제
-```
-naver/send_naver.js         네이버 톡톡 발송 예제
-```
+## 기타
 
-### 메시지 목록 조회
 ```
-message_list (디렉토리)     메시지 목록 조회 예제
-````
-
-### 발신번호 등록 및 인증
-```
-senderid (디렉토리)         발신번호 등록 및 인증
-```
-
-### 기타
-```
-update_apikey.js          API Key, Secret 설정 예제
+./javascript/webhooks/index.js 웹훅 그룹 리포트 예제
 ```

@@ -1,6 +1,7 @@
 .vscode/
 node_modules/
-config.json
 package-lock.json
 .idea
 *.real.js
+dist
+.parcel-cache
