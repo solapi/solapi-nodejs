@@ -1,10 +1,10 @@
 {
   "name": "solapi",
-  "version": "5.0.0-beta.20",
+  "version": "5.0.0",
   "description": "SOLAPI SDK for Node.js(Server Side Only)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/solapi/solapi-sdk-js-v4.git"
+    "url": "git+https://github.com/solapi/solapi-nodejs.git"
   },
   "keywords": [
     "solapi",
@@ -25,7 +25,7 @@
   "module": "dist/module.js",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/solapi/solapi-sdk-js-v4/issues"
+    "url": "https://github.com/solapi/solapi-nodejs/issues"
   },
   "homepage": "https://solapi.com/",
   "scripts": {
