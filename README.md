@@ -28,8 +28,7 @@ const solapi = require('solapi').default;
 const messageService = new solapi('ENTER_YOUR_API_KEY', 'ENTER_YOUR_API_SECRET');
 
 // 2건 이상의 메시지를 발송할 때는 sendMany, 단일 건 메시지 발송은 sendOne을 이용해야 합니다. 
-messageService.sendMany({
-  messages: [
+messageService.sendMany([
     {
       to: '01000000001',
       from: '01012345678',
@@ -41,8 +40,7 @@ messageService.sendMany({
       text: '한글 45자, 영자 90자 이상 입력되면 자동으로 LMS타입의 문자메시지가 발송됩니다. 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     }
     // 1만건까지 추가 가능
-  ]
-}).then(res => console.log(res))
+  ]).then(res => console.log(res))
   .catch(err => console.error(err));
 ```
 
