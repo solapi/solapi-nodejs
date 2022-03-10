@@ -9,13 +9,13 @@ To use the SDK, simply use npm package manager CLI. Type the following into a te
 ### npm
 
 ```bash
-npm install --save solapi@beta
+npm install --save solapi
 ```
 
 ### yarn
 
 ```bash
-yarn add solapi@beta
+yarn add solapi
 ```
 
 ## Usage
