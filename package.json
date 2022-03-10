@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/solapi/solapi-nodejs/issues"
   },
-  "homepage": "https://solapi.com/",
+  "homepage": "https://solapi.com",
   "scripts": {
     "clean": "rimraf dist",
     "build": "yarn clean && parcel build src/index.ts",
