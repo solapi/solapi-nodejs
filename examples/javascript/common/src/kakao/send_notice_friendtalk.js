@@ -12,6 +12,7 @@ messageService.sendOne({
   kakaoOptions: {
     pfId: "연동한 비즈니스 채널의 pfId",
     templateId: "등록한 알림톡 템플릿의 ID",
+    variables: {}
     // 치환문구가 있는 경우 추가, 반드시 key, value 모두 string으로 기입해야 합니다.
     /*
     variables: {
@@ -29,6 +30,7 @@ messageService.sendOneFuture({
   kakaoOptions: {
     pfId: "연동한 비즈니스 채널의 pfId",
     templateId: "등록한 알림톡 템플릿의 ID",
+    variables: {}
     // 치환문구가 있는 경우 추가, 반드시 key, value 모두 string으로 기입해야 합니다.
     /*
     variables: {
@@ -46,6 +48,7 @@ messageService.sendMany([
     kakaoOptions: {
       pfId: "연동한 비즈니스 채널의 pfId",
       templateId: "등록한 알림톡 템플릿의 ID",
+      variables: {}
       // 치환문구가 있는 경우 추가, 반드시 key, value 모두 string으로 기입해야 합니다.
       /*
       variables: {
@@ -60,6 +63,7 @@ messageService.sendMany([
     kakaoOptions: {
       pfId: "연동한 비즈니스 채널의 pfId",
       templateId: "등록한 알림톡 템플릿의 ID",
+      variables: {}
       // 치환문구가 있는 경우 추가, 반드시 key, value 모두 string으로 기입해야 합니다.
       /*
       variables: {
@@ -80,6 +84,7 @@ messageService.sendManyFuture([
     kakaoOptions: {
       pfId: "연동한 비즈니스 채널의 pfId",
       templateId: "등록한 알림톡 템플릿의 ID",
+      variables: {}
       // 치환문구가 있는 경우 추가, 반드시 key, value 모두 string으로 기입해야 합니다.
       /*
       variables: {
@@ -94,6 +99,7 @@ messageService.sendManyFuture([
     kakaoOptions: {
       pfId: "연동한 비즈니스 채널의 pfId",
       templateId: "등록한 알림톡 템플릿의 ID",
+      variables: {}
       // 치환문구가 있는 경우 추가, 반드시 key, value 모두 string으로 기입해야 합니다.
       /*
       variables: {
