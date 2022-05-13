@@ -19,6 +19,8 @@ messageService.sendOne({
       "#{변수명}": "임의의 값"
     }
     */
+    // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+    // disableSms: true,
   }
 }).then(res => console.log(res));
 
@@ -37,6 +39,8 @@ messageService.sendOneFuture({
       "#{변수명}": "임의의 값"
     }
     */
+    // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+    // disableSms: true,
   }
 }, "2022-02-26 00:00:00").then(res => console.log(res));
 
@@ -55,6 +59,8 @@ messageService.sendMany([
         "#{변수명}": "임의의 값"
       }
       */
+      // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+      // disableSms: true,
     }
   },
   {
@@ -70,6 +76,8 @@ messageService.sendMany([
         "#{변수명}": "임의의 값"
       }
       */
+      // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+      // disableSms: true,
     }
   }
   // 2번째 파라미터 항목인 allowDuplicates 옵션을 true로 설정할 경우 중복 수신번호를 허용합니다.
@@ -91,6 +99,8 @@ messageService.sendManyFuture([
         "#{변수명}": "임의의 값"
       }
       */
+      // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+      // disableSms: true,
     }
   },
   {
@@ -106,6 +116,8 @@ messageService.sendManyFuture([
         "#{변수명}": "임의의 값"
       }
       */
+      // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+      // disableSms: true,
     }
   },
   // 3번째 파라미터 항목인 allowDuplicates를 true로 설정하면 중복 수신번호를 허용합니다.
