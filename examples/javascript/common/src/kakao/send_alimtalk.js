@@ -19,7 +19,7 @@ messageService.sendOne({
       "#{변수명}": "임의의 값"
     }
     */
-    // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+    // disbaleSms 값을 true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
     // disableSms: true,
   }
 }).then(res => console.log(res));
@@ -39,7 +39,7 @@ messageService.sendOneFuture({
       "#{변수명}": "임의의 값"
     }
     */
-    // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+    // disbaleSms 값을 true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
     // disableSms: true,
   }
 }, "2022-02-26 00:00:00").then(res => console.log(res));
@@ -59,7 +59,7 @@ messageService.sendMany([
         "#{변수명}": "임의의 값"
       }
       */
-      // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+      // disbaleSms 값을 true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
       // disableSms: true,
     }
   },
@@ -76,7 +76,7 @@ messageService.sendMany([
         "#{변수명}": "임의의 값"
       }
       */
-      // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+      // disbaleSms 값을 true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
       // disableSms: true,
     }
   }
@@ -99,7 +99,7 @@ messageService.sendManyFuture([
         "#{변수명}": "임의의 값"
       }
       */
-      // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+      // disbaleSms 값을 true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
       // disableSms: true,
     }
   },
@@ -116,7 +116,7 @@ messageService.sendManyFuture([
         "#{변수명}": "임의의 값"
       }
       */
-      // disbaleSms 값을true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
+      // disbaleSms 값을 true로 줄 경우 문자로의 대체발송이 비활성화 됩니다.
       // disableSms: true,
     }
   },
