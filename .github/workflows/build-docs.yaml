@@ -15,7 +15,7 @@ jobs:
         yarn install
         yarn run docs
     - name: Commit and push docs
-      working-directory: ./docs
+      working-directory: ./
       run: |
         git config --global user.email "wiley@nurigo.net"
         git config --global user.name "Github Actions"
