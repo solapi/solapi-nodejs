@@ -14,3 +14,11 @@ jobs:
       run: |
         yarn install
         yarn run docs
+    - name: Commit and push docs
+      working-directory: ./docs
+      run: |
+        git config --global user.email "wiley@nurigo.net"
+        git config --global user.name "Github Actions"
+        git add ./docs
+        git commit -m "Update SDK API References"
+        git push
