@@ -31,7 +31,8 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "yarn clean && parcel build src/index.ts",
-    "watch": "parcel watch"
+    "watch": "parcel watch",
+    "docs": "typedoc --entryPointStrategy expand ./src"
   },
   "engines": {
     "node": ">=14"
