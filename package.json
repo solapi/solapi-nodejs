@@ -30,7 +30,7 @@
   "homepage": "https://solapi.github.io/solapi-nodejs",
   "scripts": {
     "clean": "rimraf dist",
-    "compress": "yarn uglifyjs --compress --mangle -- ./dist/index.js -o ./dist/index.js && yarn uglifyjs --compress --mangle -- ./dist/module.js -o ./dist/module.js",
+    "compress": "yarn uglifyjs --v8 -- ./dist/index.js -o ./dist/index.js && yarn uglifyjs --v8 -- ./dist/module.js -o ./dist/module.js",
     "build": "yarn clean && parcel build --no-source-maps && yarn compress",
     "watch": "parcel watch",
     "docs": "typedoc --entryPointStrategy expand ./src"

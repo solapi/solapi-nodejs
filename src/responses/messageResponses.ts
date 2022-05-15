@@ -39,6 +39,31 @@ export type GroupMessageResponse = {
     price: object
     dateCreated: string
     dateUpdated: string
+    scheduledDate?: string
+    dateSent?: string
+    dateCompleted?: string
+}
+
+export type FailedMessage = {
+    to: string,
+    from: string,
+    type: string,
+    statusMessage: string,
+    country: string,
+    messageId: string,
+    statusCode: string,
+    accountId: string
+}
+
+export type DetailGroupMessageResponse = {
+    /**
+    * 메시지 발송 접수에 실패한 메시지 요청 목록들
+    * */
+    failedMessageList: Array<FailedMessage>,
+    /**
+    * 발송 정보(성공, 실패 등) 응답 데이터
+     */
+    groupInfo: GroupMessageResponse
 }
 
 export type AddMessageResult = {

@@ -10,7 +10,7 @@ import {
     GetMessagesRequestType,
     GetStatisticsRequest,
     GetStatisticsRequestType,
-    GroupMessageAddRequest,
+    GroupMessageAddRequest, MultipleDetailMessageSendingRequest,
     MultipleMessageSendingRequest,
     RemoveMessageIdsToGroupRequest,
     RequestConfig,
@@ -19,7 +19,7 @@ import {
 } from './requests/messageRequest';
 import defaultFetcher from './lib/defaultFetcher';
 import {
-    AddMessageResponse,
+    AddMessageResponse, DetailGroupMessageResponse,
     FileUploadResponse,
     GetBalanceResponse,
     GetGroupsResponse,
@@ -34,12 +34,19 @@ import queryParameterGenerator from './lib/queryParameterGenerator';
 import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
 import stringDateTransfer from './lib/stringDateTrasnfer';
+import {MessageNotReceivedError} from './errors/DefaultError';
 
 type AuthInfo = {
     apiKey: string,
     apiSecret: string
 }
 
+/**
+ * SOLAPI 메시지 서비스
+ * 발송 및 조회 등 SOLAPI에서 제공되는 여러 API의 기능을 쉽게 사용할 수 있습니다.
+ * SOLAPI 자체의 서비스에 관한 사항은 SOLAPI 홈페이지를 참고해주세요.
+ * @see https://solapi.github.io/solapi-nodejs
+ */
 export class SolapiMessageService {
     private readonly baseUrl = 'https://api.solapi.com';
     private readonly authInfo: AuthInfo;
@@ -49,6 +56,30 @@ export class SolapiMessageService {
             apiKey,
             apiSecret
         };
+    }
+
+    /**
+     * 메시지 발송 기능, sendMany 함수에서 조금 더 개선된 오류 표시 기능등을 제공합니다.
+     * 한번의 요청으로 최대 10,000건까지 발송할 수 있습니다.
+     * @param messages 발송 요청할 메시지 파라미터(문자, 알림톡 등)
+     * @param scheduledDate 예약일시
+     * @param allowDuplicates 중복 수신번호 허용 여부
+     * @param appId appstore용 app id
+     */
+    async send(messages: Array<Message>, scheduledDate?: string | Date, allowDuplicates = false, appId?: string): Promise<DetailGroupMessageResponse> {
+        const parameter = new MultipleDetailMessageSendingRequest(messages, allowDuplicates, appId, scheduledDate);
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/messages/v4/send-many/detail`
+        };
+        return defaultFetcher<MultipleDetailMessageSendingRequest, DetailGroupMessageResponse>(this.authInfo, requestConfig, parameter)
+            .then(res => {
+                const count = res.groupInfo.count;
+                if (res.failedMessageList.length > 0 && count.total === count.registeredFailed) {
+                    throw new MessageNotReceivedError(res.failedMessageList);
+                }
+                return res;
+            });
     }
 
     /**
@@ -68,7 +99,7 @@ export class SolapiMessageService {
     /**
      * 단일 메시지 예약 발송 기능
      * @param message 메시지(문자, 알림톡 등)
-     * @param scheduledDate
+     * @param scheduledDate 예약일시
      */
     async sendOneFuture(message: Message, scheduledDate: string | Date): Promise<GroupMessageResponse> {
         const groupId = await this.createGroup();
@@ -78,6 +109,7 @@ export class SolapiMessageService {
     }
 
     /**
+     * @deprecated
      * 여러 메시지 즉시 발송 기능
      * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
      * @param messages 여러 메시지(문자, 알림톡 등)
@@ -94,6 +126,7 @@ export class SolapiMessageService {
     }
 
     /**
+     * @deprecated
      * 여러 메시지 예약 발송 기능
      * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
      * @param messages 여러 메시지(문자, 알림톡 등)
