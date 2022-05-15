@@ -65,6 +65,7 @@ export class SolapiMessageService {
      * @param scheduledDate 예약일시
      * @param allowDuplicates 중복 수신번호 허용 여부
      * @param appId appstore용 app id
+     * @throws MessageNotReceivedError 메시지가 모두 발송 접수가 불가한 상태일 경우 MessageNotReceivedError 예외가 발생합니다.
      */
     async send(messages: Array<Message>, scheduledDate?: string | Date, allowDuplicates = false, appId?: string): Promise<DetailGroupMessageResponse> {
         const parameter = new MultipleDetailMessageSendingRequest(messages, allowDuplicates, appId, scheduledDate);
