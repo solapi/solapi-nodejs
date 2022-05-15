@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/solapi/solapi-nodejs/issues"
   },
-  "homepage": "https://solapi.com",
+  "homepage": "https://solapi.github.io/solapi-nodejs",
   "scripts": {
     "clean": "rimraf dist",
     "build": "yarn clean && parcel build src/solapi.ts",
@@ -42,25 +42,24 @@
     "crypto-js": "^4.1.1",
     "date-fns": "^2.28.0",
     "image-to-base64": "^2.2.0",
-    "nanoid": "^3.3.1"
+    "nanoid": "^3.3.4"
   },
   "devDependencies": {
-    "@parcel/packager-ts": "2.3.2",
+    "@parcel/packager-ts": "2.5.0",
     "@parcel/transformer-typescript-tsc": "^2.3.2",
-    "@parcel/transformer-typescript-types": "2.3.2",
+    "@parcel/transformer-typescript-types": "2.5.0",
     "@types/crypto-js": "^4.1.0",
     "@types/image-to-base64": "^2.1.0",
     "@types/node": "^17.0.19",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
-    "eslint": "^8.8.0",
+    "eslint": "^8.15.0",
     "eslint-plugin-tsdoc": "^0.2.14",
     "parcel": "^2.5.0",
-    "process": "^0.11.10",
-    "querystring-es3": "^0.2.1",
     "rimraf": "^3.0.2",
     "typedoc": "^0.22.15",
-    "typescript": "^4.6.4"
+    "typescript": "^4.6.4",
+    "querystring-es3": "^0.2.1"
   },
   "files": [
     "/dist"

@@ -6,3 +6,4 @@ package-lock.json
 dist
 .parcel-cache
 yarn-error.log
+debug
