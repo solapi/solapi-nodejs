@@ -1,4 +1,4 @@
-import Message, {MessageType} from '../models/message';
+import {Message, MessageType} from '../models/message';
 import {
     App,
     CommonCashResponse,

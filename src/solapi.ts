@@ -1,4 +1,4 @@
-import Message from './models/message';
+import {Message} from './models/message';
 import {
     CreateGroupRequest,
     defaultAgent,
@@ -40,15 +40,11 @@ type AuthInfo = {
     apiSecret: string
 }
 
-export default class SolapiMessageService {
+export class SolapiMessageService {
     private readonly baseUrl = 'https://api.solapi.com';
-    private readonly apiKey: string;
-    private readonly apiSecret: string;
     private readonly authInfo: AuthInfo;
 
     constructor(apiKey: string, apiSecret: string) {
-        this.apiKey = apiKey;
-        this.apiSecret = apiSecret;
         this.authInfo = {
             apiKey,
             apiSecret

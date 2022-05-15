@@ -30,7 +30,7 @@ export type MessageType =
 /**
  * 메시지 모델
  */
-export default class Message {
+export class Message {
     /**
      * 수신번호
      */

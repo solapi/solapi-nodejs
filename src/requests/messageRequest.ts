@@ -1,5 +1,4 @@
-import Message, {MessageType} from '../models/message';
-import * as Config from '../env_config.json';
+import {Message, MessageType} from '../models/message';
 import {GroupId} from '../types/commonTypes';
 import {formatISO} from 'date-fns';
 import stringDateTransfer from '../lib/stringDateTrasnfer';
@@ -9,8 +8,10 @@ export type DefaultAgentType = {
     osPlatform: string
 };
 
+const sdkVersion = 'nodejs/5.1.0';
+
 export const defaultAgent: DefaultAgentType = {
-    sdkVersion: Config.version,
+    sdkVersion,
     osPlatform: `${process.platform} | ${process.version}`,
 };
 
