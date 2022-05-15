@@ -1,4 +1,6 @@
 # SOLAPI SDK for Node.js(Server Side Only)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsolapi%2Fsolapi-nodejs.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsolapi%2Fsolapi-nodejs?ref=badge_shield)
+
 
 You can send text messages(SMS, LMS, MMS), Kakao friendtalk(include notification friendtalk) in Korea using this package.  
 
@@ -54,3 +56,6 @@ environment and OS you’re using. Please include a stack trace and reduced repr
 ## License
 
 Licensed under the MIT License.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsolapi%2Fsolapi-nodejs.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsolapi%2Fsolapi-nodejs?ref=badge_large)
