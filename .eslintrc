@@ -32,6 +32,7 @@
   },
   "ignorePatterns": [
     "dist/**/*",
-    "examples/**/*"
+    "examples/**/*",
+    "debug/**/*"
   ]
 }

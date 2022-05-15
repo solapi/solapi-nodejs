@@ -9,40 +9,20 @@ To use the SDK, simply use npm package manager CLI. Type the following into a te
 ### npm
 
 ```bash
-npm install --save solapi
+$ npm install --save solapi
 ```
 
-### yarn
+### Yarn
 
 ```bash
-yarn add solapi
+$ yarn add solapi
 ```
 
 ## Usage
 
-### JavaScript
-```javascript
-const solapi = require('solapi').default;
+See [examples folders](https://github.com/solapi/solapi-nodejs/tree/master/examples)
 
-// apiKey, apiSecret 설정
-const messageService = new solapi('ENTER_YOUR_API_KEY', 'ENTER_YOUR_API_SECRET');
-
-// 2건 이상의 메시지를 발송할 때는 sendMany, 단일 건 메시지 발송은 sendOne을 이용해야 합니다. 
-messageService.sendMany([
-    {
-      to: '01000000001',
-      from: '01012345678',
-      text: '한글 45자, 영자 90자 이하 입력되면 자동으로 SMS타입의 메시지가 발송됩니다.'
-    },
-    {
-      to: '01000000002',
-      from: '01012345678',
-      text: '한글 45자, 영자 90자 이상 입력되면 자동으로 LMS타입의 문자메시지가 발송됩니다. 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    }
-    // 1만건까지 추가 가능
-  ]).then(res => console.log(res))
-  .catch(err => console.error(err));
-```
+[//]: # (TODO: Need to add next solapi document link)
 
 ## Opening Issues
 

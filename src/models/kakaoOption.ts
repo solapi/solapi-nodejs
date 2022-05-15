@@ -1,6 +1,6 @@
 import {KakaoButton} from './kakaoButton';
 
-export default class KakaoOption {
+export class KakaoOption {
     pfId: string;
     templateId?: string;
     variables?: Record<string, string>;

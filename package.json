@@ -30,7 +30,8 @@
   "homepage": "https://solapi.github.io/solapi-nodejs",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "yarn clean && parcel build src/solapi.ts",
+    "compress": "yarn uglifyjs --compress --mangle -- ./dist/index.js -o ./dist/index.js && yarn uglifyjs --compress --mangle -- ./dist/module.js -o ./dist/module.js",
+    "build": "yarn clean && parcel build --no-source-maps && yarn compress",
     "watch": "parcel watch",
     "docs": "typedoc --entryPointStrategy expand ./src"
   },
@@ -56,10 +57,11 @@
     "eslint": "^8.15.0",
     "eslint-plugin-tsdoc": "^0.2.14",
     "parcel": "^2.5.0",
+    "querystring-es3": "^0.2.1",
     "rimraf": "^3.0.2",
     "typedoc": "^0.22.15",
     "typescript": "^4.6.4",
-    "querystring-es3": "^0.2.1"
+    "uglify-js": "^3.15.5"
   },
   "files": [
     "/dist"
