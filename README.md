@@ -1,6 +1,8 @@
 # SOLAPI SDK for Node.js(Server Side Only)
 
-You can send text messages(SMS, LMS, MMS), Kakao friendtalk(include notification friendtalk) in Korea using this package.  
+You can send text messages(SMS, LMS, MMS), Kakao friendtalk(include notification friendtalk) in Korea using this
+package.  
+This package is 100% compatible with SOLAPI family services (Purple Book, Nurigo, etc.).
 
 ## Installing
 
