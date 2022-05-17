@@ -10,7 +10,8 @@ import {
     GetMessagesRequestType,
     GetStatisticsRequest,
     GetStatisticsRequestType,
-    GroupMessageAddRequest, MultipleDetailMessageSendingRequest,
+    GroupMessageAddRequest,
+    MultipleDetailMessageSendingRequest,
     MultipleMessageSendingRequest,
     RemoveMessageIdsToGroupRequest,
     RequestConfig,
@@ -19,7 +20,8 @@ import {
 } from './requests/messageRequest';
 import defaultFetcher from './lib/defaultFetcher';
 import {
-    AddMessageResponse, DetailGroupMessageResponse,
+    AddMessageResponse,
+    DetailGroupMessageResponse,
     FileUploadResponse,
     GetBalanceResponse,
     GetGroupsResponse,
@@ -67,7 +69,10 @@ export class SolapiMessageService {
      * @param appId appstore용 app id
      * @throws MessageNotReceivedError 메시지가 모두 발송 접수가 불가한 상태일 경우 MessageNotReceivedError 예외가 발생합니다.
      */
-    async send(messages: Array<Message>, scheduledDate?: string | Date, allowDuplicates = false, appId?: string): Promise<DetailGroupMessageResponse> {
+    async send(messages: Message | Array<Message>, scheduledDate?: string | Date, allowDuplicates = false, appId?: string): Promise<DetailGroupMessageResponse> {
+        if (!Array.isArray(messages)) {
+            messages = [messages];
+        }
         const parameter = new MultipleDetailMessageSendingRequest(messages, allowDuplicates, appId, scheduledDate);
         const requestConfig: RequestConfig = {
             method: 'POST',
