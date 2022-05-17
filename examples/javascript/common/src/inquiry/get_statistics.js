@@ -1,8 +1,8 @@
 /**
  * 통계 조회 예제
  */
-const solapi = require("solapi").default;
-const messageService = new solapi("ENTER_YOUR_API_KEY", "ENTER_YOUR_API_SECRET");
+const { SolapiMessageService } = require("solapi");
+const messageService = new SolapiMessageService("ENTER_YOUR_API_KEY", "ENTER_YOUR_API_SECRET");
 
 messageService.getStatistics({
   // 날짜로 검색하는 경우

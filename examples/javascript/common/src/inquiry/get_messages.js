@@ -1,8 +1,8 @@
 /**
  * 메시지 조회 예제(문자, 알림톡 등)
  */
-const solapi = require("solapi").default;
-const messageService = new solapi("ENTER_YOUR_API_KEY", "ENTER_YOUR_API_SECRET");
+const { SolapiMessageService } = require("solapi");
+const messageService = new SolapiMessageService("ENTER_YOUR_API_KEY", "ENTER_YOUR_API_SECRET");
 
 messageService.getMessages({
   // 불러올 메시지 갯수 제한
