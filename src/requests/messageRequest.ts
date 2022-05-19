@@ -1,5 +1,4 @@
-import Message, {MessageType} from '../models/message';
-import * as Config from '../env_config.json';
+import {Message, MessageType} from '../models/message';
 import {GroupId} from '../types/commonTypes';
 import {formatISO} from 'date-fns';
 import stringDateTransfer from '../lib/stringDateTrasnfer';
@@ -9,8 +8,10 @@ export type DefaultAgentType = {
     osPlatform: string
 };
 
+const sdkVersion = 'nodejs/5.1.0';
+
 export const defaultAgent: DefaultAgentType = {
-    sdkVersion: Config.version,
+    sdkVersion,
     osPlatform: `${process.platform} | ${process.version}`,
 };
 
@@ -53,6 +54,26 @@ export class MultipleMessageSendingRequest extends DefaultMessageRequest {
             this.appId = appId;
         }
     }
+}
+
+export class MultipleDetailMessageSendingRequest extends DefaultMessageRequest {
+    messages: Array<Message>;
+    scheduledDate: string;
+
+    constructor(messages: Array<Message>, allowDuplicates?: boolean, appId?: string, scheduledDate?: string | Date) {
+        super();
+        this.messages = messages;
+        if (typeof allowDuplicates === 'boolean') {
+            this.allowDuplicates = allowDuplicates;
+        }
+        if (appId) {
+            this.appId = appId;
+        }
+        if (scheduledDate) {
+            this.scheduledDate = formatISO(stringDateTransfer(scheduledDate));
+        }
+    }
+
 }
 
 export class GroupMessageAddRequest {

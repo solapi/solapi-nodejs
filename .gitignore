@@ -5,3 +5,5 @@ package-lock.json
 *.real.js
 dist
 .parcel-cache
+yarn-error.log
+debug

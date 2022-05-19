@@ -2,8 +2,8 @@
  * 장문 문자(LMS) 발송 예제
  * 발신번호, 수신번호에 반드시 -, * 등 특수문자를 제거하여 기입하시기 바랍니다. 예) 01012345678
  */
-const solapi = require("solapi").default;
-const messageService = new solapi("ENTER_YOUR_API_KEY", "ENTER_YOUR_API_SECRET");
+const { SolapiMessageService } = require("solapi");
+const messageService = new SolapiMessageService("ENTER_YOUR_API_KEY", "ENTER_YOUR_API_SECRET");
 
 // 단일 발송 예제
 messageService.sendOne({

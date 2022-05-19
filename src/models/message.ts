@@ -1,4 +1,4 @@
-import KakaoOption from './kakaoOption';
+import {KakaoOption} from './kakaoOption';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
@@ -28,9 +28,10 @@ export type MessageType =
     | 'NSA';
 
 /**
+ * @internal
  * 메시지 모델
  */
-export default class Message {
+export class Message {
     /**
      * 수신번호
      */
