@@ -43,12 +43,12 @@
     "crypto-js": "^4.1.1",
     "date-fns": "^2.28.0",
     "image-to-base64": "^2.2.0",
-    "nanoid": "^3.3.4"
+    "nanoid": "^4.0.0"
   },
   "devDependencies": {
-    "@parcel/packager-ts": "2.5.0",
+    "@parcel/packager-ts": "2.6.0",
     "@parcel/transformer-typescript-tsc": "^2.3.2",
-    "@parcel/transformer-typescript-types": "2.5.0",
+    "@parcel/transformer-typescript-types": "2.6.0",
     "@types/crypto-js": "^4.1.0",
     "@types/image-to-base64": "^2.1.0",
     "@types/node": "^17.0.19",
