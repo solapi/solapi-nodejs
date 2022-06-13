@@ -23,7 +23,7 @@ messageService.sendOneFuture({
 }, "2022-02-26 00:00:00").then(res => console.log(res));
 
 // 여러 메시지 발송 예제, 한 번 호출 당 최대 10,000건 까지 발송 가능
-messageService.sendMany([
+messageService.send([
   {
     to: "수신번호",
     from: "계정에서 등록한 발신번호 입력",
@@ -40,7 +40,7 @@ messageService.sendMany([
 
 // 여러 메시지 예약 발송 예제, 한 번 호출 당 최대 10,000건 까지 발송 가능
 // 예약발송 시 현재 시간보다 과거의 시간을 입력할 경우 즉시 발송됩니다.
-messageService.sendManyFuture([
+messageService.send([
   {
     to: "수신번호",
     from: "계정에서 등록한 발신번호 입력",
