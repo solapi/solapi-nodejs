@@ -191,3 +191,85 @@ export type CreateGroupRequest = DefaultAgentType & {
     allowDuplicates: boolean
     appId?: string
 }
+
+export type GetKakaoChannelsRequestType = {
+    pfId?: string
+    searchId?: string
+    phoneNumber?: string
+    categoryCode?: string
+    dateCreated?: string
+    dateUpdated?: string
+    startKey?: string
+    limit?: number
+}
+
+export class GetKakaoChannelsRequest {
+    readonly pfId?: string;
+    readonly searchId?: string;
+    readonly phoneNumber?: string;
+    readonly categoryCode?: string;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+    readonly startKey?: string;
+    readonly limit?: number;
+
+    constructor(getKakaoChannelsRequestType: GetKakaoChannelsRequestType) {
+        this.pfId = getKakaoChannelsRequestType.pfId;
+        this.searchId = getKakaoChannelsRequestType.searchId;
+        this.phoneNumber = getKakaoChannelsRequestType.phoneNumber;
+        this.categoryCode = getKakaoChannelsRequestType.categoryCode;
+        this.dateCreated = getKakaoChannelsRequestType.dateCreated;
+        this.dateUpdated = getKakaoChannelsRequestType.dateUpdated;
+        this.startKey = getKakaoChannelsRequestType.startKey;
+        this.limit = getKakaoChannelsRequestType.limit;
+    }
+}
+
+export type CreateKakaoChannelTokenRequest = {
+    searchId: string
+    phoneNumber: string
+    categoryCode: string
+}
+
+export type CreateKakaoChannelRequest = {
+    searchId: string
+    phoneNumber: string
+    categoryCode: string
+    token: string
+}
+
+export type GetKakaoAlimtalkTemplatesRequestType = {
+    name?: string
+    pfId?: string
+    templateId?: string
+    isHidden?: boolean
+    status?: string
+    startKey?: string
+    limit?: number
+    dateCreated?: string
+    dateUpdated?: string
+}
+
+export class GetKakaoAlimtalkTemplatesRequest {
+    name?: string;
+    pfId?: string;
+    templateId?: string;
+    isHidden?: boolean;
+    status?: string;
+    startKey?: string;
+    limit?: number;
+    dateCreated?: string;
+    dateUpdated?: string;
+
+    constructor(getKakaoAlimtalkTemplatesRequestType: GetKakaoAlimtalkTemplatesRequestType) {
+        this.name = getKakaoAlimtalkTemplatesRequestType.name;
+        this.pfId = getKakaoAlimtalkTemplatesRequestType.pfId;
+        this.templateId = getKakaoAlimtalkTemplatesRequestType.templateId;
+        this.isHidden = getKakaoAlimtalkTemplatesRequestType.isHidden;
+        this.status = getKakaoAlimtalkTemplatesRequestType.status;
+        this.startKey = getKakaoAlimtalkTemplatesRequestType.startKey;
+        this.limit = getKakaoAlimtalkTemplatesRequestType.limit;
+        this.dateCreated = getKakaoAlimtalkTemplatesRequestType.dateCreated;
+        this.dateUpdated = getKakaoAlimtalkTemplatesRequestType.dateUpdated;
+    }
+}

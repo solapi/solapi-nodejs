@@ -1,11 +1,14 @@
 import {Message} from './models/message';
 import {
     CreateGroupRequest,
+    CreateKakaoChannelRequest,
+    CreateKakaoChannelTokenRequest,
     defaultAgent,
     FileType,
     FileUploadRequest,
     GetGroupMessagesRequest,
     GetGroupsRequest,
+    GetKakaoChannelsRequest,
     GetMessagesRequest,
     GetMessagesRequestType,
     GetStatisticsRequest,
@@ -21,14 +24,17 @@ import {
 import defaultFetcher from './lib/defaultFetcher';
 import {
     AddMessageResponse,
+    CreateKakaoChannelResponse,
     DetailGroupMessageResponse,
     FileUploadResponse,
     GetBalanceResponse,
     GetGroupsResponse,
+    GetKakaoChannelsResponse,
     GetMessagesResponse,
     GetStatisticsResponse,
     GroupMessageResponse,
     RemoveGroupMessagesResponse,
+    RequestKakaoChannelTokenResponse,
     SingleMessageSentResponse
 } from './responses/messageResponses';
 import {GroupId} from './types/commonTypes';
@@ -37,6 +43,7 @@ import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
 import stringDateTransfer from './lib/stringDateTrasnfer';
 import {MessageNotReceivedError} from './errors/DefaultError';
+import {KakaoChannel, KakaoChannelCategory} from './models/kakaoChannel';
 
 type AuthInfo = {
     apiKey: string,
@@ -115,7 +122,7 @@ export class SolapiMessageService {
     }
 
     /**
-     * @deprecated
+     * @deprecated 이 기능은 더이상 사용되지 않습니다. send 메소드를 이용하세요!
      * 여러 메시지 즉시 발송 기능
      * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
      * @param messages 여러 메시지(문자, 알림톡 등)
@@ -132,7 +139,7 @@ export class SolapiMessageService {
     }
 
     /**
-     * @deprecated
+     * @deprecated 이 기능은 더이상 사용되지 않습니다. send 메소드를 이용하세요!
      * 여러 메시지 예약 발송 기능
      * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
      * @param messages 여러 메시지(문자, 알림톡 등)
@@ -205,6 +212,18 @@ export class SolapiMessageService {
         return defaultFetcher<ScheduledDateSendingRequest, GroupMessageResponse>(this.authInfo, requestConfig, {
             scheduledDate: formattedScheduledDate
         });
+    }
+
+    /**
+     * 단일 그룹정보 조회
+     * @param groupId 그룹 ID
+     */
+    async getGroup(groupId: GroupId): Promise<GroupMessageResponse> {
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: `${this.baseUrl}//messages/v4/groups/${groupId}`
+        };
+        return defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -333,5 +352,76 @@ export class SolapiMessageService {
             link
         };
         return defaultFetcher<FileUploadRequest, FileUploadResponse>(this.authInfo, requestConfig, parameter);
+    }
+
+    /**
+     * 카카오 채널 카테고리 조회
+     */
+    async getKakaoChannelCategories(): Promise<Array<KakaoChannelCategory>> {
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: `${this.baseUrl}/kakao/v1/categories`
+        };
+        return defaultFetcher<undefined, Array<KakaoChannelCategory>>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 채널 목록 조회
+     * @param data 카카오 채널 목록을 더 자세하게 조회할 때 필요한 파라미터
+     */
+    async getKakaoChannels(data?: GetKakaoChannelsRequest): Promise<GetKakaoChannelsResponse> {
+        const parameter: GetKakaoChannelsRequest | object = data ? new GetKakaoChannelsRequest(data) : {};
+        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v1/plus-friends`, parameter);
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: endpoint
+        };
+        return defaultFetcher<undefined, GetKakaoChannelsResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 채널 조회
+     * @param pfId 카카오 채널 ID
+     */
+    async getKakaoChannel(pfId: string): Promise<KakaoChannel> {
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: `${this.baseUrl}/kakao/v1/plus-friends/${pfId}`
+        };
+        return defaultFetcher<undefined, KakaoChannel>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 채널 연동을 위한 인증 토큰 요청
+     */
+    async requestKakaoChannelToken(data: CreateKakaoChannelTokenRequest): Promise<RequestKakaoChannelTokenResponse> {
+       const requestConfig: RequestConfig = {
+           method: 'POST',
+           url: `${this.baseUrl}/kakao/v1/plus-friends/token`
+       };
+       return defaultFetcher<CreateKakaoChannelTokenRequest, RequestKakaoChannelTokenResponse>(this.authInfo, requestConfig, data);
+    }
+
+    /**
+     * 카카오 채널 연동
+     */
+    async createKakaoChannel(data: CreateKakaoChannelRequest): Promise<CreateKakaoChannelResponse> {
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/kakao/v1/plus-friends`
+        };
+        return defaultFetcher<CreateKakaoChannelRequest, CreateKakaoChannelResponse>(this.authInfo, requestConfig, data);
+    }
+
+    /**
+     * 카카오 채널 삭제, 채널이 삭제 될 경우 해당 채널의 템플릿이 모두 삭제됩니다!
+     * @param pfId 카카오 채널 ID
+     */
+    async removeKakaoChannel(pfId: string): Promise<KakaoChannel> {
+        const requestConfig: RequestConfig = {
+            method: 'DELETE',
+            url: `${this.baseUrl}/kakao/v1/plus-friends/${pfId}`
+        };
+        return defaultFetcher<undefined, KakaoChannel>(this.authInfo, requestConfig);
     }
 }
