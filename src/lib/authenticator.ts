@@ -17,7 +17,7 @@ export type AuthenticationParameter = {
  * Get Authenticate Information for SOLAPI Requests
  * @param authenticationParameter
  * @param authType
- * @return string "Authorization value
+ * @return string Authorization value
  */
 export default function getAuthInfo(authenticationParameter: AuthenticationParameter, authType: AuthenticateType = AuthenticateType.API_KEY): string {
     const {apiKey, apiSecret} = authenticationParameter;

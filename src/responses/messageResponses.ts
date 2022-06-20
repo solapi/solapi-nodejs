@@ -9,7 +9,8 @@ import {
     Log,
     MessageTypeRecord
 } from '../types/commonTypes';
-import {KakaoChannel} from '../models/kakaoChannel';
+import {KakaoChannel} from '../models/kakao/kakaoChannel';
+import {KakaoAlimtalkTemplate} from '../models/kakao/kakaoAlimtalkTemplate';
 
 export type SingleMessageSentResponse = {
     groupId: string;
@@ -193,4 +194,11 @@ export type CreateKakaoChannelResponse = {
     dateCreated: string
     dateUpdated: string
     pfId: string
+}
+
+export type GetKakaoAlimtalkTemplatesResponse = {
+    limit: number
+    templateList: Array<KakaoAlimtalkTemplate>
+    startKey: string
+    nextKey: string | null
 }

@@ -8,6 +8,8 @@ import {
     FileUploadRequest,
     GetGroupMessagesRequest,
     GetGroupsRequest,
+    GetKakaoAlimtalkTemplatesRequest,
+    GetKakaoAlimtalkTemplatesRequestType,
     GetKakaoChannelsRequest,
     GetMessagesRequest,
     GetMessagesRequestType,
@@ -29,6 +31,7 @@ import {
     FileUploadResponse,
     GetBalanceResponse,
     GetGroupsResponse,
+    GetKakaoAlimtalkTemplatesResponse,
     GetKakaoChannelsResponse,
     GetMessagesResponse,
     GetStatisticsResponse,
@@ -43,7 +46,8 @@ import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
 import stringDateTransfer from './lib/stringDateTrasnfer';
 import {MessageNotReceivedError} from './errors/DefaultError';
-import {KakaoChannel, KakaoChannelCategory} from './models/kakaoChannel';
+import {KakaoChannel, KakaoChannelCategory} from './models/kakao/kakaoChannel';
+import {KakaoAlimtalkTemplate} from './models/kakao/kakaoAlimtalkTemplate';
 
 type AuthInfo = {
     apiKey: string,
@@ -423,5 +427,32 @@ export class SolapiMessageService {
             url: `${this.baseUrl}/kakao/v1/plus-friends/${pfId}`
         };
         return defaultFetcher<undefined, KakaoChannel>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 템플릿 목록 조회
+     * @param data 카카오 템플릿 목록을 더 자세하게 조회할 때 필요한 파라미터
+     */
+    async getKakaoAlimtalkTemplates(data?: GetKakaoAlimtalkTemplatesRequestType): Promise<GetKakaoAlimtalkTemplatesResponse> {
+        const parameter: GetKakaoAlimtalkTemplatesRequest | object = data ? new GetKakaoAlimtalkTemplatesRequest(data) : {};
+        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v1/templates`, parameter);
+
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: endpoint
+        };
+        return defaultFetcher<undefined, GetKakaoAlimtalkTemplatesResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 템플릿 상세 조회
+     * @param templateId 카카오 알림톡 템플릿 ID
+     */
+    async getKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
+        };
+        return defaultFetcher<undefined, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
     }
 }

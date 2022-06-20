@@ -8,7 +8,7 @@ export type DefaultAgentType = {
     osPlatform: string
 };
 
-const sdkVersion = 'nodejs/5.1.0';
+const sdkVersion = 'nodejs/5.1.1';
 
 export const defaultAgent: DefaultAgentType = {
     sdkVersion,
@@ -251,25 +251,25 @@ export type GetKakaoAlimtalkTemplatesRequestType = {
 }
 
 export class GetKakaoAlimtalkTemplatesRequest {
-    name?: string;
+    'name[like]'?: string;
     pfId?: string;
     templateId?: string;
     isHidden?: boolean;
     status?: string;
     startKey?: string;
     limit?: number;
-    dateCreated?: string;
-    dateUpdated?: string;
+    'dateCreated[gte]'?: string;
+    'dateUpdated[gte]'?: string;
 
     constructor(getKakaoAlimtalkTemplatesRequestType: GetKakaoAlimtalkTemplatesRequestType) {
-        this.name = getKakaoAlimtalkTemplatesRequestType.name;
+        this['name[like]'] = getKakaoAlimtalkTemplatesRequestType.name;
         this.pfId = getKakaoAlimtalkTemplatesRequestType.pfId;
         this.templateId = getKakaoAlimtalkTemplatesRequestType.templateId;
         this.isHidden = getKakaoAlimtalkTemplatesRequestType.isHidden;
         this.status = getKakaoAlimtalkTemplatesRequestType.status;
         this.startKey = getKakaoAlimtalkTemplatesRequestType.startKey;
         this.limit = getKakaoAlimtalkTemplatesRequestType.limit;
-        this.dateCreated = getKakaoAlimtalkTemplatesRequestType.dateCreated;
-        this.dateUpdated = getKakaoAlimtalkTemplatesRequestType.dateUpdated;
+        this['dateCreated[gte]'] = getKakaoAlimtalkTemplatesRequestType.dateCreated;
+        this['dateUpdated[gte]'] = getKakaoAlimtalkTemplatesRequestType.dateUpdated;
     }
 }

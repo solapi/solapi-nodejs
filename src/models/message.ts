@@ -1,4 +1,4 @@
-import {KakaoOption} from './kakaoOption';
+import {KakaoOption} from './kakao/kakaoOption';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
