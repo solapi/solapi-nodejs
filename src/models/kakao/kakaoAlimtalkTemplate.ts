@@ -4,18 +4,30 @@ import {KakaoButton} from './kakaoButton';
  * 카카오 알림톡 템플릿 메시지 유형
  * BA:기본형, EX:부가정보형, AD:광고추가형, MI: 복합형
  */
-export type KakaoAlimtalkTemplateMessageType = 'BA' | 'EX' | 'AD' | 'MI';
+export type KakaoAlimtalkTemplateMessageType = 'BA' | 'EX' | 'AD' | 'MI'
 
 /**
  * 카카오 알림톡 템플릿 강조 유형
  * NONE: 선택안함, TEXT: 강조표기형, IMAGE: 이미지형
  */
-export type KakaoAlimtalkTemplateEmphasizeType = 'NONE' | 'TEXT' | 'IMAGE';
+export type KakaoAlimtalkTemplateEmphasizeType = 'NONE' | 'TEXT' | 'IMAGE'
 
 /**
  * 카카오 알림톡 템플릿 그룹 유형(기본값은 Channel)
  */
-export type KakaoAlimtalkTemplateAssignType = 'CHANNEL' | 'GROUP';
+type KakaoAlimtalkTemplateAssignType = 'CHANNEL' | 'GROUP'
+
+type KakaoAlimtalkTemplateCommentType = {
+    isAdmin: boolean
+    memberId: string
+    content: string
+    dateCreated: string
+}
+
+type KakaoAlimtalkTemplateCodeType = {
+    status: 'PENDING' | 'INSPECTING' | 'REJECTED' | 'APPROVED'
+    comments: Array<KakaoAlimtalkTemplateCommentType>
+}
 
 /**
  * 카카오 알림톡 템플릿 모델
@@ -92,4 +104,19 @@ export class KakaoAlimtalkTemplate {
      * 카카오 알림톡 템플릿 버튼 목록
      */
     buttons?: Array<KakaoButton>;
+
+    /**
+     * 카카오 알림톡 템플릿 상태 현황목록
+     */
+    codes?: Array<KakaoAlimtalkTemplateCodeType>;
+
+    /**
+     * 알림톡 템플릿 생성일자
+     */
+    dateCreated?: string;
+
+    /**
+     * 알림톡 템플릿 수정일자
+     */
+    dateUpdated?: string;
 }

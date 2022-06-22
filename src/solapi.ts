@@ -1,6 +1,7 @@
 import {Message} from './models/message';
 import {
     CreateGroupRequest,
+    CreateKakaoAlimtalkTemplateRequest,
     CreateKakaoChannelRequest,
     CreateKakaoChannelTokenRequest,
     defaultAgent,
@@ -16,6 +17,7 @@ import {
     GetStatisticsRequest,
     GetStatisticsRequestType,
     GroupMessageAddRequest,
+    KakaoAlimtalkTemplateRequest,
     MultipleDetailMessageSendingRequest,
     MultipleMessageSendingRequest,
     RemoveMessageIdsToGroupRequest,
@@ -454,5 +456,67 @@ export class SolapiMessageService {
             url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
         };
         return defaultFetcher<undefined, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 숨김 처리
+     * @param templateId 카카오 알림톡 템플릿 ID
+     * @param isHidden 숨김 여부(true: 숨김, false: 숨김처리 해제)
+     */
+    async hideKakaoAlimtalkTemplate(templateId: string, isHidden: boolean): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'PUT',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}/hide`
+        };
+        return defaultFetcher<{isHidden: boolean}, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {isHidden});
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 생성
+     * @param data 알림톡 템플릿 생성을 위한 파라미터
+     */
+    async createKakaoAlimtalkTemplate(data: CreateKakaoAlimtalkTemplateRequest): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/kakao/v1/templates`
+        };
+        return defaultFetcher<CreateKakaoAlimtalkTemplateRequest, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, data);
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 검수 요청
+     * @param templateId 카카오 알림톡 템플릿 ID
+     */
+    async requestInspectionKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'PUT',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}/inspection`
+        };
+        return defaultFetcher<unknown, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {});
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 수정(검수 X)
+     * @param templateId 카카오 알림톡 템플릿 ID
+     * @param data 카카오 알림톡 템플릿 수정을 위한 파라미터
+     */
+    async updateKakaoAlimtalkTemplate(templateId: string, data: KakaoAlimtalkTemplateRequest): Promise<object> {
+        const requestConfig: RequestConfig = {
+            method: 'PUT',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
+        };
+        return defaultFetcher<KakaoAlimtalkTemplateRequest, object>(this.authInfo, requestConfig, data);
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 삭제(대기, 반려 상태일 때만 삭제가능)
+     * @param templateId 카카오 알림톡 템플릿 ID
+     */
+    async deleteKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'DELETE',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
+        };
+        return defaultFetcher<unknown, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {});
     }
 }

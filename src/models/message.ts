@@ -28,8 +28,7 @@ export type MessageType =
     | 'NSA';
 
 /**
- * @internal
- * 메시지 모델
+ * 메시지 모델, 전체적인 메시지 발송을 위한 파라미터는 이 Message 모델에서 관장함
  */
 export class Message {
     /**
