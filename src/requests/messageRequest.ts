@@ -2,13 +2,18 @@ import {Message, MessageType} from '../models/message';
 import {GroupId} from '../types/commonTypes';
 import {formatISO} from 'date-fns';
 import stringDateTransfer from '../lib/stringDateTrasnfer';
+import {KakaoButton} from '../models/kakao/kakaoButton';
+import {
+    KakaoAlimtalkTemplateEmphasizeType,
+    KakaoAlimtalkTemplateMessageType
+} from '../models/kakao/kakaoAlimtalkTemplate';
 
 export type DefaultAgentType = {
     sdkVersion: string
     osPlatform: string
 };
 
-const sdkVersion = 'nodejs/5.1.0';
+const sdkVersion = 'nodejs/5.1.1-beta.0';
 
 export const defaultAgent: DefaultAgentType = {
     sdkVersion,
@@ -190,4 +195,107 @@ export type FileUploadRequest = {
 export type CreateGroupRequest = DefaultAgentType & {
     allowDuplicates: boolean
     appId?: string
+}
+
+export type GetKakaoChannelsRequestType = {
+    pfId?: string
+    searchId?: string
+    phoneNumber?: string
+    categoryCode?: string
+    dateCreated?: string
+    dateUpdated?: string
+    startKey?: string
+    limit?: number
+}
+
+export class GetKakaoChannelsRequest {
+    readonly pfId?: string;
+    readonly searchId?: string;
+    readonly phoneNumber?: string;
+    readonly categoryCode?: string;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+    readonly startKey?: string;
+    readonly limit?: number;
+
+    constructor(getKakaoChannelsRequestType: GetKakaoChannelsRequestType) {
+        this.pfId = getKakaoChannelsRequestType.pfId;
+        this.searchId = getKakaoChannelsRequestType.searchId;
+        this.phoneNumber = getKakaoChannelsRequestType.phoneNumber;
+        this.categoryCode = getKakaoChannelsRequestType.categoryCode;
+        this.dateCreated = getKakaoChannelsRequestType.dateCreated;
+        this.dateUpdated = getKakaoChannelsRequestType.dateUpdated;
+        this.startKey = getKakaoChannelsRequestType.startKey;
+        this.limit = getKakaoChannelsRequestType.limit;
+    }
+}
+
+export type CreateKakaoChannelTokenRequest = {
+    searchId: string
+    phoneNumber: string
+    categoryCode: string
+}
+
+export type CreateKakaoChannelRequest = {
+    searchId: string
+    phoneNumber: string
+    categoryCode: string
+    token: string
+}
+
+export type GetKakaoAlimtalkTemplatesRequestType = {
+    name?: string
+    pfId?: string
+    templateId?: string
+    isHidden?: boolean
+    status?: string
+    startKey?: string
+    limit?: number
+    dateCreated?: string
+    dateUpdated?: string
+}
+
+export class GetKakaoAlimtalkTemplatesRequest {
+    'name[like]'?: string;
+    pfId?: string;
+    templateId?: string;
+    isHidden?: boolean;
+    status?: string;
+    startKey?: string;
+    limit?: number;
+    'dateCreated[gte]'?: string;
+    'dateUpdated[gte]'?: string;
+
+    constructor(getKakaoAlimtalkTemplatesRequestType: GetKakaoAlimtalkTemplatesRequestType) {
+        this['name[like]'] = getKakaoAlimtalkTemplatesRequestType.name;
+        this.pfId = getKakaoAlimtalkTemplatesRequestType.pfId;
+        this.templateId = getKakaoAlimtalkTemplatesRequestType.templateId;
+        this.isHidden = getKakaoAlimtalkTemplatesRequestType.isHidden;
+        this.status = getKakaoAlimtalkTemplatesRequestType.status;
+        this.startKey = getKakaoAlimtalkTemplatesRequestType.startKey;
+        this.limit = getKakaoAlimtalkTemplatesRequestType.limit;
+        this['dateCreated[gte]'] = getKakaoAlimtalkTemplatesRequestType.dateCreated;
+        this['dateUpdated[gte]'] = getKakaoAlimtalkTemplatesRequestType.dateUpdated;
+    }
+}
+
+export type KakaoAlimtalkTemplateRequest = {
+    name: string
+    content: string
+    categoryCode: string
+    buttons?: Array<KakaoButton>
+    messageType: KakaoAlimtalkTemplateMessageType
+    emphasizeType: KakaoAlimtalkTemplateEmphasizeType
+    extra?: string
+    ad?: string
+    emphasizeTitle?: string
+    emphasizeSubtitle?: string
+    securityFlag: boolean
+    imageId: string
+};
+
+export type CreateKakaoAlimtalkTemplateRequest = KakaoAlimtalkTemplateRequest & {
+    pfId: string
+    pfGroupId?: string
+
 }

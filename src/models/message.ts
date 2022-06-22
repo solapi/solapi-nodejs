@@ -1,4 +1,4 @@
-import {KakaoOption} from './kakaoOption';
+import {KakaoOption} from './kakao/kakaoOption';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
@@ -28,8 +28,7 @@ export type MessageType =
     | 'NSA';
 
 /**
- * @internal
- * 메시지 모델
+ * 메시지 모델, 전체적인 메시지 발송을 위한 파라미터는 이 Message 모델에서 관장함
  */
 export class Message {
     /**

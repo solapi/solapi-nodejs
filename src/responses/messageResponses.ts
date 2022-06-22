@@ -9,6 +9,8 @@ import {
     Log,
     MessageTypeRecord
 } from '../types/commonTypes';
+import {KakaoChannel} from '../models/kakao/kakaoChannel';
+import {KakaoAlimtalkTemplate} from '../models/kakao/kakaoAlimtalkTemplate';
 
 export type SingleMessageSentResponse = {
     groupId: string;
@@ -174,4 +176,29 @@ export type FileUploadResponse = {
     fileId: string
     type: string
     link: string | null | undefined
+}
+
+export type GetKakaoChannelsResponse = {
+    limit: number
+    friends: Array<KakaoChannel>
+}
+
+export type RequestKakaoChannelTokenResponse = {
+    success: boolean
+}
+
+export type CreateKakaoChannelResponse = {
+    accountId: string
+    phoneNumber: string
+    searchId: string
+    dateCreated: string
+    dateUpdated: string
+    pfId: string
+}
+
+export type GetKakaoAlimtalkTemplatesResponse = {
+    limit: number
+    templateList: Array<KakaoAlimtalkTemplate>
+    startKey: string
+    nextKey: string | null
 }

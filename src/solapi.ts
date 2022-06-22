@@ -1,16 +1,23 @@
 import {Message} from './models/message';
 import {
     CreateGroupRequest,
+    CreateKakaoAlimtalkTemplateRequest,
+    CreateKakaoChannelRequest,
+    CreateKakaoChannelTokenRequest,
     defaultAgent,
     FileType,
     FileUploadRequest,
     GetGroupMessagesRequest,
     GetGroupsRequest,
+    GetKakaoAlimtalkTemplatesRequest,
+    GetKakaoAlimtalkTemplatesRequestType,
+    GetKakaoChannelsRequest,
     GetMessagesRequest,
     GetMessagesRequestType,
     GetStatisticsRequest,
     GetStatisticsRequestType,
     GroupMessageAddRequest,
+    KakaoAlimtalkTemplateRequest,
     MultipleDetailMessageSendingRequest,
     MultipleMessageSendingRequest,
     RemoveMessageIdsToGroupRequest,
@@ -21,14 +28,18 @@ import {
 import defaultFetcher from './lib/defaultFetcher';
 import {
     AddMessageResponse,
+    CreateKakaoChannelResponse,
     DetailGroupMessageResponse,
     FileUploadResponse,
     GetBalanceResponse,
     GetGroupsResponse,
+    GetKakaoAlimtalkTemplatesResponse,
+    GetKakaoChannelsResponse,
     GetMessagesResponse,
     GetStatisticsResponse,
     GroupMessageResponse,
     RemoveGroupMessagesResponse,
+    RequestKakaoChannelTokenResponse,
     SingleMessageSentResponse
 } from './responses/messageResponses';
 import {GroupId} from './types/commonTypes';
@@ -37,6 +48,8 @@ import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
 import stringDateTransfer from './lib/stringDateTrasnfer';
 import {MessageNotReceivedError} from './errors/DefaultError';
+import {KakaoChannel, KakaoChannelCategory} from './models/kakao/kakaoChannel';
+import {KakaoAlimtalkTemplate} from './models/kakao/kakaoAlimtalkTemplate';
 
 type AuthInfo = {
     apiKey: string,
@@ -115,7 +128,7 @@ export class SolapiMessageService {
     }
 
     /**
-     * @deprecated
+     * @deprecated 이 기능은 더이상 사용되지 않습니다. send 메소드를 이용하세요!
      * 여러 메시지 즉시 발송 기능
      * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
      * @param messages 여러 메시지(문자, 알림톡 등)
@@ -132,7 +145,7 @@ export class SolapiMessageService {
     }
 
     /**
-     * @deprecated
+     * @deprecated 이 기능은 더이상 사용되지 않습니다. send 메소드를 이용하세요!
      * 여러 메시지 예약 발송 기능
      * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
      * @param messages 여러 메시지(문자, 알림톡 등)
@@ -205,6 +218,18 @@ export class SolapiMessageService {
         return defaultFetcher<ScheduledDateSendingRequest, GroupMessageResponse>(this.authInfo, requestConfig, {
             scheduledDate: formattedScheduledDate
         });
+    }
+
+    /**
+     * 단일 그룹정보 조회
+     * @param groupId 그룹 ID
+     */
+    async getGroup(groupId: GroupId): Promise<GroupMessageResponse> {
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: `${this.baseUrl}//messages/v4/groups/${groupId}`
+        };
+        return defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -333,5 +358,165 @@ export class SolapiMessageService {
             link
         };
         return defaultFetcher<FileUploadRequest, FileUploadResponse>(this.authInfo, requestConfig, parameter);
+    }
+
+    /**
+     * 카카오 채널 카테고리 조회
+     */
+    async getKakaoChannelCategories(): Promise<Array<KakaoChannelCategory>> {
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: `${this.baseUrl}/kakao/v1/categories`
+        };
+        return defaultFetcher<undefined, Array<KakaoChannelCategory>>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 채널 목록 조회
+     * @param data 카카오 채널 목록을 더 자세하게 조회할 때 필요한 파라미터
+     */
+    async getKakaoChannels(data?: GetKakaoChannelsRequest): Promise<GetKakaoChannelsResponse> {
+        const parameter: GetKakaoChannelsRequest | object = data ? new GetKakaoChannelsRequest(data) : {};
+        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v1/plus-friends`, parameter);
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: endpoint
+        };
+        return defaultFetcher<undefined, GetKakaoChannelsResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 채널 조회
+     * @param pfId 카카오 채널 ID
+     */
+    async getKakaoChannel(pfId: string): Promise<KakaoChannel> {
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: `${this.baseUrl}/kakao/v1/plus-friends/${pfId}`
+        };
+        return defaultFetcher<undefined, KakaoChannel>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 채널 연동을 위한 인증 토큰 요청
+     */
+    async requestKakaoChannelToken(data: CreateKakaoChannelTokenRequest): Promise<RequestKakaoChannelTokenResponse> {
+       const requestConfig: RequestConfig = {
+           method: 'POST',
+           url: `${this.baseUrl}/kakao/v1/plus-friends/token`
+       };
+       return defaultFetcher<CreateKakaoChannelTokenRequest, RequestKakaoChannelTokenResponse>(this.authInfo, requestConfig, data);
+    }
+
+    /**
+     * 카카오 채널 연동
+     */
+    async createKakaoChannel(data: CreateKakaoChannelRequest): Promise<CreateKakaoChannelResponse> {
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/kakao/v1/plus-friends`
+        };
+        return defaultFetcher<CreateKakaoChannelRequest, CreateKakaoChannelResponse>(this.authInfo, requestConfig, data);
+    }
+
+    /**
+     * 카카오 채널 삭제, 채널이 삭제 될 경우 해당 채널의 템플릿이 모두 삭제됩니다!
+     * @param pfId 카카오 채널 ID
+     */
+    async removeKakaoChannel(pfId: string): Promise<KakaoChannel> {
+        const requestConfig: RequestConfig = {
+            method: 'DELETE',
+            url: `${this.baseUrl}/kakao/v1/plus-friends/${pfId}`
+        };
+        return defaultFetcher<undefined, KakaoChannel>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 템플릿 목록 조회
+     * @param data 카카오 템플릿 목록을 더 자세하게 조회할 때 필요한 파라미터
+     */
+    async getKakaoAlimtalkTemplates(data?: GetKakaoAlimtalkTemplatesRequestType): Promise<GetKakaoAlimtalkTemplatesResponse> {
+        const parameter: GetKakaoAlimtalkTemplatesRequest | object = data ? new GetKakaoAlimtalkTemplatesRequest(data) : {};
+        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v1/templates`, parameter);
+
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: endpoint
+        };
+        return defaultFetcher<undefined, GetKakaoAlimtalkTemplatesResponse>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 템플릿 상세 조회
+     * @param templateId 카카오 알림톡 템플릿 ID
+     */
+    async getKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'GET',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
+        };
+        return defaultFetcher<undefined, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 숨김 처리
+     * @param templateId 카카오 알림톡 템플릿 ID
+     * @param isHidden 숨김 여부(true: 숨김, false: 숨김처리 해제)
+     */
+    async hideKakaoAlimtalkTemplate(templateId: string, isHidden: boolean): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'PUT',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}/hide`
+        };
+        return defaultFetcher<{isHidden: boolean}, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {isHidden});
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 생성
+     * @param data 알림톡 템플릿 생성을 위한 파라미터
+     */
+    async createKakaoAlimtalkTemplate(data: CreateKakaoAlimtalkTemplateRequest): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/kakao/v1/templates`
+        };
+        return defaultFetcher<CreateKakaoAlimtalkTemplateRequest, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, data);
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 검수 요청
+     * @param templateId 카카오 알림톡 템플릿 ID
+     */
+    async requestInspectionKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'PUT',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}/inspection`
+        };
+        return defaultFetcher<unknown, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {});
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 수정(검수 X)
+     * @param templateId 카카오 알림톡 템플릿 ID
+     * @param data 카카오 알림톡 템플릿 수정을 위한 파라미터
+     */
+    async updateKakaoAlimtalkTemplate(templateId: string, data: KakaoAlimtalkTemplateRequest): Promise<object> {
+        const requestConfig: RequestConfig = {
+            method: 'PUT',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
+        };
+        return defaultFetcher<KakaoAlimtalkTemplateRequest, object>(this.authInfo, requestConfig, data);
+    }
+
+    /**
+     * 카카오 알림톡 템플릿 삭제(대기, 반려 상태일 때만 삭제가능)
+     * @param templateId 카카오 알림톡 템플릿 ID
+     */
+    async deleteKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'DELETE',
+            url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
+        };
+        return defaultFetcher<unknown, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {});
     }
 }
