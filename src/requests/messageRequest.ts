@@ -1,8 +1,8 @@
-import {Message, MessageType} from '../models/message';
-import {GroupId} from '../types/commonTypes';
-import {formatISO} from 'date-fns';
+import { Message, MessageType } from '../models/message';
+import { GroupId } from '../types/commonTypes';
+import { formatISO } from 'date-fns';
 import stringDateTransfer from '../lib/stringDateTrasnfer';
-import {KakaoButton} from '../models/kakao/kakaoButton';
+import { KakaoButton } from '../models/kakao/kakaoButton';
 import {
     KakaoAlimtalkTemplateEmphasizeType,
     KakaoAlimtalkTemplateMessageType
@@ -13,7 +13,7 @@ export type DefaultAgentType = {
     osPlatform: string
 };
 
-const sdkVersion = 'nodejs/5.1.1-beta.0';
+const sdkVersion = 'nodejs/5.1.1-beta.1';
 
 export const defaultAgent: DefaultAgentType = {
     sdkVersion,
