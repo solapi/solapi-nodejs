@@ -1,5 +1,5 @@
 import {parseISO} from 'date-fns';
-import {InvalidDateError} from '../errors/DefaultError';
+import {InvalidDateError} from '../errors/defaultError';
 
 /**
  * 일반 문자열 날짜가 있을 경우 Date 타입으로 변환해주는 함수

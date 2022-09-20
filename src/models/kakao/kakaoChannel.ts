@@ -1,10 +1,10 @@
-export class KakaoChannelCategory {
+export type KakaoChannelCategory = {
     code: string;
     name: string;
 }
 
-export class KakaoChannel {
-    pfId: string;
+export type KakaoChannel = {
+    channelId: string;
     searchId: string;
     accountId: string;
     phoneNumber: string;

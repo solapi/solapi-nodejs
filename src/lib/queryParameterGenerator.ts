@@ -7,6 +7,7 @@ export default function queryParameterGenerator<T extends object>(url: string, d
         Object.keys(data).forEach(key => {
             const reflectedValue = Reflect.get(data, key);
             if (reflectedValue) {
+                // TODO: Record type checking needed
                 urlSearchParams.append(key, reflectedValue);
             }
         });

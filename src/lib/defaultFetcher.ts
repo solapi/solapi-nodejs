@@ -1,6 +1,6 @@
 import getAuthInfo, {AuthenticationParameter} from './authenticator';
 import fetch from 'cross-fetch';
-import {DefaultError, ErrorResponse} from '../errors/DefaultError';
+import {DefaultError, ErrorResponse} from '../errors/defaultError';
 
 type DefaultRequest = {
     url: string,

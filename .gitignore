@@ -7,3 +7,11 @@ dist
 .parcel-cache
 yarn-error.log
 debug
+
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*

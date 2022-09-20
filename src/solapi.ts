@@ -12,6 +12,7 @@ import {
     GetKakaoAlimtalkTemplatesRequest,
     GetKakaoAlimtalkTemplatesRequestType,
     GetKakaoChannelsRequest,
+    GetKakaoChannelsRequestType,
     GetMessagesRequest,
     GetMessagesRequestType,
     GetStatisticsRequest,
@@ -47,7 +48,7 @@ import queryParameterGenerator from './lib/queryParameterGenerator';
 import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
 import stringDateTransfer from './lib/stringDateTrasnfer';
-import {MessageNotReceivedError} from './errors/DefaultError';
+import {MessageNotReceivedError} from './errors/defaultError';
 import {KakaoChannel, KakaoChannelCategory} from './models/kakao/kakaoChannel';
 import {KakaoAlimtalkTemplate} from './models/kakao/kakaoAlimtalkTemplate';
 
@@ -366,35 +367,35 @@ export class SolapiMessageService {
     async getKakaoChannelCategories(): Promise<Array<KakaoChannelCategory>> {
         const requestConfig: RequestConfig = {
             method: 'GET',
-            url: `${this.baseUrl}/kakao/v1/categories`
+            url: `${this.baseUrl}/kakao/v2/channels/categories`
         };
-        return defaultFetcher<undefined, Array<KakaoChannelCategory>>(this.authInfo, requestConfig);
+        return defaultFetcher<never, Array<KakaoChannelCategory>>(this.authInfo, requestConfig);
     }
 
     /**
      * 카카오 채널 목록 조회
      * @param data 카카오 채널 목록을 더 자세하게 조회할 때 필요한 파라미터
      */
-    async getKakaoChannels(data?: GetKakaoChannelsRequest): Promise<GetKakaoChannelsResponse> {
+    async getKakaoChannels(data?: GetKakaoChannelsRequestType): Promise<GetKakaoChannelsResponse> {
         const parameter: GetKakaoChannelsRequest | object = data ? new GetKakaoChannelsRequest(data) : {};
-        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v1/plus-friends`, parameter);
+        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v2/channels`, parameter);
         const requestConfig: RequestConfig = {
             method: 'GET',
             url: endpoint
         };
-        return defaultFetcher<undefined, GetKakaoChannelsResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GetKakaoChannelsResponse>(this.authInfo, requestConfig);
     }
 
     /**
      * 카카오 채널 조회
-     * @param pfId 카카오 채널 ID
+     * @param channelId 카카오 채널 ID(구 pfId)
      */
-    async getKakaoChannel(pfId: string): Promise<KakaoChannel> {
+    async getKakaoChannel(channelId: string): Promise<KakaoChannel> {
         const requestConfig: RequestConfig = {
             method: 'GET',
-            url: `${this.baseUrl}/kakao/v1/plus-friends/${pfId}`
+            url: `${this.baseUrl}/kakao/v2/channels/${channelId}`
         };
-        return defaultFetcher<undefined, KakaoChannel>(this.authInfo, requestConfig);
+        return defaultFetcher<never, KakaoChannel>(this.authInfo, requestConfig);
     }
 
     /**

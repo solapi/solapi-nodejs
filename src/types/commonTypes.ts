@@ -85,3 +85,5 @@ export type Group = {
     dateCreated: string,
     dateUpdated: string
 }
+
+export type Operator = 'eq' | 'gte' | 'ne' | 'like' | 'gt' | 'lt'

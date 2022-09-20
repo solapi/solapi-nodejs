@@ -1,5 +1,5 @@
 import { Message, MessageType } from '../models/message';
-import { GroupId } from '../types/commonTypes';
+import { GroupId, Operator } from '../types/commonTypes';
 import { formatISO } from 'date-fns';
 import stringDateTransfer from '../lib/stringDateTrasnfer';
 import { KakaoButton } from '../models/kakao/kakaoButton';
@@ -13,7 +13,7 @@ export type DefaultAgentType = {
     osPlatform: string
 };
 
-const sdkVersion = 'nodejs/5.1.1-beta.1';
+const sdkVersion = 'nodejs/5.1.1';
 
 export const defaultAgent: DefaultAgentType = {
     sdkVersion,
@@ -198,32 +198,45 @@ export type CreateGroupRequest = DefaultAgentType & {
 }
 
 export type GetKakaoChannelsRequestType = {
-    pfId?: string
+    channelId?: string
     searchId?: string
     phoneNumber?: string
     categoryCode?: string
-    dateCreated?: string
+    dateCreatedDuration?: {
+        operator?: Omit<Operator, 'ne' | 'like'>
+        dateCreatedList: [string, string]
+    }
     dateUpdated?: string
     startKey?: string
     limit?: number
 }
 
 export class GetKakaoChannelsRequest {
-    readonly pfId?: string;
-    readonly searchId?: string;
-    readonly phoneNumber?: string;
-    readonly categoryCode?: string;
-    readonly dateCreated?: string;
-    readonly dateUpdated?: string;
-    readonly startKey?: string;
-    readonly limit?: number;
+    channelId?: string;
+    searchId?: string;
+    phoneNumber?: string;
+    categoryCode?: string
+    dateUpdated?: string;
+    startKey?: string;
+    limit?: number;
+    dateCreated: Record<string, string>[];
 
     constructor(getKakaoChannelsRequestType: GetKakaoChannelsRequestType) {
-        this.pfId = getKakaoChannelsRequestType.pfId;
+        this.channelId = getKakaoChannelsRequestType.channelId;
         this.searchId = getKakaoChannelsRequestType.searchId;
         this.phoneNumber = getKakaoChannelsRequestType.phoneNumber;
         this.categoryCode = getKakaoChannelsRequestType.categoryCode;
-        this.dateCreated = getKakaoChannelsRequestType.dateCreated;
+        if (getKakaoChannelsRequestType.dateCreatedDuration) {
+            const createdDuration = getKakaoChannelsRequestType.dateCreatedDuration;
+            if (createdDuration.dateCreatedList.length > 0) {
+                const createdOperator = (typeof createdDuration.operator === "undefined" ? "lt" : createdDuration.operator).toString();
+                this.dateCreated = createdDuration.dateCreatedList.map(data => {
+                    return {
+                        [createdOperator]: formatISO(stringDateTransfer(data))
+                    }
+                });
+            }
+        }
         this.dateUpdated = getKakaoChannelsRequestType.dateUpdated;
         this.startKey = getKakaoChannelsRequestType.startKey;
         this.limit = getKakaoChannelsRequestType.limit;
