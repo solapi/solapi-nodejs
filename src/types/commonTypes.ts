@@ -86,4 +86,4 @@ export type Group = {
     dateUpdated: string
 }
 
-export type Operator = 'eq' | 'gte' | 'ne' | 'like' | 'gt' | 'lt'
+export type OperatorType = 'eq' | 'gte' | 'ne' | 'like' | 'gt' | 'lt'

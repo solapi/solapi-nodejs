@@ -12,7 +12,6 @@ import {
     GetKakaoAlimtalkTemplatesRequest,
     GetKakaoAlimtalkTemplatesRequestType,
     GetKakaoChannelsRequest,
-    GetKakaoChannelsRequestType,
     GetMessagesRequest,
     GetMessagesRequestType,
     GetStatisticsRequest,
@@ -51,6 +50,7 @@ import stringDateTransfer from './lib/stringDateTrasnfer';
 import {MessageNotReceivedError} from './errors/defaultError';
 import {KakaoChannel, KakaoChannelCategory} from './models/kakao/kakaoChannel';
 import {KakaoAlimtalkTemplate} from './models/kakao/kakaoAlimtalkTemplate';
+import qs from 'qs';
 
 type AuthInfo = {
     apiKey: string,
@@ -376,9 +376,9 @@ export class SolapiMessageService {
      * 카카오 채널 목록 조회
      * @param data 카카오 채널 목록을 더 자세하게 조회할 때 필요한 파라미터
      */
-    async getKakaoChannels(data?: GetKakaoChannelsRequestType): Promise<GetKakaoChannelsResponse> {
-        const parameter: GetKakaoChannelsRequest | object = data ? new GetKakaoChannelsRequest(data) : {};
-        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v2/channels`, parameter);
+    async getKakaoChannels(data?: Partial<GetKakaoChannelsRequest>): Promise<GetKakaoChannelsResponse> {
+        const parameter = qs.stringify(data, {indices: false});
+        const endpoint = `${this.baseUrl}/kakao/v2/channels?${parameter}`;
         const requestConfig: RequestConfig = {
             method: 'GET',
             url: endpoint

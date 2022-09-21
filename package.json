@@ -41,27 +41,29 @@
   "dependencies": {
     "cross-fetch": "^3.1.5",
     "crypto-js": "^4.1.1",
-    "date-fns": "^2.28.0",
+    "date-fns": "^2.29.3",
     "image-to-base64": "^2.2.0",
-    "nanoid": "^3.3.4"
+    "nanoid": "^3.3.4",
+    "qs": "^6.11.0"
   },
   "devDependencies": {
-    "@parcel/packager-ts": "^2.6.0",
-    "@parcel/transformer-typescript-tsc": "^2.6.0",
-    "@parcel/transformer-typescript-types": "^2.6.0",
+    "@parcel/packager-ts": "^2.7.0",
+    "@parcel/transformer-typescript-tsc": "^2.7.0",
+    "@parcel/transformer-typescript-types": "^2.7.0",
     "@types/crypto-js": "^4.1.1",
     "@types/image-to-base64": "^2.1.0",
-    "@types/node": "^17.0.42",
-    "@typescript-eslint/eslint-plugin": "^5.27.1",
-    "@typescript-eslint/parser": "^5.27.1",
-    "eslint": "^8.17.0",
-    "eslint-plugin-tsdoc": "^0.2.16",
-    "parcel": "^2.6.0",
+    "@types/node": "^18.7.18",
+    "@types/qs": "^6.9.7",
+    "@typescript-eslint/eslint-plugin": "^5.38.0",
+    "@typescript-eslint/parser": "^5.38.0",
+    "eslint": "^8.23.1",
+    "eslint-plugin-tsdoc": "^0.2.17",
+    "parcel": "^2.7.0",
     "querystring-es3": "^0.2.1",
     "rimraf": "^3.0.2",
-    "typedoc": "^0.22.17",
-    "typescript": "^4.7.3",
-    "uglify-js": "^3.16.0"
+    "typedoc": "^0.23.15",
+    "typescript": "^4.8.3",
+    "uglify-js": "^3.17.1"
   },
   "files": [
     "/dist"

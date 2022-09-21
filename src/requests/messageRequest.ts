@@ -1,8 +1,8 @@
-import { Message, MessageType } from '../models/message';
-import { GroupId, Operator } from '../types/commonTypes';
-import { formatISO } from 'date-fns';
+import {Message, MessageType} from '../models/message';
+import {GroupId, OperatorType} from '../types/commonTypes';
+import {formatISO} from 'date-fns';
 import stringDateTransfer from '../lib/stringDateTrasnfer';
-import { KakaoButton } from '../models/kakao/kakaoButton';
+import {KakaoButton} from '../models/kakao/kakaoButton';
 import {
     KakaoAlimtalkTemplateEmphasizeType,
     KakaoAlimtalkTemplateMessageType
@@ -197,50 +197,15 @@ export type CreateGroupRequest = DefaultAgentType & {
     appId?: string
 }
 
-export type GetKakaoChannelsRequestType = {
-    channelId?: string
-    searchId?: string
-    phoneNumber?: string
-    categoryCode?: string
-    dateCreatedDuration?: {
-        operator?: Omit<Operator, 'ne' | 'like'>
-        dateCreatedList: [string, string]
-    }
-    dateUpdated?: string
-    startKey?: string
-    limit?: number
-}
-
-export class GetKakaoChannelsRequest {
-    channelId?: string;
-    searchId?: string;
-    phoneNumber?: string;
-    categoryCode?: string
-    dateUpdated?: string;
-    startKey?: string;
-    limit?: number;
-    dateCreated: Record<string, string>[];
-
-    constructor(getKakaoChannelsRequestType: GetKakaoChannelsRequestType) {
-        this.channelId = getKakaoChannelsRequestType.channelId;
-        this.searchId = getKakaoChannelsRequestType.searchId;
-        this.phoneNumber = getKakaoChannelsRequestType.phoneNumber;
-        this.categoryCode = getKakaoChannelsRequestType.categoryCode;
-        if (getKakaoChannelsRequestType.dateCreatedDuration) {
-            const createdDuration = getKakaoChannelsRequestType.dateCreatedDuration;
-            if (createdDuration.dateCreatedList.length > 0) {
-                const createdOperator = (typeof createdDuration.operator === "undefined" ? "lt" : createdDuration.operator).toString();
-                this.dateCreated = createdDuration.dateCreatedList.map(data => {
-                    return {
-                        [createdOperator]: formatISO(stringDateTransfer(data))
-                    }
-                });
-            }
-        }
-        this.dateUpdated = getKakaoChannelsRequestType.dateUpdated;
-        this.startKey = getKakaoChannelsRequestType.startKey;
-        this.limit = getKakaoChannelsRequestType.limit;
-    }
+export type GetKakaoChannelsRequest = {
+    channelId: string;
+    searchId: string;
+    phoneNumber: string;
+    categoryCode: string;
+    dateCreated: Record<keyof Omit<OperatorType, 'ne' | 'like'>, Array<string>>;
+    dateUpdated: Record<keyof Omit<OperatorType, 'ne' | 'like'>, Array<string>>;
+    startKey: string;
+    limit: number;
 }
 
 export type CreateKakaoChannelTokenRequest = {
