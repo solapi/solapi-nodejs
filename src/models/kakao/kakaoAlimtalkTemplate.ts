@@ -38,12 +38,17 @@ export class KakaoAlimtalkTemplate {
     /**
      * 카카오 비즈니스 채널 ID
      */
-    pfId: string;
+    channelId: string;
 
     /**
      * 카카오 비즈니스 채널 그룹 ID
      */
-    pfGroupId?: string | null;
+    channelGroupId: string | null;
+
+    /**
+     * 알림톡 템플릿 내용
+     */
+    content: string;
 
     /**
      * 알림톡 템플릿 숨김 여부
@@ -64,25 +69,25 @@ export class KakaoAlimtalkTemplate {
      * 부가정보
      * 메시지 유형이 "부가정보형"또는 "복합형"일 경우 필수
      */
-    extra?: string | null;
+    extra: string | null;
 
     /**
      * 간단 광고 문구
      * 메시지 유형이 "광고추가형"또는 "복합형"일 경우 필수
      */
-    ad?: string | null;
+    ad: string | null;
 
     /**
      * 강조표기 핵심문구 (변수사용가능, emphasizeType이 TEXT일 경우 필수 값)
      * 템플릿 내용에 강조표기할 핵심문구가 동일하게 포함되어 있어야합니다.
      */
-    emphasizeTitle?: string | null;
+    emphasizeTitle: string | null;
 
     /**
      * 강조표기 보조문구(emphasizeType이 TEXT일 경우 필수 값)
      * 템플릿 내용에 강조표기할 보조문구가 동일하게 포함되어 있어야합니다.
      */
-    emphasizeSubtitle?: string | null;
+    emphasizeSubtitle: string | null;
 
     /**
      * PC 노출 여부
@@ -93,30 +98,30 @@ export class KakaoAlimtalkTemplate {
     /**
      * 템플릿에 사용되는 이미지 ID
      */
-    imageId?: string | null;
+    imageId: string | null;
 
     /**
      * 카카오 알림톡 템플릿 그룹 유형
      */
-    assignType?: KakaoAlimtalkTemplateAssignType = 'CHANNEL';
+    assignType: KakaoAlimtalkTemplateAssignType = 'CHANNEL';
 
     /**
      * 카카오 알림톡 템플릿 버튼 목록
      */
-    buttons?: Array<KakaoButton>;
+    buttons: Array<KakaoButton>;
 
     /**
      * 카카오 알림톡 템플릿 상태 현황목록
      */
-    codes?: Array<KakaoAlimtalkTemplateCodeType>;
+    codes: Array<KakaoAlimtalkTemplateCodeType>;
 
     /**
      * 알림톡 템플릿 생성일자
      */
-    dateCreated?: string;
+    dateCreated: string;
 
     /**
      * 알림톡 템플릿 수정일자
      */
-    dateUpdated?: string;
+    dateUpdated: string;
 }

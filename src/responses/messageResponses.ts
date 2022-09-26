@@ -195,7 +195,7 @@ export type CreateKakaoChannelResponse = {
     searchId: string
     dateCreated: string
     dateUpdated: string
-    pfId: string
+    channelId: string
 }
 
 export type GetKakaoAlimtalkTemplatesResponse = {

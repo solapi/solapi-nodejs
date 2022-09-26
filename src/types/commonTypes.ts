@@ -86,4 +86,8 @@ export type Group = {
     dateUpdated: string
 }
 
+
+/**
+ * @see https://docs.solapi.com/api-reference/overview#operator
+ */
 export type OperatorType = 'eq' | 'gte' | 'ne' | 'like' | 'gt' | 'lt'

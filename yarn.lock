@@ -691,7 +691,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/packager-ts@npm:^2.7.0":
+"@parcel/packager-ts@npm:2.7.0":
   version: 2.7.0
   resolution: "@parcel/packager-ts@npm:2.7.0"
   dependencies:
@@ -954,20 +954,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/transformer-typescript-tsc@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "@parcel/transformer-typescript-tsc@npm:2.7.0"
-  dependencies:
-    "@parcel/plugin": 2.7.0
-    "@parcel/source-map": ^2.0.0
-    "@parcel/ts-utils": 2.7.0
-  peerDependencies:
-    typescript: ">=3.0.0"
-  checksum: 054a71b061c44af2eb6f7c7dd9cffd37109e9f8a6fdaaa2b073f7128fa83aaa49aefea95d364226a0a216c62cb23b7118742401e3aea805b7eac79ed69a3eb78
-  languageName: node
-  linkType: hard
-
-"@parcel/transformer-typescript-types@npm:^2.7.0":
+"@parcel/transformer-typescript-types@npm:2.7.0":
   version: 2.7.0
   resolution: "@parcel/transformer-typescript-types@npm:2.7.0"
   dependencies:
@@ -3635,9 +3622,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "solapi@workspace:."
   dependencies:
-    "@parcel/packager-ts": ^2.7.0
-    "@parcel/transformer-typescript-tsc": ^2.7.0
-    "@parcel/transformer-typescript-types": ^2.7.0
+    "@parcel/packager-ts": 2.7.0
+    "@parcel/transformer-typescript-types": 2.7.0
     "@types/crypto-js": ^4.1.1
     "@types/image-to-base64": ^2.1.0
     "@types/node": ^18.7.18
@@ -3656,8 +3642,8 @@ __metadata:
     querystring-es3: ^0.2.1
     rimraf: ^3.0.2
     typedoc: ^0.23.15
-    typescript: ^4.8.3
-    uglify-js: ^3.17.1
+    typescript: ^4.7.4
+    uglify-js: ^3.17.2
   languageName: unknown
   linkType: soft
 
@@ -3887,7 +3873,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.8.3":
+"typescript@npm:^4.7.4":
   version: 4.8.3
   resolution: "typescript@npm:4.8.3"
   bin:
@@ -3897,7 +3883,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.8.3#~builtin<compat/typescript>":
+"typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>":
   version: 4.8.3
   resolution: "typescript@patch:typescript@npm%3A4.8.3#~builtin<compat/typescript>::version=4.8.3&hash=a1c5e5"
   bin:
@@ -3907,12 +3893,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uglify-js@npm:^3.17.1":
-  version: 3.17.1
-  resolution: "uglify-js@npm:3.17.1"
+"uglify-js@npm:^3.17.2":
+  version: 3.17.2
+  resolution: "uglify-js@npm:3.17.2"
   bin:
     uglifyjs: bin/uglifyjs
-  checksum: 5e24ad48e096d309e77a462fa0508a9bfe33e2ab00e1bd21dc8bd5d035cf0b58063914bef1c6d6aca78e9e5bbe619714b142ffc646165702e3714f4cfbc7151c
+  checksum: 128233638176abe6cc0ec0f1dbae7bcb3f02edd78eb5c7752b4f379ec9d29032cd2edf06b2522dbeba0a1f05afb25f6eaffe638581da6d8554bd4c060d6622b1
   languageName: node
   linkType: hard
 

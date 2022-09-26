@@ -211,7 +211,6 @@ export type GetKakaoChannelsRequest = {
 export type CreateKakaoChannelTokenRequest = {
     searchId: string
     phoneNumber: string
-    categoryCode: string
 }
 
 export type CreateKakaoChannelRequest = {
@@ -257,23 +256,29 @@ export class GetKakaoAlimtalkTemplatesRequest {
     }
 }
 
+/**
+ * @description 카카오 알림톡 템플릿 요청 파라미터 타입
+ * @param name 알림톡 템플릿 제목 *한 채널에 중복한 이름 등록 불가
+ * @property content 알림톡 템플릿 내용
+ * @property categoryCode 알림톡 템플릿 카테고리 코드, KakaoAlimtalkTemplateCategory 타입 참고
+ * @property buttons 알림톡 템플릿
+ */
 export type KakaoAlimtalkTemplateRequest = {
-    name: string
-    content: string
-    categoryCode: string
-    buttons?: Array<KakaoButton>
-    messageType: KakaoAlimtalkTemplateMessageType
-    emphasizeType: KakaoAlimtalkTemplateEmphasizeType
-    extra?: string
-    ad?: string
-    emphasizeTitle?: string
-    emphasizeSubtitle?: string
-    securityFlag: boolean
-    imageId: string
+    name?: string;
+    content?: string;
+    categoryCode?: string;
+    buttons?: Array<KakaoButton>;
+    messageType?: KakaoAlimtalkTemplateMessageType;
+    emphasizeType?: KakaoAlimtalkTemplateEmphasizeType;
+    extra?: string;
+    ad?: string;
+    emphasizeTitle?: string;
+    emphasizeSubtitle?: string;
+    securityFlag?: boolean;
+    imageId?: string;
 };
 
 export type CreateKakaoAlimtalkTemplateRequest = KakaoAlimtalkTemplateRequest & {
-    pfId: string
-    pfGroupId?: string
-
+    channelId: string;
+    channelGroupId?: string;
 }
