@@ -38,7 +38,7 @@ export class KakaoAlimtalkTemplate {
     /**
      * 카카오 비즈니스 채널 ID
      */
-    channelId: string;
+    channelId: string | null;
 
     /**
      * 카카오 비즈니스 채널 그룹 ID
