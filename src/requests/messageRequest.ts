@@ -258,7 +258,7 @@ export class GetKakaoAlimtalkTemplatesRequest {
 
 /**
  * @description 카카오 알림톡 템플릿 요청 파라미터 타입
- * @param name 알림톡 템플릿 제목 *한 채널에 중복한 이름 등록 불가
+ * @param name 알림톡 템플릿 제목 (동일한 채널에 중복적인 이름 등록 불가)
  * @property content 알림톡 템플릿 내용
  * @property categoryCode 알림톡 템플릿 카테고리 코드, KakaoAlimtalkTemplateCategory 타입 참고
  * @property buttons 알림톡 템플릿
