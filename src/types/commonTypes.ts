@@ -90,4 +90,4 @@ export type Group = {
 /**
  * @see https://docs.solapi.com/api-reference/overview#operator
  */
-export type OperatorType = 'eq' | 'gte' | 'ne' | 'like' | 'gt' | 'lt'
+export type OperatorType = 'eq' | 'gte' | 'lte' | 'ne' | 'in' | 'like' | 'gt' | 'lt'
