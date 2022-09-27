@@ -279,6 +279,6 @@ export type KakaoAlimtalkTemplateRequest = {
 };
 
 export type CreateKakaoAlimtalkTemplateRequest = KakaoAlimtalkTemplateRequest & {
-    channelId: string;
+    channelId?: string;
     channelGroupId?: string;
 }
