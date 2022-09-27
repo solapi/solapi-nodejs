@@ -403,11 +403,11 @@ export class SolapiMessageService {
      * @description 카카오 채널 연동을 위한 인증 토큰 요청
      */
     async requestKakaoChannelToken(data: CreateKakaoChannelTokenRequest): Promise<RequestKakaoChannelTokenResponse> {
-       const requestConfig: RequestConfig = {
-           method: 'POST',
-           url: `${this.baseUrl}/kakao/v2/channels/token`
-       };
-       return defaultFetcher<CreateKakaoChannelTokenRequest, RequestKakaoChannelTokenResponse>(this.authInfo, requestConfig, data);
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/kakao/v2/channels/token`
+        };
+        return defaultFetcher<CreateKakaoChannelTokenRequest, RequestKakaoChannelTokenResponse>(this.authInfo, requestConfig, data);
     }
 
     /**
@@ -493,6 +493,19 @@ export class SolapiMessageService {
         const requestConfig: RequestConfig = {
             method: 'PUT',
             url: `${this.baseUrl}/kakao/v2/templates/${templateId}/inspection`
+        };
+        return defaultFetcher<never, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
+    }
+
+
+    /**
+     * 카카오 알림톡 템플릿 검수 취소 요청
+     * @param templateId 카카오 알림톡 템플릿 ID
+     */
+    async cancelInspectionKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'PUT',
+            url: `${this.baseUrl}/kakao/v2/templates/${templateId}/inspection/cancel`
         };
         return defaultFetcher<never, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
     }
