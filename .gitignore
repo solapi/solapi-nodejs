@@ -8,6 +8,10 @@ dist
 yarn-error.log
 debug
 
+# publish config
+.npmrc
+
+# yarn config
 .yarn/*
 !.yarn/patches
 !.yarn/releases
