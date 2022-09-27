@@ -64,8 +64,7 @@ type AuthInfo = {
  * @see https://solapi.github.io/solapi-nodejs
  */
 export class SolapiMessageService {
-    //private readonly baseUrl = 'https://api.solapi.com';
-    private readonly baseUrl = 'https://api.solapi.net';
+    private readonly baseUrl = 'https://api.solapi.com';
     private readonly authInfo: AuthInfo;
 
     constructor(apiKey: string, apiSecret: string) {
