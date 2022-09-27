@@ -47,9 +47,10 @@ import queryParameterGenerator from './lib/queryParameterGenerator';
 import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
 import stringDateTransfer from './lib/stringDateTrasnfer';
-import {MessageNotReceivedError} from './errors/DefaultError';
-import {KakaoChannel, KakaoChannelCategory} from './models/kakao/kakaoChannel';
+import {MessageNotReceivedError} from './errors/defaultError';
+import {KakaoAlimtalkTemplateCategory, KakaoChannel, KakaoChannelCategory} from './models/kakao/kakaoChannel';
 import {KakaoAlimtalkTemplate} from './models/kakao/kakaoAlimtalkTemplate';
+import qs from 'qs';
 
 type AuthInfo = {
     apiKey: string,
@@ -201,7 +202,7 @@ export class SolapiMessageService {
             method: 'POST',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/send`
         };
-        return defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GroupMessageResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -229,7 +230,7 @@ export class SolapiMessageService {
             method: 'GET',
             url: `${this.baseUrl}//messages/v4/groups/${groupId}`
         };
-        return defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GroupMessageResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -242,7 +243,7 @@ export class SolapiMessageService {
             method: 'GET',
             url: endpoint
         };
-        return defaultFetcher<undefined, GetGroupsResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GetGroupsResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -256,7 +257,7 @@ export class SolapiMessageService {
             method: 'GET',
             url: endpoint
         };
-        return defaultFetcher<undefined, GetMessagesResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GetMessagesResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -281,7 +282,7 @@ export class SolapiMessageService {
             method: 'DELETE',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}/schedule`
         };
-        return defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GroupMessageResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -293,7 +294,7 @@ export class SolapiMessageService {
             method: 'DELETE',
             url: `${this.baseUrl}/messages/v4/groups/${groupId}`
         };
-        return defaultFetcher<undefined, GroupMessageResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GroupMessageResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -307,7 +308,7 @@ export class SolapiMessageService {
             method: 'GET',
             url: endpoint
         };
-        return defaultFetcher<undefined, GetMessagesResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GetMessagesResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -322,7 +323,7 @@ export class SolapiMessageService {
             method: 'GET',
             url: endpoint
         };
-        return defaultFetcher<undefined, GetStatisticsResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GetStatisticsResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -334,7 +335,7 @@ export class SolapiMessageService {
             method: 'GET',
             url: `${this.baseUrl}/cash/v1/balance`
         };
-        return defaultFetcher<undefined, GetBalanceResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GetBalanceResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -366,69 +367,70 @@ export class SolapiMessageService {
     async getKakaoChannelCategories(): Promise<Array<KakaoChannelCategory>> {
         const requestConfig: RequestConfig = {
             method: 'GET',
-            url: `${this.baseUrl}/kakao/v1/categories`
+            url: `${this.baseUrl}/kakao/v2/channels/categories`
         };
-        return defaultFetcher<undefined, Array<KakaoChannelCategory>>(this.authInfo, requestConfig);
+        return defaultFetcher<never, Array<KakaoChannelCategory>>(this.authInfo, requestConfig);
     }
 
     /**
      * 카카오 채널 목록 조회
      * @param data 카카오 채널 목록을 더 자세하게 조회할 때 필요한 파라미터
      */
-    async getKakaoChannels(data?: GetKakaoChannelsRequest): Promise<GetKakaoChannelsResponse> {
-        const parameter: GetKakaoChannelsRequest | object = data ? new GetKakaoChannelsRequest(data) : {};
-        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v1/plus-friends`, parameter);
+    async getKakaoChannels(data?: Partial<GetKakaoChannelsRequest>): Promise<GetKakaoChannelsResponse> {
+        const parameter = qs.stringify(data, {indices: false});
+        const endpoint = `${this.baseUrl}/kakao/v2/channels?${parameter}`;
         const requestConfig: RequestConfig = {
             method: 'GET',
             url: endpoint
         };
-        return defaultFetcher<undefined, GetKakaoChannelsResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GetKakaoChannelsResponse>(this.authInfo, requestConfig);
     }
 
     /**
-     * 카카오 채널 조회
-     * @param pfId 카카오 채널 ID
+     * @description 카카오 채널 조회
+     * @param channelId 카카오 채널 ID(구 pfId)
      */
-    async getKakaoChannel(pfId: string): Promise<KakaoChannel> {
+    async getKakaoChannel(channelId: string): Promise<KakaoChannel> {
         const requestConfig: RequestConfig = {
             method: 'GET',
-            url: `${this.baseUrl}/kakao/v1/plus-friends/${pfId}`
+            url: `${this.baseUrl}/kakao/v2/channels/${channelId}`
         };
-        return defaultFetcher<undefined, KakaoChannel>(this.authInfo, requestConfig);
+        return defaultFetcher<never, KakaoChannel>(this.authInfo, requestConfig);
     }
 
     /**
-     * 카카오 채널 연동을 위한 인증 토큰 요청
+     * @description 카카오 채널 연동을 위한 인증 토큰 요청
      */
     async requestKakaoChannelToken(data: CreateKakaoChannelTokenRequest): Promise<RequestKakaoChannelTokenResponse> {
-       const requestConfig: RequestConfig = {
-           method: 'POST',
-           url: `${this.baseUrl}/kakao/v1/plus-friends/token`
-       };
-       return defaultFetcher<CreateKakaoChannelTokenRequest, RequestKakaoChannelTokenResponse>(this.authInfo, requestConfig, data);
+        const requestConfig: RequestConfig = {
+            method: 'POST',
+            url: `${this.baseUrl}/kakao/v2/channels/token`
+        };
+        return defaultFetcher<CreateKakaoChannelTokenRequest, RequestKakaoChannelTokenResponse>(this.authInfo, requestConfig, data);
     }
 
     /**
-     * 카카오 채널 연동
+     * @description 카카오 채널 연동 메소드
+     * getKakaoChannelCategories, requestKakaoChannelToken 메소드를 선행적으로 호출해야 합니다!
      */
     async createKakaoChannel(data: CreateKakaoChannelRequest): Promise<CreateKakaoChannelResponse> {
         const requestConfig: RequestConfig = {
             method: 'POST',
-            url: `${this.baseUrl}/kakao/v1/plus-friends`
+            url: `${this.baseUrl}/kakao/v2/channels`
         };
         return defaultFetcher<CreateKakaoChannelRequest, CreateKakaoChannelResponse>(this.authInfo, requestConfig, data);
     }
 
     /**
-     * 카카오 채널 삭제, 채널이 삭제 될 경우 해당 채널의 템플릿이 모두 삭제됩니다!
-     * @param pfId 카카오 채널 ID
+     * @description 카카오 채널 삭제, 채널이 삭제 될 경우 해당 채널의 템플릿이 모두 삭제됩니다!
+     * @param channelId 카카오 채널 ID
      */
-    async removeKakaoChannel(pfId: string): Promise<KakaoChannel> {
+    async removeKakaoChannel(channelId: string): Promise<KakaoChannel> {
         const requestConfig: RequestConfig = {
             method: 'DELETE',
-            url: `${this.baseUrl}/kakao/v1/plus-friends/${pfId}`
+            url: `${this.baseUrl}/kakao/v2/channels/${channelId}`
         };
-        return defaultFetcher<undefined, KakaoChannel>(this.authInfo, requestConfig);
+        return defaultFetcher<never, KakaoChannel>(this.authInfo, requestConfig);
     }
 
     /**
@@ -437,13 +439,13 @@ export class SolapiMessageService {
      */
     async getKakaoAlimtalkTemplates(data?: GetKakaoAlimtalkTemplatesRequestType): Promise<GetKakaoAlimtalkTemplatesResponse> {
         const parameter: GetKakaoAlimtalkTemplatesRequest | object = data ? new GetKakaoAlimtalkTemplatesRequest(data) : {};
-        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v1/templates`, parameter);
+        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v2/templates`, parameter);
 
         const requestConfig: RequestConfig = {
             method: 'GET',
             url: endpoint
         };
-        return defaultFetcher<undefined, GetKakaoAlimtalkTemplatesResponse>(this.authInfo, requestConfig);
+        return defaultFetcher<never, GetKakaoAlimtalkTemplatesResponse>(this.authInfo, requestConfig);
     }
 
     /**
@@ -453,32 +455,31 @@ export class SolapiMessageService {
     async getKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
         const requestConfig: RequestConfig = {
             method: 'GET',
-            url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
+            url: `${this.baseUrl}/kakao/v2/templates/${templateId}`
         };
-        return defaultFetcher<undefined, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
+        return defaultFetcher<never, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
     }
 
     /**
-     * 카카오 알림톡 템플릿 숨김 처리
-     * @param templateId 카카오 알림톡 템플릿 ID
-     * @param isHidden 숨김 여부(true: 숨김, false: 숨김처리 해제)
+     * 카카오 템플릿 카테고리 조회
      */
-    async hideKakaoAlimtalkTemplate(templateId: string, isHidden: boolean): Promise<KakaoAlimtalkTemplate> {
+    async getKakaoAlimtalkTemplateCategories(): Promise<Array<KakaoAlimtalkTemplateCategory>> {
         const requestConfig: RequestConfig = {
-            method: 'PUT',
-            url: `${this.baseUrl}/kakao/v1/templates/${templateId}/hide`
+            method: 'GET',
+            url: `${this.baseUrl}/kakao/v2/templates/categories`
         };
-        return defaultFetcher<{isHidden: boolean}, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {isHidden});
+        return defaultFetcher<never, Array<KakaoAlimtalkTemplateCategory>>(this.authInfo, requestConfig);
     }
 
     /**
-     * 카카오 알림톡 템플릿 생성
+     * @description 카카오 알림톡 템플릿 생성
+     * 반드시 getKakaoAlimtalkTemplateCategories를 먼저 호출하여 카테고리 값을 확인해야 합니다!
      * @param data 알림톡 템플릿 생성을 위한 파라미터
      */
     async createKakaoAlimtalkTemplate(data: CreateKakaoAlimtalkTemplateRequest): Promise<KakaoAlimtalkTemplate> {
         const requestConfig: RequestConfig = {
             method: 'POST',
-            url: `${this.baseUrl}/kakao/v1/templates`
+            url: `${this.baseUrl}/kakao/v2/templates`
         };
         return defaultFetcher<CreateKakaoAlimtalkTemplateRequest, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, data);
     }
@@ -490,9 +491,22 @@ export class SolapiMessageService {
     async requestInspectionKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
         const requestConfig: RequestConfig = {
             method: 'PUT',
-            url: `${this.baseUrl}/kakao/v1/templates/${templateId}/inspection`
+            url: `${this.baseUrl}/kakao/v2/templates/${templateId}/inspection`
         };
-        return defaultFetcher<unknown, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {});
+        return defaultFetcher<never, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
+    }
+
+
+    /**
+     * 카카오 알림톡 템플릿 검수 취소 요청
+     * @param templateId 카카오 알림톡 템플릿 ID
+     */
+    async cancelInspectionKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
+        const requestConfig: RequestConfig = {
+            method: 'PUT',
+            url: `${this.baseUrl}/kakao/v2/templates/${templateId}/inspection/cancel`
+        };
+        return defaultFetcher<never, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
     }
 
     /**
@@ -503,7 +517,7 @@ export class SolapiMessageService {
     async updateKakaoAlimtalkTemplate(templateId: string, data: KakaoAlimtalkTemplateRequest): Promise<object> {
         const requestConfig: RequestConfig = {
             method: 'PUT',
-            url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
+            url: `${this.baseUrl}/kakao/v2/templates/${templateId}`
         };
         return defaultFetcher<KakaoAlimtalkTemplateRequest, object>(this.authInfo, requestConfig, data);
     }
@@ -515,7 +529,7 @@ export class SolapiMessageService {
     async deleteKakaoAlimtalkTemplate(templateId: string): Promise<KakaoAlimtalkTemplate> {
         const requestConfig: RequestConfig = {
             method: 'DELETE',
-            url: `${this.baseUrl}/kakao/v1/templates/${templateId}`
+            url: `${this.baseUrl}/kakao/v2/templates/${templateId}`
         };
         return defaultFetcher<unknown, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {});
     }

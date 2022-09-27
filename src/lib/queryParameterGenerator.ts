@@ -1,5 +1,10 @@
 import {URL, URLSearchParams} from 'url';
 
+/**
+ * @deprecated
+ * @param url API URl
+ * @param data object data
+ */
 export default function queryParameterGenerator<T extends object>(url: string, data?: T): string {
     const apiUrl = new URL(url);
     if (data) {

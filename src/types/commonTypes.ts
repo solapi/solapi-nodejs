@@ -85,3 +85,9 @@ export type Group = {
     dateCreated: string,
     dateUpdated: string
 }
+
+
+/**
+ * @see https://docs.solapi.com/api-reference/overview#operator
+ */
+export type OperatorType = 'eq' | 'gte' | 'lte' | 'ne' | 'in' | 'like' | 'gt' | 'lt'

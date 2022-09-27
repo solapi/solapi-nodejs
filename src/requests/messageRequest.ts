@@ -1,8 +1,8 @@
-import { Message, MessageType } from '../models/message';
-import { GroupId } from '../types/commonTypes';
-import { formatISO } from 'date-fns';
+import {Message, MessageType} from '../models/message';
+import {GroupId, OperatorType} from '../types/commonTypes';
+import {formatISO} from 'date-fns';
 import stringDateTransfer from '../lib/stringDateTrasnfer';
-import { KakaoButton } from '../models/kakao/kakaoButton';
+import {KakaoButton} from '../models/kakao/kakaoButton';
 import {
     KakaoAlimtalkTemplateEmphasizeType,
     KakaoAlimtalkTemplateMessageType
@@ -13,7 +13,7 @@ export type DefaultAgentType = {
     osPlatform: string
 };
 
-const sdkVersion = 'nodejs/5.1.1-beta.1';
+const sdkVersion = 'nodejs/5.1.1';
 
 export const defaultAgent: DefaultAgentType = {
     sdkVersion,
@@ -197,43 +197,20 @@ export type CreateGroupRequest = DefaultAgentType & {
     appId?: string
 }
 
-export type GetKakaoChannelsRequestType = {
-    pfId?: string
-    searchId?: string
-    phoneNumber?: string
-    categoryCode?: string
-    dateCreated?: string
-    dateUpdated?: string
-    startKey?: string
-    limit?: number
-}
-
-export class GetKakaoChannelsRequest {
-    readonly pfId?: string;
-    readonly searchId?: string;
-    readonly phoneNumber?: string;
-    readonly categoryCode?: string;
-    readonly dateCreated?: string;
-    readonly dateUpdated?: string;
-    readonly startKey?: string;
-    readonly limit?: number;
-
-    constructor(getKakaoChannelsRequestType: GetKakaoChannelsRequestType) {
-        this.pfId = getKakaoChannelsRequestType.pfId;
-        this.searchId = getKakaoChannelsRequestType.searchId;
-        this.phoneNumber = getKakaoChannelsRequestType.phoneNumber;
-        this.categoryCode = getKakaoChannelsRequestType.categoryCode;
-        this.dateCreated = getKakaoChannelsRequestType.dateCreated;
-        this.dateUpdated = getKakaoChannelsRequestType.dateUpdated;
-        this.startKey = getKakaoChannelsRequestType.startKey;
-        this.limit = getKakaoChannelsRequestType.limit;
-    }
+export type GetKakaoChannelsRequest = {
+    channelId: string;
+    searchId: string;
+    phoneNumber: string;
+    categoryCode: string;
+    dateCreated: Record<keyof Omit<OperatorType, 'ne' | 'like'>, Array<string>>;
+    dateUpdated: Record<keyof Omit<OperatorType, 'ne' | 'like'>, Array<string>>;
+    startKey: string;
+    limit: number;
 }
 
 export type CreateKakaoChannelTokenRequest = {
     searchId: string
     phoneNumber: string
-    categoryCode: string
 }
 
 export type CreateKakaoChannelRequest = {
@@ -279,23 +256,29 @@ export class GetKakaoAlimtalkTemplatesRequest {
     }
 }
 
+/**
+ * @description 카카오 알림톡 템플릿 요청 파라미터 타입
+ * @param name 알림톡 템플릿 제목 (동일한 채널에 중복적인 이름 등록 불가)
+ * @property content 알림톡 템플릿 내용
+ * @property categoryCode 알림톡 템플릿 카테고리 코드, KakaoAlimtalkTemplateCategory 타입 참고
+ * @property buttons 알림톡 템플릿
+ */
 export type KakaoAlimtalkTemplateRequest = {
-    name: string
-    content: string
-    categoryCode: string
-    buttons?: Array<KakaoButton>
-    messageType: KakaoAlimtalkTemplateMessageType
-    emphasizeType: KakaoAlimtalkTemplateEmphasizeType
-    extra?: string
-    ad?: string
-    emphasizeTitle?: string
-    emphasizeSubtitle?: string
-    securityFlag: boolean
-    imageId: string
+    name?: string;
+    content?: string;
+    categoryCode?: string;
+    buttons?: Array<KakaoButton>;
+    messageType?: KakaoAlimtalkTemplateMessageType;
+    emphasizeType?: KakaoAlimtalkTemplateEmphasizeType;
+    extra?: string;
+    ad?: string;
+    emphasizeTitle?: string;
+    emphasizeSubtitle?: string;
+    securityFlag?: boolean;
+    imageId?: string;
 };
 
 export type CreateKakaoAlimtalkTemplateRequest = KakaoAlimtalkTemplateRequest & {
-    pfId: string
-    pfGroupId?: string
-
+    channelId?: string;
+    channelGroupId?: string;
 }

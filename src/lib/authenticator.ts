@@ -1,7 +1,7 @@
 import {customAlphabet} from 'nanoid';
 import {formatISO} from 'date-fns';
 import {HmacSHA256} from 'crypto-js';
-import {ApiKeyError} from '../errors/DefaultError';
+import {ApiKeyError} from '../errors/defaultError';
 
 enum AuthenticateType {
     API_KEY

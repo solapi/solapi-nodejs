@@ -180,7 +180,9 @@ export type FileUploadResponse = {
 
 export type GetKakaoChannelsResponse = {
     limit: number
-    friends: Array<KakaoChannel>
+    startKey: string
+    nextKey: string|null
+    channelList: Array<KakaoChannel>
 }
 
 export type RequestKakaoChannelTokenResponse = {
@@ -193,7 +195,7 @@ export type CreateKakaoChannelResponse = {
     searchId: string
     dateCreated: string
     dateUpdated: string
-    pfId: string
+    channelId: string
 }
 
 export type GetKakaoAlimtalkTemplatesResponse = {
