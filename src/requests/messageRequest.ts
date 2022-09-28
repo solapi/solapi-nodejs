@@ -13,7 +13,7 @@ export type DefaultAgentType = {
     osPlatform: string
 };
 
-const sdkVersion = 'nodejs/5.1.1';
+const sdkVersion = 'nodejs/5.1.2';
 
 export const defaultAgent: DefaultAgentType = {
     sdkVersion,
@@ -202,8 +202,8 @@ export type GetKakaoChannelsRequest = {
     searchId: string;
     phoneNumber: string;
     categoryCode: string;
-    dateCreated: Record<keyof Omit<OperatorType, 'ne' | 'like'>, Array<string>>;
-    dateUpdated: Record<keyof Omit<OperatorType, 'ne' | 'like'>, Array<string>>;
+    dateCreated: Record<keyof Omit<OperatorType, 'ne' | 'like' | 'in'>, string>;
+    dateUpdated: Record<keyof Omit<OperatorType, 'ne' | 'like' | 'in'>, string>;
     startKey: string;
     limit: number;
 }

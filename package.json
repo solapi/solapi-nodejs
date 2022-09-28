@@ -1,6 +1,6 @@
 {
   "name": "solapi",
-  "version": "5.1.1",
+  "version": "5.1.2",
   "description": "SOLAPI SDK for Node.js(Server Side Only)",
   "repository": {
     "type": "git",
