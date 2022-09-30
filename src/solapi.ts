@@ -10,7 +10,6 @@ import {
     GetGroupMessagesRequest,
     GetGroupsRequest,
     GetKakaoAlimtalkTemplatesRequest,
-    GetKakaoAlimtalkTemplatesRequestType,
     GetKakaoChannelsRequest,
     GetMessagesRequest,
     GetMessagesRequestType,
@@ -42,7 +41,7 @@ import {
     RequestKakaoChannelTokenResponse,
     SingleMessageSentResponse
 } from './responses/messageResponses';
-import {GroupId} from './types/commonTypes';
+import {DateOperatorType, GroupId} from './types/commonTypes';
 import queryParameterGenerator from './lib/queryParameterGenerator';
 import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
@@ -377,7 +376,36 @@ export class SolapiMessageService {
      * @param data 카카오 채널 목록을 더 자세하게 조회할 때 필요한 파라미터
      */
     async getKakaoChannels(data?: Partial<GetKakaoChannelsRequest>): Promise<GetKakaoChannelsResponse> {
-        const parameter = qs.stringify(data, {indices: false});
+        const payload = data;
+        if (payload?.dateCreated && typeof payload?.dateCreated != 'undefined') {
+            const dateCreatedPayload = payload.dateCreated;
+            Object.keys(dateCreatedPayload).forEach((key) => {
+                const dateKey = key as DateOperatorType;
+                const dateCreated = dateCreatedPayload[dateKey];
+                if (dateCreated) {
+                    const formattedDateCreated = formatISO(stringDateTransfer(dateCreated));
+                    if (payload.dateCreated) {
+                        payload.dateCreated[dateKey] = formattedDateCreated;
+                    }
+                }
+            });
+        }
+
+        if (data?.dateUpdated && typeof payload?.dateUpdated != 'undefined') {
+            const dateUpdatedPayload = payload.dateUpdated;
+            Object.keys(dateUpdatedPayload).forEach(key => {
+                const dateKey = key as DateOperatorType;
+                const dateUpdated = dateUpdatedPayload[dateKey];
+                if (dateUpdated) {
+                    const formattedDateUpdated = formatISO(stringDateTransfer(dateUpdated));
+                    if (payload.dateUpdated) {
+                        payload.dateUpdated[dateKey] = formattedDateUpdated;
+                    }
+                }
+            });
+        }
+
+        const parameter = qs.stringify(payload, {indices: false});
         const endpoint = `${this.baseUrl}/kakao/v2/channels?${parameter}`;
         const requestConfig: RequestConfig = {
             method: 'GET',
@@ -437,10 +465,39 @@ export class SolapiMessageService {
      * 카카오 템플릿 목록 조회
      * @param data 카카오 템플릿 목록을 더 자세하게 조회할 때 필요한 파라미터
      */
-    async getKakaoAlimtalkTemplates(data?: GetKakaoAlimtalkTemplatesRequestType): Promise<GetKakaoAlimtalkTemplatesResponse> {
-        const parameter: GetKakaoAlimtalkTemplatesRequest | object = data ? new GetKakaoAlimtalkTemplatesRequest(data) : {};
-        const endpoint = queryParameterGenerator(`${this.baseUrl}/kakao/v2/templates`, parameter);
+    async getKakaoAlimtalkTemplates(data?: Partial<GetKakaoAlimtalkTemplatesRequest>): Promise<GetKakaoAlimtalkTemplatesResponse> {
+        // TODO: need to eliminate duplicate code
+        const payload = data;
+        if (payload?.dateCreated && typeof payload?.dateCreated != 'undefined') {
+            const dateCreatedPayload = payload.dateCreated;
+            Object.keys(dateCreatedPayload).forEach((key) => {
+                const dateKey = key as DateOperatorType;
+                const dateCreated = dateCreatedPayload[dateKey];
+                if (dateCreated) {
+                    const formattedDateCreated = formatISO(stringDateTransfer(dateCreated));
+                    if (payload.dateCreated) {
+                        payload.dateCreated[dateKey] = formattedDateCreated;
+                    }
+                }
+            });
+        }
 
+        if (data?.dateUpdated && typeof payload?.dateUpdated != 'undefined') {
+            const dateUpdatedPayload = payload.dateUpdated;
+            Object.keys(dateUpdatedPayload).forEach(key => {
+                const dateKey = key as DateOperatorType;
+                const dateUpdated = dateUpdatedPayload[dateKey];
+                if (dateUpdated) {
+                    const formattedDateUpdated = formatISO(stringDateTransfer(dateUpdated));
+                    if (payload.dateUpdated) {
+                        payload.dateUpdated[dateKey] = formattedDateUpdated;
+                    }
+                }
+            });
+        }
+
+        const parameter = qs.stringify(payload, {indices: false});
+        const endpoint = `${this.baseUrl}/kakao/v2/templates?${parameter}`;
         const requestConfig: RequestConfig = {
             method: 'GET',
             url: endpoint
@@ -531,6 +588,6 @@ export class SolapiMessageService {
             method: 'DELETE',
             url: `${this.baseUrl}/kakao/v2/templates/${templateId}`
         };
-        return defaultFetcher<unknown, KakaoAlimtalkTemplate>(this.authInfo, requestConfig, {});
+        return defaultFetcher<never, KakaoAlimtalkTemplate>(this.authInfo, requestConfig);
     }
 }

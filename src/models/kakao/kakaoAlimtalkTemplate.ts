@@ -1,19 +1,20 @@
 import {KakaoButton} from './kakaoButton';
+import {KakaoAlimtalkTemplateStatus} from '../../types/commonTypes';
 
 /**
- * 카카오 알림톡 템플릿 메시지 유형
+ * @description 카카오 알림톡 템플릿 메시지 유형
  * BA:기본형, EX:부가정보형, AD:광고추가형, MI: 복합형
  */
 export type KakaoAlimtalkTemplateMessageType = 'BA' | 'EX' | 'AD' | 'MI'
 
 /**
- * 카카오 알림톡 템플릿 강조 유형
+ * @description 카카오 알림톡 템플릿 강조 유형
  * NONE: 선택안함, TEXT: 강조표기형, IMAGE: 이미지형
  */
 export type KakaoAlimtalkTemplateEmphasizeType = 'NONE' | 'TEXT' | 'IMAGE'
 
 /**
- * 카카오 알림톡 템플릿 그룹 유형(기본값은 Channel)
+ * @description 카카오 알림톡 템플릿 그룹 유형(기본값은 Channel)
  */
 type KakaoAlimtalkTemplateAssignType = 'CHANNEL' | 'GROUP'
 
@@ -25,7 +26,7 @@ type KakaoAlimtalkTemplateCommentType = {
 }
 
 type KakaoAlimtalkTemplateCodeType = {
-    status: 'PENDING' | 'INSPECTING' | 'REJECTED' | 'APPROVED'
+    status: Omit<KakaoAlimtalkTemplateStatus, 'DELETED'>
     comments: Array<KakaoAlimtalkTemplateCommentType>
 }
 
@@ -113,7 +114,7 @@ export class KakaoAlimtalkTemplate {
     /**
      * 카카오 알림톡 템플릿 상태 현황목록
      */
-    codes: Array<KakaoAlimtalkTemplateCodeType>;
+    codes: Array<KakaoAlimtalkTemplateCodeType> | null;
 
     /**
      * 알림톡 템플릿 생성일자
