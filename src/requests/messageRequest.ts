@@ -1,5 +1,5 @@
 import {Message, MessageType} from '../models/message';
-import {GroupId, OperatorType} from '../types/commonTypes';
+import {DateOperatorType, GroupId, KakaoAlimtalkTemplateStatus} from '../types/commonTypes';
 import {formatISO} from 'date-fns';
 import stringDateTransfer from '../lib/stringDateTrasnfer';
 import {KakaoButton} from '../models/kakao/kakaoButton';
@@ -13,7 +13,7 @@ export type DefaultAgentType = {
     osPlatform: string
 };
 
-const sdkVersion = 'nodejs/5.1.2';
+const sdkVersion = 'nodejs/5.1.3';
 
 export const defaultAgent: DefaultAgentType = {
     sdkVersion,
@@ -197,15 +197,23 @@ export type CreateGroupRequest = DefaultAgentType & {
     appId?: string
 }
 
+/**
+ * @description GET API 중 일부 파라미터 조회 시 필요한 객체
+ * @see https://docs.solapi.com/api-reference/overview#operator
+ */
+export type DatePayloadType = {
+    [key in DateOperatorType]?: string | Date;
+};
+
 export type GetKakaoChannelsRequest = {
-    channelId: string;
-    searchId: string;
-    phoneNumber: string;
-    categoryCode: string;
-    dateCreated: Record<keyof Omit<OperatorType, 'ne' | 'like' | 'in'>, string>;
-    dateUpdated: Record<keyof Omit<OperatorType, 'ne' | 'like' | 'in'>, string>;
-    startKey: string;
-    limit: number;
+    channelId: string
+    searchId: string
+    phoneNumber: string
+    categoryCode: string
+    dateCreated: DatePayloadType
+    dateUpdated: DatePayloadType
+    startKey: string
+    limit: number
 }
 
 export type CreateKakaoChannelTokenRequest = {
@@ -220,48 +228,43 @@ export type CreateKakaoChannelRequest = {
     token: string
 }
 
-export type GetKakaoAlimtalkTemplatesRequestType = {
-    name?: string
-    pfId?: string
-    templateId?: string
-    isHidden?: boolean
-    status?: string
-    startKey?: string
-    limit?: number
-    dateCreated?: string
-    dateUpdated?: string
-}
-
-export class GetKakaoAlimtalkTemplatesRequest {
-    'name[like]'?: string;
-    pfId?: string;
-    templateId?: string;
-    isHidden?: boolean;
-    status?: string;
-    startKey?: string;
-    limit?: number;
-    'dateCreated[gte]'?: string;
-    'dateUpdated[gte]'?: string;
-
-    constructor(getKakaoAlimtalkTemplatesRequestType: GetKakaoAlimtalkTemplatesRequestType) {
-        this['name[like]'] = getKakaoAlimtalkTemplatesRequestType.name;
-        this.pfId = getKakaoAlimtalkTemplatesRequestType.pfId;
-        this.templateId = getKakaoAlimtalkTemplatesRequestType.templateId;
-        this.isHidden = getKakaoAlimtalkTemplatesRequestType.isHidden;
-        this.status = getKakaoAlimtalkTemplatesRequestType.status;
-        this.startKey = getKakaoAlimtalkTemplatesRequestType.startKey;
-        this.limit = getKakaoAlimtalkTemplatesRequestType.limit;
-        this['dateCreated[gte]'] = getKakaoAlimtalkTemplatesRequestType.dateCreated;
-        this['dateUpdated[gte]'] = getKakaoAlimtalkTemplatesRequestType.dateUpdated;
-    }
+/**
+ * @description 카카오 알림톡 조회를 위한 요청 타입
+ * @param {string} name - 알림톡 템플릿 제목
+ * @param {string} channelId - 카카오 비즈니스 채널 ID
+ * @param {string} templateId - 카카오 알림톡 템플릿 ID
+ * @param {boolean} isHidden - 숨긴 템플릿 여부 확인
+ * @param {KakaoAlimtalkTemplateStatus} status - 알림톡 템플릿 상태
+ * @param {string} startKey - 페이지네이션 조회 키
+ * @param {number} limit - 조회 시 제한할 건 수 (기본: 20, 최대: 500)
+ * @param {DatePayloadType} dateCreated - 생성일자 (조회 조건 -> eq, lte, gte 등이 포함되어야 함)
+ * @param {DatePayloadType} dateUpdated - 수정일자 (조회 조건 -> eq, lte, gte 등이 포함되어야 함)
+ */
+export type GetKakaoAlimtalkTemplatesRequest = {
+    name: string
+    channelId: string
+    templateId: string
+    isHidden: boolean
+    status: KakaoAlimtalkTemplateStatus
+    startKey: string
+    limit: number
+    dateCreated: DatePayloadType
+    dateUpdated: DatePayloadType
 }
 
 /**
- * @description 카카오 알림톡 템플릿 요청 파라미터 타입
- * @param name 알림톡 템플릿 제목 (동일한 채널에 중복적인 이름 등록 불가)
- * @property content 알림톡 템플릿 내용
- * @property categoryCode 알림톡 템플릿 카테고리 코드, KakaoAlimtalkTemplateCategory 타입 참고
- * @property buttons 알림톡 템플릿
+ * @description 카카오 알림톡 템플릿 요청 타입
+ * @param {string|undefined} name - 알림톡 템플릿 제목 (동일한 채널에 중복적인 이름 등록 불가)
+ * @param {string|undefined} content - 알림톡 템플릿 내용
+ * @param {string|undefined} categoryCode - 알림톡 템플릿 카테고리 코드, KakaoAlimtalkTemplateCategory 타입 참고
+ * @param {KakaoButton[]|undefined} buttons - 알림톡 템플릿 버튼 목록
+ * @param {KakaoAlimtalkTemplateMessageType|undefined} messageType - 알림톡 템플릿 메시지 유형
+ * @param {KakaoAlimtalkTemplateEmphasizeType|undefined} emphasizeType - 카카오 알림톡 템플릿 강조 유형
+ * @param {string|undefined} extra - 부가정보, 치환문구를 넣을 수 없음
+ * @param {string|undefined} emphasizeTitle - 강조 표기 제목 (강조 표기형 유형만 등록 가능)
+ * @param {string|undefined} emphasizeSubTitle - 강조 표기 부제목 (강조 표기형 유형만 등록 가능)
+ * @param {boolean|undefined} securityFlag - 보안 템플릿 여부
+ * @param {string|undefined} imageId - 알림톡 템플릿 내에 업로드 할 이미지 ID (Storage API 사용 필요)
  */
 export type KakaoAlimtalkTemplateRequest = {
     name?: string;
@@ -271,13 +274,18 @@ export type KakaoAlimtalkTemplateRequest = {
     messageType?: KakaoAlimtalkTemplateMessageType;
     emphasizeType?: KakaoAlimtalkTemplateEmphasizeType;
     extra?: string;
-    ad?: string;
     emphasizeTitle?: string;
     emphasizeSubtitle?: string;
     securityFlag?: boolean;
     imageId?: string;
 };
 
+/**
+ * @description 카카오 알림톡 템플릿 생성 요청 타입
+ * @see {KakaoAlimtalkTemplateRequest}
+ * @param {string|undefined} channelId - 카카오 비즈니스 채널 ID
+ * @param {string|undefined} channelGroupId - 카카오 비즈니스 채널 그룹 ID
+ */
 export type CreateKakaoAlimtalkTemplateRequest = KakaoAlimtalkTemplateRequest & {
     channelId?: string;
     channelGroupId?: string;

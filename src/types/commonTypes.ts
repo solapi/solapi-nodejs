@@ -88,6 +88,24 @@ export type Group = {
 
 
 /**
+ * @description 검색 조건 파라미터
  * @see https://docs.solapi.com/api-reference/overview#operator
  */
 export type OperatorType = 'eq' | 'gte' | 'lte' | 'ne' | 'in' | 'like' | 'gt' | 'lt'
+
+/**
+ * @description 검색 조건 파라미터
+ * @see https://docs.solapi.com/api-reference/overview#operator
+ */
+export type DateOperatorType = 'eq' | 'gte' | 'lte' | 'gt' | 'lt'
+
+/**
+ * @description 카카오 알림톡 템플릿 상태
+ * PENDING - 대기
+ * INSPECTING - 검수중
+ * APPROVED - 등록완료(검수완료)
+ * REJECTED - 반려됨
+ * DELETED - 삭제됨
+ */
+export type KakaoAlimtalkTemplateStatus = 'PENDING' | 'INSPECTING' | 'APPROVED' |
+    'REJECTED' | 'DELETED'
