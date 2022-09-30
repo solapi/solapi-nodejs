@@ -2,13 +2,13 @@ import {KakaoButton} from './kakaoButton';
 import {KakaoAlimtalkTemplateStatus} from '../../types/commonTypes';
 
 /**
- * @description 카카오 알림톡 템플릿 메시지 유형
+ * @description 카카오 알림톡 템플릿 메시지 유형<br>
  * BA:기본형, EX:부가정보형, AD:광고추가형, MI: 복합형
  */
 export type KakaoAlimtalkTemplateMessageType = 'BA' | 'EX' | 'AD' | 'MI'
 
 /**
- * @description 카카오 알림톡 템플릿 강조 유형
+ * @description 카카오 알림톡 템플릿 강조 유형<br>
  * NONE: 선택안함, TEXT: 강조표기형, IMAGE: 이미지형
  */
 export type KakaoAlimtalkTemplateEmphasizeType = 'NONE' | 'TEXT' | 'IMAGE'
@@ -31,7 +31,7 @@ type KakaoAlimtalkTemplateCodeType = {
 }
 
 /**
- * 카카오 알림톡 템플릿 모델
+ * @description 카카오 알림톡 템플릿 모델<br>
  * 알림톡 템플릿 자체의 정보는 아래 페이지를 참고해보세요!
  * @see https://kakaobusiness.gitbook.io/main/ad/bizmessage/notice-friend/content-guide
  */
