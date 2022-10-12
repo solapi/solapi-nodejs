@@ -5,7 +5,7 @@ export class KakaoOption {
     templateId?: string;
     variables?: Record<string, string>;
     disableSms = false;
-    adFlag = false;
+    adFlag?: boolean = false;
     buttons?: Array<KakaoButton>;
     imageId?: string;
 
