@@ -11,9 +11,10 @@ import {
 export type DefaultAgentType = {
     sdkVersion: string
     osPlatform: string
+    appId?: string;
 };
 
-const sdkVersion = 'nodejs/5.1.3';
+const sdkVersion = 'nodejs/5.1.4';
 
 export const defaultAgent: DefaultAgentType = {
     sdkVersion,
@@ -22,7 +23,6 @@ export const defaultAgent: DefaultAgentType = {
 
 abstract class DefaultMessageRequest {
     allowDuplicates: boolean;
-    appId: string | undefined;
     protected agent: DefaultAgentType;
 
     protected constructor() {
@@ -41,7 +41,7 @@ export class SingleMessageSendingRequest extends DefaultMessageRequest {
             this.allowDuplicates = allowDuplicates;
         }
         if (appId) {
-            this.appId = appId;
+            this.agent.appId = appId;
         }
     }
 }
@@ -56,7 +56,7 @@ export class MultipleMessageSendingRequest extends DefaultMessageRequest {
             this.allowDuplicates = allowDuplicates;
         }
         if (appId) {
-            this.appId = appId;
+            this.agent.appId = appId;
         }
     }
 }
@@ -72,7 +72,7 @@ export class MultipleDetailMessageSendingRequest extends DefaultMessageRequest {
             this.allowDuplicates = allowDuplicates;
         }
         if (appId) {
-            this.appId = appId;
+            this.agent.appId = appId;
         }
         if (scheduledDate) {
             this.scheduledDate = formatISO(stringDateTransfer(scheduledDate));

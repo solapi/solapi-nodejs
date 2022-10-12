@@ -1,6 +1,6 @@
 {
   "name": "solapi",
-  "version": "5.1.3",
+  "version": "5.1.4",
   "description": "SOLAPI SDK for Node.js(Server Side Only)",
   "repository": {
     "type": "git",
@@ -31,7 +31,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "compress": "yarn uglifyjs -o ./dist/index.js ./dist/index.js && yarn uglifyjs -o ./dist/module.js ./dist/module.js",
-    "build": "yarn clean && parcel build --no-source-maps && yarn compress",
+    "build": "yarn clean && parcel build && yarn compress",
     "watch": "parcel watch",
     "docs": "typedoc --entryPointStrategy expand ./src"
   },
