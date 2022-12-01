@@ -1,19 +1,24 @@
-/**
- * @description 카카오 채널 카테고리 타입
- * @property code 카테고리 코드번호
- * @property name 카테고리 설명(이름)
- */
-export type KakaoChannelCategory = {
-    code: string;
-    name: string;
-}
+import stringDateTransfer from '../../lib/stringDateTrasnfer';
 
 /**
  * @description 카카오 채널 카테고리 타입
  * @property code 카테고리 코드번호
  * @property name 카테고리 설명(이름)
  */
-export type KakaoAlimtalkTemplateCategory = KakaoChannelCategory;
+export type KakaoChannelCategory = {
+  code: string;
+  name: string;
+};
+
+export interface KakaoChannelInterface {
+  channelId: string;
+  searchId: string;
+  accountId: string;
+  phoneNumber: string;
+  sharedAccountIds: Array<string>;
+  dateCreated?: string | Date;
+  dateUpdated?: string | Date;
+}
 
 /**
  * @description 카카오 채널
@@ -25,12 +30,26 @@ export type KakaoAlimtalkTemplateCategory = KakaoChannelCategory;
  * @property dateCreated 카카오 채널 생성일자(연동일자)
  * @property dateUpdated 카카오 채널 정보 수정일자
  */
-export type KakaoChannel = {
-    channelId: string;
-    searchId: string;
-    accountId: string;
-    phoneNumber: string;
-    sharedAccountIds: Array<string>;
-    dateCreated: string;
-    dateUpdated: string;
+export class KakaoChannel implements KakaoChannelInterface {
+  channelId: string;
+  searchId: string;
+  accountId: string;
+  phoneNumber: string;
+  sharedAccountIds: Array<string>;
+  dateCreated?: Date;
+  dateUpdated?: Date;
+
+  constructor(parameter: KakaoChannelInterface) {
+    this.channelId = parameter.channelId;
+    this.searchId = parameter.searchId;
+    this.accountId = parameter.accountId;
+    this.phoneNumber = parameter.phoneNumber;
+    this.sharedAccountIds = parameter.sharedAccountIds;
+    if (parameter.dateCreated != undefined) {
+      this.dateCreated = stringDateTransfer(parameter.dateCreated);
+    }
+    if (parameter.dateUpdated != undefined) {
+      this.dateUpdated = stringDateTransfer(parameter.dateUpdated);
+    }
+  }
 }

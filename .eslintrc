@@ -2,7 +2,8 @@
   "parser": "@typescript-eslint/parser",
   "plugins": [
     "@typescript-eslint/eslint-plugin",
-    "eslint-plugin-tsdoc"
+    "eslint-plugin-tsdoc",
+    "unused-imports"
   ],
   "extends": [
     "plugin:@typescript-eslint/recommended"
@@ -28,7 +29,8 @@
         "ignoreParameters": true
       }
     ],
-    "@typescript-eslint/no-unused-vars": "warn"
+    "@typescript-eslint/no-unused-vars": "warn",
+    "unused-imports/no-unused-imports": "warn"
   },
   "ignorePatterns": [
     "dist/**/*",
