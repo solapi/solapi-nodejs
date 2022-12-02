@@ -90,7 +90,7 @@ export interface KakaoAlimtalkTemplateInterface {
   /**
    * 템플릿 제목
    */
-  name?: string;
+  name: string;
 
   /**
    * 카카오 비즈니스 채널 ID
@@ -182,6 +182,11 @@ export interface KakaoAlimtalkTemplateInterface {
   highlight?: KakaoAlimtalkTemplateHighlightType;
 
   item?: KakaoAlimtalkTemplateItemType;
+
+  /**
+   * 카카오 알림톡 템플릿 ID
+   */
+  templateId: string;
 }
 
 /**
@@ -209,6 +214,7 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
   header?: string | null;
   highlight?: KakaoAlimtalkTemplateHighlightType;
   item?: KakaoAlimtalkTemplateItemType;
+  templateId: string;
 
   /**
    * 알림톡 템플릿 생성일자
@@ -225,13 +231,24 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
   ) {
     this.channelId = parameter.channelId;
     this.channelGroupId = parameter.channelGroupId;
-    if (parameter.name) {
-      this.name = parameter.name;
-    }
+    this.name = parameter.name;
     this.content = parameter.content;
     this.ad = parameter.ad;
     this.assignType = parameter.assignType;
     this.buttons = parameter.buttons;
+    this.templateId = parameter.templateId;
+    this.header = parameter.header;
+    this.item = parameter.item;
+    this.highlight = parameter.highlight;
+    this.securityFlag = parameter.securityFlag;
+    this.isHidden = parameter.isHidden;
+    this.messageType = parameter.messageType;
+    this.emphasizeType = parameter.emphasizeType;
+    this.extra = parameter.extra;
+    this.emphasizeTitle = parameter.emphasizeTitle;
+    this.emphasizeSubtitle = parameter.emphasizeSubtitle;
+    this.imageId = parameter.imageId;
+    this.quickReplies = parameter.quickReplies;
 
     if ('dateCreated' in parameter) {
       this.dateCreated = stringDateTransfer(parameter.dateCreated);

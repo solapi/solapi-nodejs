@@ -1,7 +1,6 @@
 import {Message, MessageParameter} from './models/message';
 import {
   CreateGroupRequest,
-  CreateKakaoAlimtalkTemplateRequest,
   CreateKakaoChannelRequest,
   CreateKakaoChannelTokenRequest,
   defaultAgent,
@@ -14,7 +13,6 @@ import {
   GetStatisticsRequest,
   GetStatisticsRequestType,
   GroupMessageAddRequest,
-  KakaoAlimtalkTemplateRequest,
   MultipleDetailMessageSendingRequest,
   MultipleMessageSendingRequest,
   RemoveMessageIdsToGroupRequest,
@@ -50,6 +48,7 @@ import {
 import {
   KakaoAlimtalkTemplate,
   KakaoAlimtalkTemplateCategory,
+  KakaoAlimtalkTemplateInterface,
 } from './models/kakao/kakaoAlimtalkTemplate';
 import qs from 'qs';
 import {SendRequestConfig} from './requests/sendRequestConfig';
@@ -71,6 +70,8 @@ import {
   GetKakaoChannelsFinalizeResponse,
   GetKakaoChannelsResponse,
 } from './responses/kakao/getKakaoChannelsResponse';
+import {CreateKakaoAlimtalkTemplateRequest} from './requests/kakao/createKakaoAlimtalkTemplateRequest';
+import {UpdateKakaoAlimtalkTemplateRequest} from './requests/kakao/updateKakaoAlimtalkTemplateRequest';
 
 /**
  * SOLAPI 메시지 서비스
@@ -709,10 +710,13 @@ export class SolapiMessageService {
       method: 'POST',
       url: `${this.baseUrl}/kakao/v2/templates`,
     };
-    return defaultFetcher<
+
+    const response = await defaultFetcher<
       CreateKakaoAlimtalkTemplateRequest,
-      KakaoAlimtalkTemplate
+      KakaoAlimtalkTemplateInterface
     >(this.authInfo, requestConfig, data);
+
+    return new KakaoAlimtalkTemplate(response);
   }
 
   /**
@@ -756,17 +760,18 @@ export class SolapiMessageService {
    */
   async updateKakaoAlimtalkTemplate(
     templateId: string,
-    data: KakaoAlimtalkTemplateRequest,
-  ): Promise<object> {
+    data: UpdateKakaoAlimtalkTemplateRequest,
+  ): Promise<KakaoAlimtalkTemplate> {
     const requestConfig: RequestConfig = {
       method: 'PUT',
       url: `${this.baseUrl}/kakao/v2/templates/${templateId}`,
     };
-    return defaultFetcher<KakaoAlimtalkTemplateRequest, object>(
-      this.authInfo,
-      requestConfig,
-      data,
-    );
+    const response = await defaultFetcher<
+      UpdateKakaoAlimtalkTemplateRequest,
+      KakaoAlimtalkTemplateInterface
+    >(this.authInfo, requestConfig, data);
+
+    return new KakaoAlimtalkTemplate(response);
   }
 
   /**
