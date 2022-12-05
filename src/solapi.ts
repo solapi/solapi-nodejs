@@ -96,21 +96,21 @@ export class SolapiMessageService {
   /**
    * 메시지 발송 기능, sendMany 함수에서 조금 더 개선된 오류 표시 기능등을 제공합니다.
    * 한번의 요청으로 최대 10,000건까지 발송할 수 있습니다.
-   * @param data 발송 요청할 메시지 파라미터(문자, 알림톡 등)
+   * @param messages 발송 요청할 메시지 파라미터(문자, 알림톡 등)
    * @param requestConfigParameter request시 필요한 파라미터 오브젝트
    * @throws MessageNotReceivedError
    */
   async send(
-    data: MessageParameter | Array<MessageParameter>,
+    messages: MessageParameter | Array<MessageParameter>,
     requestConfigParameter?: SendRequestConfig,
   ): Promise<DetailGroupMessageResponse> {
     const payload: Array<Message> = new Array<Message>();
-    if (Array.isArray(data)) {
-      data.forEach(value => {
+    if (Array.isArray(messages)) {
+      messages.forEach(value => {
         payload.push(new Message(value));
       });
-    } else if (!Array.isArray(data)) {
-      payload.push(new Message(data));
+    } else if (!Array.isArray(messages)) {
+      payload.push(new Message(messages));
     } else {
       throw new BadRequestError('잘못된 값이 입력되었습니다.');
     }
@@ -780,12 +780,12 @@ export class SolapiMessageService {
    */
   async deleteKakaoAlimtalkTemplate(
     templateId: string,
-  ): Promise<KakaoAlimtalkTemplate> {
+  ): Promise<KakaoAlimtalkTemplateInterface> {
     const requestConfig: RequestConfig = {
       method: 'DELETE',
       url: `${this.baseUrl}/kakao/v2/templates/${templateId}`,
     };
-    return defaultFetcher<never, KakaoAlimtalkTemplate>(
+    return defaultFetcher<never, KakaoAlimtalkTemplateInterface>(
       this.authInfo,
       requestConfig,
     );

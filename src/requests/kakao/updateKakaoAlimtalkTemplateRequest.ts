@@ -52,7 +52,7 @@ export type UpdateKakaoAlimtalkTemplateRequest = {
   header?: string;
 
   /**
-   * @description 하이라이트 정보 유형
+   * @description 아이템 리스트용 하이라이트 정보 유형
    */
   highlight?: KakaoAlimtalkTemplateHighlightType;
 

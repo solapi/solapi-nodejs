@@ -2,6 +2,12 @@ import {KakaoAlimtalkTemplateStatus} from '../../models/kakao/kakaoAlimtalkTempl
 import {DatePayloadType} from '../messageRequest';
 import {formatWithTransfer} from '../../lib/stringDateTrasnfer';
 
+type GetKakaoAlimtalkTemplatesNameType = {
+  eq?: string;
+  ne?: string;
+  like?: string;
+};
+
 /**
  * @name GetKakaoAlimtalkTemplatesRequest
  * @description 카카오 알림톡 조회를 위한 요청 타입
@@ -10,7 +16,7 @@ export interface GetKakaoAlimtalkTemplatesRequest {
   /**
    * @description 알림톡 템플릿 제목
    */
-  name?: string;
+  name?: GetKakaoAlimtalkTemplatesNameType | string;
 
   /**
    * @description 카카오 비즈니스 채널 ID
@@ -57,7 +63,7 @@ export class GetKakaoAlimtalkTemplatesFinalizeRequest {
   channelId?: string;
   isHidden?: boolean;
   limit?: number;
-  name?: string;
+  name?: GetKakaoAlimtalkTemplatesNameType | string;
   startKey?: string;
   status?: KakaoAlimtalkTemplateStatus;
   templateId?: string;
@@ -66,7 +72,15 @@ export class GetKakaoAlimtalkTemplatesFinalizeRequest {
   constructor(parameter: GetKakaoAlimtalkTemplatesRequest) {
     this.channelId = parameter.channelId;
     this.isHidden = parameter.isHidden;
-    this.name = parameter.name;
+    if (parameter.name != undefined) {
+      if (typeof parameter.name == 'string') {
+        this.name = {
+          like: parameter.name,
+        };
+      } else if (typeof parameter.name == 'object') {
+        this.name = parameter.name;
+      }
+    }
     this.startKey = parameter.startKey;
     this.status = parameter.status;
     this.limit = parameter.limit;

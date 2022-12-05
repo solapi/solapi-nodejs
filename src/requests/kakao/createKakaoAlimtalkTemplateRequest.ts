@@ -47,12 +47,12 @@ export type BaseKakaoAlimtalkTemplateRequest = {
   emphasizeType?: KakaoAlimtalkTemplateEmphasizeType;
 
   /**
-   * @description 아이템 리스트 용 헤더
+   * @description 아이템 리스트용 헤더
    */
   header?: string;
 
   /**
-   * @description 하이라이트 정보 유형
+   * @description 아이템 리스트용 하이라이트 정보 유형
    */
   highlight?: KakaoAlimtalkTemplateHighlightType;
 

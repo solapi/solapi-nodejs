@@ -1,4 +1,4 @@
-import {KakaoButton} from './kakaoButton';
+import {KakaoButton, KakaoButtonType} from './kakaoButton';
 import stringDateTransfer from '../../lib/stringDateTrasnfer';
 import {GetKakaoTemplateResponse} from '../../responses/kakao/getKakaoTemplateResponse';
 import {KakaoChannelCategory} from './kakaoChannel';
@@ -62,7 +62,7 @@ export type KakaoAlimtalkTemplateCodeType = {
 
 export type KakaoAlimtalkTemplateQuickReplyType = {
   name: string;
-  linkType: string;
+  linkType: Omit<KakaoButtonType, 'AC' | 'DS'>;
   linkMo?: string | null;
   linkPc?: string | null;
   linkAnd?: string | null;
