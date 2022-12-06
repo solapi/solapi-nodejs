@@ -43,21 +43,13 @@ export type KakaoAlimtalkTemplateStatus =
   | 'DELETED';
 
 /**
- * @description 알림톡 템플릿 댓글 타입, 현재 kakao v2 API에는 사용되지 않음
+ * @description 알림톡 템플릿 댓글 타입
  */
 export type KakaoAlimtalkTemplateCommentType = {
   isAdmin: boolean;
   memberId: string;
   content: string;
   dateCreated: string;
-};
-
-/**
- * @deprecated kakao v2 api에서는 더이상 사용되지 않습니다.
- */
-export type KakaoAlimtalkTemplateCodeType = {
-  status: Omit<KakaoAlimtalkTemplateStatus, 'DELETED'>;
-  comments: Array<KakaoAlimtalkTemplateCommentType>;
 };
 
 export type KakaoAlimtalkTemplateQuickReplyType = {
@@ -86,105 +78,120 @@ export type KakaoAlimtalkTemplateItemType = {
   };
 };
 
+/*
+ memberId: { type: String, required: true },
+      isAdmin: { type: Boolean, default: false },
+      content: { type: String, default: null },
+      dateCreated: { type: Date, default: Date.now
+* */
 export interface KakaoAlimtalkTemplateInterface {
   /**
-   * 템플릿 제목
+   * @description 템플릿 제목
    */
   name: string;
 
   /**
-   * 카카오 비즈니스 채널 ID
+   * @description 카카오 비즈니스 채널 ID
    */
   channelId?: string | null;
 
   /**
-   * 카카오 비즈니스 채널 그룹 ID
+   * @description 카카오 비즈니스 채널 그룹 ID
    */
   channelGroupId?: string | null;
 
   /**
-   * 알림톡 템플릿 내용
+   * @description 알림톡 템플릿 내용
    */
   content?: string;
 
   /**
-   * 알림톡 템플릿 숨김 여부
+   * @description 알림톡 템플릿 숨김 여부
    */
   isHidden?: boolean;
 
   /**
-   * 알림톡 템플릿 메시지 유형
+   * @description 알림톡 템플릿 메시지 유형
    */
   messageType: KakaoAlimtalkTemplateMessageType;
 
   /**
-   * 강조 유형
+   * @description 강조 유형
    */
   emphasizeType: KakaoAlimtalkTemplateEmphasizeType;
 
   /**
-   * 부가정보
-   * 메시지 유형이 "부가정보형"또는 "복합형"일 경우 필수
+   * @description 부가정보. 메시지 유형이 "부가정보형"또는 "복합형"일 경우 필수
    */
   extra?: string | null;
 
   /**
-   * 간단 광고 문구
-   * 메시지 유형이 "광고추가형"또는 "복합형"일 경우 필수
+   * @description 간단 광고 문구. 메시지 유형이 "광고추가형"또는 "복합형"일 경우 필수
    */
   ad?: string | null;
 
   /**
-   * 강조표기 핵심문구 (변수사용가능, emphasizeType이 TEXT일 경우 필수 값)
-   * 템플릿 내용에 강조표기할 핵심문구가 동일하게 포함되어 있어야합니다.
+   * @description 강조표기 핵심문구(변수사용가능, emphasizeType이 TEXT일 경우 필수 값). 템플릿 내용에 강조표기할 핵심문구가 동일하게 포함되어 있어야합니다.
    */
   emphasizeTitle?: string | null;
 
   /**
-   * 강조표기 보조문구(emphasizeType이 TEXT일 경우 필수 값)
-   * 템플릿 내용에 강조표기할 보조문구가 동일하게 포함되어 있어야합니다.
+   * @description 강조표기 보조문구(emphasizeType이 TEXT일 경우 필수 값). 템플릿 내용에 강조표기할 보조문구가 동일하게 포함되어 있어야합니다.
    */
   emphasizeSubtitle?: string | null;
 
   /**
-   * PC 노출 여부
-   * OTP, 보안 메시지의 경우 유저선택 무관 PC 미노출
+   * @description PC 노출 여부. OTP, 보안 메시지의 경우 유저선택 무관 PC 미노출
    */
   securityFlag: boolean;
 
   /**
-   * 템플릿에 사용되는 이미지 ID
+   * @description 템플릿에 사용되는 이미지 ID
    */
   imageId?: string | null;
 
   /**
-   * 카카오 알림톡 템플릿 그룹 유형
+   * @description 카카오 알림톡 템플릿 그룹 유형
    */
   assignType?: KakaoAlimtalkTemplateAssignType;
 
   /**
-   * 카카오 알림톡 템플릿 버튼 목록
+   * @description 카카오 알림톡 템플릿 버튼 목록
    */
   buttons: Array<KakaoButton>;
 
   /**
-   * 카카오 알림톡 템플릿 상태 현황목록
+   * @description 카카오 알림톡 템플릿 상태 현황목록, commentable이 true일 때만 해당 값이 표시됩니다.
    */
-  comments?: Array<Omit<KakaoAlimtalkTemplateCodeType, 'status'>>;
+  comments?: Array<KakaoAlimtalkTemplateCommentType>;
+
+  /**
+   * @description 의견을 남길 수 있는 템플릿 여부
+   */
+  commentable?: boolean;
 
   /**
    * 바로가기 연결(링크) 목록
    */
   quickReplies?: Array<KakaoAlimtalkTemplateQuickReplyType>;
 
+  /**
+   * @description 아이템 리스트 용 헤더
+   */
   header?: string | null;
 
+  /**
+   * @description 아이템 리스트용 하이라이트 정보 유형
+   */
   highlight?: KakaoAlimtalkTemplateHighlightType;
 
+  /**
+   * @description 아이템 리스트 유형
+   */
   item?: KakaoAlimtalkTemplateItemType;
 
   /**
-   * 카카오 알림톡 템플릿 ID
+   * @description 카카오 알림톡 템플릿 ID
    */
   templateId: string;
 }
@@ -215,6 +222,8 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
   highlight?: KakaoAlimtalkTemplateHighlightType;
   item?: KakaoAlimtalkTemplateItemType;
   templateId: string;
+  commentable: boolean;
+  comments?: Array<KakaoAlimtalkTemplateCommentType>;
 
   /**
    * 알림톡 템플릿 생성일자
@@ -249,6 +258,7 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
     this.emphasizeSubtitle = parameter.emphasizeSubtitle;
     this.imageId = parameter.imageId;
     this.quickReplies = parameter.quickReplies;
+    this.comments = parameter.comments;
 
     if ('dateCreated' in parameter) {
       this.dateCreated = stringDateTransfer(parameter.dateCreated);
