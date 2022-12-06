@@ -1,7 +1,7 @@
 import {GroupMessageResponse} from './messageResponses';
 
 /**
- *
+ * @description 메시지 접수에 실패한 메시지 객체
  */
 export type FailedMessage = {
   to: string;
