@@ -33,14 +33,12 @@ export type KakaoAlimtalkTemplateAssignType = 'CHANNEL' | 'GROUP';
  * INSPECTING - 검수중<br><br>
  * APPROVED - 등록완료(검수완료)<br><br>
  * REJECTED - 반려됨<br><br>
- * DELETED - 삭제됨
  */
 export type KakaoAlimtalkTemplateStatus =
   | 'PENDING'
   | 'INSPECTING'
   | 'APPROVED'
-  | 'REJECTED'
-  | 'DELETED';
+  | 'REJECTED';
 
 /**
  * @description 알림톡 템플릿 댓글 타입
@@ -158,7 +156,7 @@ export interface KakaoAlimtalkTemplateInterface {
   /**
    * @description 카카오 알림톡 템플릿 버튼 목록
    */
-  buttons: Array<KakaoButton>;
+  buttons?: Array<KakaoButton>;
 
   /**
    * @description 카카오 알림톡 템플릿 상태 현황목록, commentable이 true일 때만 해당 값이 표시됩니다.
@@ -194,6 +192,20 @@ export interface KakaoAlimtalkTemplateInterface {
    * @description 카카오 알림톡 템플릿 ID
    */
   templateId: string;
+
+  /**
+   * @description 긴급 검수를 위한 알림토 딜러사 측 템플릿 코드, commentable이 false일 때만 해당 코드가 표시됩니다.
+   */
+  code?: string;
+
+  /**
+   * @description 카카오 알림톡 템플릿 상태<br><br>
+   * PENDING - 대기<br><br>
+   * INSPECTING - 검수중<br><br>
+   * APPROVED - 등록완료(검수완료)<br><br>
+   * REJECTED - 반려됨<br><br>
+   */
+  status: KakaoAlimtalkTemplateStatus;
 }
 
 /**
@@ -216,14 +228,16 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
   securityFlag: boolean;
   imageId?: string | null;
   assignType?: KakaoAlimtalkTemplateAssignType;
-  buttons: KakaoButton[];
+  buttons?: KakaoButton[];
   quickReplies?: KakaoAlimtalkTemplateQuickReplyType[];
   header?: string | null;
   highlight?: KakaoAlimtalkTemplateHighlightType;
   item?: KakaoAlimtalkTemplateItemType;
   templateId: string;
-  commentable: boolean;
+  commentable?: boolean;
   comments?: Array<KakaoAlimtalkTemplateCommentType>;
+  code?: string;
+  status: KakaoAlimtalkTemplateStatus;
 
   /**
    * 알림톡 템플릿 생성일자
@@ -259,6 +273,9 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
     this.imageId = parameter.imageId;
     this.quickReplies = parameter.quickReplies;
     this.comments = parameter.comments;
+    this.commentable = parameter.commentable;
+    this.code = parameter.code;
+    this.status = parameter.status;
 
     if ('dateCreated' in parameter) {
       this.dateCreated = stringDateTransfer(parameter.dateCreated);

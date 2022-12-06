@@ -730,10 +730,12 @@ export class SolapiMessageService {
       method: 'PUT',
       url: `${this.baseUrl}/kakao/v2/templates/${templateId}/inspection`,
     };
-    return defaultFetcher<never, KakaoAlimtalkTemplate>(
-      this.authInfo,
-      requestConfig,
-    );
+    const response = await defaultFetcher<
+      never,
+      KakaoAlimtalkTemplateInterface
+    >(this.authInfo, requestConfig);
+
+    return new KakaoAlimtalkTemplate(response);
   }
 
   /**
@@ -782,14 +784,16 @@ export class SolapiMessageService {
    */
   async deleteKakaoAlimtalkTemplate(
     templateId: string,
-  ): Promise<KakaoAlimtalkTemplateInterface> {
+  ): Promise<KakaoAlimtalkTemplate> {
     const requestConfig: RequestConfig = {
       method: 'DELETE',
       url: `${this.baseUrl}/kakao/v2/templates/${templateId}`,
     };
-    return defaultFetcher<never, KakaoAlimtalkTemplateInterface>(
-      this.authInfo,
-      requestConfig,
-    );
+    const response = await defaultFetcher<
+      never,
+      KakaoAlimtalkTemplateInterface
+    >(this.authInfo, requestConfig);
+
+    return new KakaoAlimtalkTemplate(response);
   }
 }

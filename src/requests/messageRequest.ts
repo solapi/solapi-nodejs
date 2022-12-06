@@ -1,7 +1,9 @@
 import {Message, MessageType} from '../models/message';
 import {DateOperatorType, GroupId} from '../types/commonTypes';
 import {formatISO} from 'date-fns';
-import stringDateTransfer from '../lib/stringDateTrasnfer';
+import stringDateTransfer, {
+  formatWithTransfer,
+} from '../lib/stringDateTrasnfer';
 
 export type DefaultAgentType = {
   sdkVersion: string;
@@ -81,7 +83,7 @@ export class MultipleDetailMessageSendingRequest extends DefaultMessageRequest {
       this.agent.appId = appId;
     }
     if (scheduledDate) {
-      this.scheduledDate = formatISO(stringDateTransfer(scheduledDate));
+      this.scheduledDate = formatWithTransfer(scheduledDate);
     }
     if (showMessageList) {
       this.showMessageList = showMessageList;
