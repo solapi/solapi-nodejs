@@ -15,6 +15,7 @@ type GetKakaoAlimtalkTemplatesNameType = {
 export interface GetKakaoAlimtalkTemplatesRequest {
   /**
    * @description 알림톡 템플릿 제목
+   * 주의! like 프로퍼티가 들어가는 경우 eq와 ne는 무시됩니다.
    */
   name?: GetKakaoAlimtalkTemplatesNameType | string;
 

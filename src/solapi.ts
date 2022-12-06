@@ -747,10 +747,12 @@ export class SolapiMessageService {
       method: 'PUT',
       url: `${this.baseUrl}/kakao/v2/templates/${templateId}/inspection/cancel`,
     };
-    return defaultFetcher<never, KakaoAlimtalkTemplate>(
-      this.authInfo,
-      requestConfig,
-    );
+    const response = await defaultFetcher<
+      never,
+      KakaoAlimtalkTemplateInterface
+    >(this.authInfo, requestConfig);
+
+    return new KakaoAlimtalkTemplate(response);
   }
 
   /**
