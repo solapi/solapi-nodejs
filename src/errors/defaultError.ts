@@ -30,9 +30,15 @@ export class DefaultError extends Error {
  * @description 메시지가 모두 발송 접수가 불가한 상태일 경우 MessageNotReceivedError 에러가 발생합니다.
  */
 export class MessageNotReceivedError extends Error {
+  failedMessageList: Array<FailedMessage>;
+
   constructor(errorList: Array<FailedMessage>) {
-    super(JSON.stringify(errorList));
+    const statusMessageCount = errorList.length;
+    super(
+      `${statusMessageCount}개의 메시지가 접수되지 못했습니다. 자세한 에러 메시지는 해당 에러 내 failedMessageList를 확인해주세요.`,
+    );
     this.name = 'MessagesNotReceivedError';
+    this.failedMessageList = errorList;
   }
 }
 

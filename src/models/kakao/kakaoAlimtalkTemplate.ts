@@ -20,7 +20,11 @@ export type KakaoAlimtalkTemplateMessageType = 'BA' | 'EX' | 'AD' | 'MI';
  * @description 카카오 알림톡 템플릿 강조 유형<br>
  * NONE: 선택안함, TEXT: 강조표기형, IMAGE: 이미지형
  */
-export type KakaoAlimtalkTemplateEmphasizeType = 'NONE' | 'TEXT' | 'IMAGE';
+export type KakaoAlimtalkTemplateEmphasizeType =
+  | 'NONE'
+  | 'TEXT'
+  | 'IMAGE'
+  | 'ITEM_LIST';
 
 /**
  * @description 카카오 알림톡 템플릿 그룹 유형(기본값은 Channel)
@@ -52,7 +56,7 @@ export type KakaoAlimtalkTemplateCommentType = {
 
 export type KakaoAlimtalkTemplateQuickReplyType = {
   name: string;
-  linkType: Omit<KakaoButtonType, 'AC' | 'DS'>;
+  linkType: Omit<KakaoButtonType, 'AC' | 'DS' | 'MD'>;
   linkMo?: string | null;
   linkPc?: string | null;
   linkAnd?: string | null;

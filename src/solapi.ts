@@ -7,11 +7,6 @@ import {
   FileType,
   FileUploadRequest,
   GetGroupMessagesRequest,
-  GetGroupsRequest,
-  GetMessagesRequest,
-  GetMessagesRequestType,
-  GetStatisticsRequest,
-  GetStatisticsRequestType,
   GroupMessageAddRequest,
   MultipleDetailMessageSendingRequest,
   MultipleMessageSendingRequest,
@@ -35,7 +30,6 @@ import {
   SingleMessageSentResponse,
 } from './responses/messageResponses';
 import {GroupId} from './types/commonTypes';
-import queryParameterGenerator from './lib/queryParameterGenerator';
 import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
 import stringDateTransfer from './lib/stringDateTrasnfer';
@@ -72,6 +66,20 @@ import {
 } from './responses/kakao/getKakaoChannelsResponse';
 import {CreateKakaoAlimtalkTemplateRequest} from './requests/kakao/createKakaoAlimtalkTemplateRequest';
 import {UpdateKakaoAlimtalkTemplateRequest} from './requests/kakao/updateKakaoAlimtalkTemplateRequest';
+import {
+  GetGroupsFinalizeRequest,
+  GetGroupsRequest,
+} from './requests/messages/groups/getGroupsRequest';
+import {
+  GetMessagesRequest,
+  GetMessagesFinalizeRequest,
+} from './requests/messages/getMessagesRequest';
+import {
+  GetStatisticsFinalizeRequest,
+  GetStatisticsRequest,
+} from './requests/messages/statistics/getStatisticsRequest';
+
+export * from './errors/defaultError';
 
 /**
  * SOLAPI 메시지 서비스
@@ -104,7 +112,7 @@ export class SolapiMessageService {
     messages: MessageParameter | Array<MessageParameter>,
     requestConfigParameter?: SendRequestConfig,
   ): Promise<DetailGroupMessageResponse> {
-    const payload: Array<Message> = new Array<Message>();
+    const payload: Array<Message> = [];
     if (Array.isArray(messages)) {
       messages.forEach(value => {
         payload.push(new Message(value));
@@ -329,14 +337,19 @@ export class SolapiMessageService {
   }
 
   /**
-   * 그룹 통계 정보 조회
-   * @param data 그룹 정보 상세 조회용 request 데이터, date 관련 파라미터는 iso8601 포맷으로 보내야 함
+   * 그룹 목록 정보 조회
+   * @param data 그룹 정보 상세 조회용 request 데이터
    */
   async getGroups(data?: GetGroupsRequest) {
-    const endpoint = queryParameterGenerator(
-      `${this.baseUrl}/messages/v4/groups`,
-      data,
-    );
+    let payload: GetGroupsFinalizeRequest = {};
+    if (data) {
+      payload = new GetGroupsFinalizeRequest(payload);
+    }
+    const parameter = qs.stringify(payload, {
+      indices: false,
+      addQueryPrefix: true,
+    });
+    const endpoint = `${this.baseUrl}/messages/v4/groups${parameter}`;
     const requestConfig: RequestConfig = {
       method: 'GET',
       url: endpoint,
@@ -356,10 +369,11 @@ export class SolapiMessageService {
     groupId: GroupId,
     data?: GetGroupMessagesRequest,
   ): Promise<GetMessagesResponse> {
-    const endpoint = queryParameterGenerator(
-      `${this.baseUrl}/messages/v4/groups/${groupId}/messages`,
-      data,
-    );
+    const parameter = qs.stringify(data, {
+      indices: false,
+      addQueryPrefix: true,
+    });
+    const endpoint = `${this.baseUrl}/messages/v4/groups/${groupId}/messages${parameter}`;
     const requestConfig: RequestConfig = {
       method: 'GET',
       url: endpoint,
@@ -426,15 +440,17 @@ export class SolapiMessageService {
    * @param data 목록 조회 상세조건 파라미터
    */
   async getMessages(
-    data?: Readonly<GetMessagesRequestType>,
+    data?: Readonly<GetMessagesRequest>,
   ): Promise<GetMessagesResponse> {
-    const parameter: GetMessagesRequest | object = data
-      ? new GetMessagesRequest(data)
-      : {};
-    const endpoint = queryParameterGenerator(
-      `${this.baseUrl}/messages/v4/list`,
-      parameter,
-    );
+    let payload: GetMessagesFinalizeRequest = {};
+    if (data) {
+      payload = new GetMessagesFinalizeRequest(data);
+    }
+    const parameter = qs.stringify(payload, {
+      indices: false,
+      addQueryPrefix: true,
+    });
+    const endpoint = `${this.baseUrl}/messages/v4/list${parameter}`;
     const requestConfig: RequestConfig = {
       method: 'GET',
       url: endpoint,
@@ -451,15 +467,17 @@ export class SolapiMessageService {
    * @returns GetStatisticsResponse 통계 결과
    */
   async getStatistics(
-    data?: Readonly<GetStatisticsRequestType>,
+    data?: Readonly<GetStatisticsRequest>,
   ): Promise<GetStatisticsResponse> {
-    const parameter: GetStatisticsRequest | object = data
-      ? new GetStatisticsRequest(data)
-      : {};
-    const endpoint = queryParameterGenerator(
-      `${this.baseUrl}/messages/v4/statistics`,
-      parameter,
-    );
+    let payload: GetStatisticsFinalizeRequest = {};
+    if (data) {
+      payload = new GetStatisticsFinalizeRequest(data);
+    }
+    const parameter = qs.stringify(payload, {
+      indices: false,
+      addQueryPrefix: true,
+    });
+    const endpoint = `${this.baseUrl}/messages/v4/statistics${parameter}`;
     const requestConfig: RequestConfig = {
       method: 'GET',
       url: endpoint,
@@ -479,10 +497,14 @@ export class SolapiMessageService {
       method: 'GET',
       url: `${this.baseUrl}/cash/v1/balance`,
     };
-    return defaultFetcher<never, GetBalanceResponse>(
+    const response = await defaultFetcher<never, GetBalanceResponse>(
       this.authInfo,
       requestConfig,
     );
+    return {
+      balance: response.balance,
+      point: response.point,
+    };
   }
 
   /**
@@ -542,7 +564,6 @@ export class SolapiMessageService {
     if (data) {
       payload = new GetKakaoChannelsFinalizeRequest(data);
     }
-
     const parameter = qs.stringify(payload, {indices: false});
     const endpoint = `${this.baseUrl}/kakao/v2/channels?${parameter}`;
     const requestConfig: RequestConfig = {
@@ -553,12 +574,10 @@ export class SolapiMessageService {
       this.authInfo,
       requestConfig,
     );
-
     const channelList = new Array<KakaoChannel>();
     for (const channel of response.channelList) {
       channelList.push(new KakaoChannel(channel));
     }
-
     return {
       limit: response.limit,
       nextKey: response.nextKey,

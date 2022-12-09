@@ -2,11 +2,17 @@ import {KakaoAlimtalkTemplateStatus} from '../../models/kakao/kakaoAlimtalkTempl
 import {formatWithTransfer} from '../../lib/stringDateTrasnfer';
 import {DatePayloadType} from '../messageRequest';
 
-type GetKakaoAlimtalkTemplatesNameType = {
-  eq?: string;
-  ne?: string;
-  like?: string;
-};
+type GetKakaoAlimtalkTemplatesNameType =
+  | {
+      eq?: string;
+      ne?: string;
+      like?: never;
+    }
+  | {
+      eq?: never;
+      ne?: never;
+      like: string;
+    };
 
 /**
  * @name GetKakaoAlimtalkTemplatesRequest

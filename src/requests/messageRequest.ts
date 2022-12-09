@@ -1,9 +1,6 @@
-import {Message, MessageType} from '../models/message';
-import {DateOperatorType, GroupId} from '../types/commonTypes';
-import {formatISO} from 'date-fns';
-import stringDateTransfer, {
-  formatWithTransfer,
-} from '../lib/stringDateTrasnfer';
+import {Message} from '../models/message';
+import {DateOperatorType} from '../types/commonTypes';
+import {formatWithTransfer} from '../lib/stringDateTrasnfer';
 
 export type DefaultAgentType = {
   sdkVersion: string;
@@ -112,99 +109,10 @@ export type GetGroupMessagesRequest = {
   limit?: number;
 };
 
-export type GetGroupsRequest = {
-  startKey?: string;
-  limit?: number;
-  startDate?: string;
-  endDate?: string;
-};
-
 export type RequestConfig = {
   method: string;
   url: string;
 };
-
-type DateType = 'CREATED' | 'UPDATED';
-
-export type GetMessagesRequestType = {
-  startKey?: string;
-  limit?: number;
-  messageId?: string;
-  messageIds?: Array<string>;
-  groupId?: GroupId;
-  to?: string;
-  from?: string;
-  type?: MessageType;
-  statusCode?: string;
-  duration?: {
-    dateType?: DateType;
-    startDate: string;
-    endDate: string;
-  };
-};
-
-export class GetMessagesRequest {
-  readonly startKey?: string;
-  readonly limit?: number;
-  readonly dateType?: DateType = 'CREATED';
-  readonly messageId?: string;
-  readonly messageIds?: Array<string>;
-  readonly groupId?: GroupId;
-  readonly to?: string;
-  readonly from?: string;
-  readonly type?: MessageType;
-  readonly statusCode?: string;
-  readonly startDate?: string;
-  readonly endDate?: string;
-
-  constructor(getMessageRequestType: GetMessagesRequestType) {
-    this.startKey = getMessageRequestType.startKey;
-    this.limit = getMessageRequestType.limit;
-    if (getMessageRequestType.duration?.dateType)
-      this.dateType = getMessageRequestType.duration.dateType;
-    if (getMessageRequestType.duration)
-      this.startDate = formatISO(
-        stringDateTransfer(getMessageRequestType.duration.startDate),
-      );
-    if (getMessageRequestType.duration)
-      this.endDate = formatISO(
-        stringDateTransfer(getMessageRequestType.duration.endDate),
-      );
-    this.messageId = getMessageRequestType.messageId;
-    this.messageIds = getMessageRequestType.messageIds;
-    this.groupId = getMessageRequestType.groupId;
-    this.to = getMessageRequestType.to;
-    this.from = getMessageRequestType.from;
-    this.type = getMessageRequestType.type;
-    this.statusCode = getMessageRequestType.statusCode;
-  }
-}
-
-export type GetStatisticsRequestType = {
-  duration?: {
-    startDate: string | Date;
-    endDate: string | Date;
-  };
-  masterAccountId: string;
-};
-
-export class GetStatisticsRequest {
-  readonly startDate: string;
-  readonly endDate: string;
-  readonly masterAccountId: string;
-
-  constructor(getStatisticsRequest: GetStatisticsRequestType) {
-    if (getStatisticsRequest.duration)
-      this.startDate = formatISO(
-        stringDateTransfer(getStatisticsRequest.duration.startDate),
-      );
-    if (getStatisticsRequest.duration)
-      this.endDate = formatISO(
-        stringDateTransfer(getStatisticsRequest.duration.endDate),
-      );
-    this.masterAccountId = getStatisticsRequest.masterAccountId;
-  }
-}
 
 export type FileType = 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS';
 
