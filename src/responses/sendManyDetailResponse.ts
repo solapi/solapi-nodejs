@@ -12,7 +12,7 @@ export type FailedMessage = {
   messageId: string;
   statusCode: string;
   accountId: string;
-  customFields?: Map<string, string>;
+  customFields?: Record<string, string>;
 };
 
 /**
@@ -21,7 +21,7 @@ export type FailedMessage = {
 export type MessageListResponse = {
   messageId: string;
   statusCode: string;
-  customFields?: Map<string, string>;
+  customFields?: Record<string, string>;
   statusMessage: string;
 };
 

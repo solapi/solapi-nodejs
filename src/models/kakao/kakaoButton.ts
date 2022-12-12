@@ -11,11 +11,31 @@ export type KakaoButtonType =
   | 'BT'
   | 'AC';
 
-export type KakaoButton = {
+export type KakaoWebButton = {
   buttonName: string;
-  buttonType: KakaoButtonType;
-  linkMo?: string;
+  buttonType: Extract<KakaoButtonType, 'WL'>;
+  linkMo: string;
   linkPc?: string;
-  linkAnd?: string;
-  linkIos?: string;
+  linkAnd?: never;
+  linkIos?: never;
 };
+
+export type KakaoAppButton = {
+  buttonName: string;
+  buttonType: Extract<KakaoButtonType, 'AL'>;
+  linkMo?: never;
+  linkPc?: never;
+  linkAnd: string;
+  linkIos: string;
+};
+
+export type KakaoDefaultButton = {
+  buttonName: string;
+  buttonType: Exclude<KakaoButtonType, 'WL' | 'AL'>;
+  linkMo?: never;
+  linkPc?: never;
+  linkAnd?: never;
+  linkIos?: never;
+};
+
+export type KakaoButton = KakaoWebButton | KakaoAppButton | KakaoDefaultButton;
