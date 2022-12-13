@@ -15,8 +15,8 @@ messageService
     // messageId: '메시지 ID 입력', // 메시지 ID는 대개 M4V로 시작합니다
     // 여러 메시지 ID로 검색
     /*messageIds: [
-    '메시지 ID 입력' // 메시지 ID는 대개 M4V로 시작합니다
-  ],*/
+      '메시지 ID 입력', // 메시지 ID는 대개 M4V로 시작합니다
+    ],*/
     // 그룹 ID로 검색
     // groupId: '그룹 ID 입력', // 그룹 ID는 대개 G4V로 시작합니다
     // 발신번호로 검색
