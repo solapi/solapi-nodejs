@@ -3,9 +3,9 @@ import {
   KakaoAlimtalkTemplateHighlightType,
   KakaoAlimtalkTemplateItemType,
   KakaoAlimtalkTemplateMessageType,
-  KakaoAlimtalkTemplateQuickReplyType,
 } from '../../models/kakao/kakaoAlimtalkTemplate';
 import {KakaoButton} from '../../models/kakao/kakaoButton';
+import {KakaoAlimtalkTemplateQuickReply} from '../../models/kakao/kakaoAlimtalkTemplateQuickReply';
 
 /**
  * @description 카카오 알림톡 템플릿 요청 타입
@@ -34,7 +34,7 @@ export type UpdateKakaoAlimtalkTemplateRequest = {
   /**
    * @description 바로연결(버튼과 유사한 링크) 배열
    */
-  quickReplies?: Array<KakaoAlimtalkTemplateQuickReplyType>;
+  quickReplies?: Array<KakaoAlimtalkTemplateQuickReply>;
 
   /**
    * @description 알림톡 템플릿 메시지 유형

@@ -1,7 +1,8 @@
-import {KakaoButton, KakaoButtonType} from './kakaoButton';
+import {KakaoButton} from './kakaoButton';
 import stringDateTransfer from '../../lib/stringDateTrasnfer';
 import {GetKakaoTemplateResponse} from '../../responses/kakao/getKakaoTemplateResponse';
 import {KakaoChannelCategory} from './kakaoChannel';
+import {KakaoAlimtalkTemplateQuickReply} from './kakaoAlimtalkTemplateQuickReply';
 
 /**
  * @description 카카오 채널 카테고리 타입
@@ -54,15 +55,6 @@ export type KakaoAlimtalkTemplateCommentType = {
   dateCreated: string;
 };
 
-export type KakaoAlimtalkTemplateQuickReplyType = {
-  name: string;
-  linkType: Omit<KakaoButtonType, 'AC' | 'DS' | 'MD'>;
-  linkMo?: string | null;
-  linkPc?: string | null;
-  linkAnd?: string | null;
-  linkIos?: string | null;
-};
-
 export type KakaoAlimtalkTemplateHighlightType = {
   title?: string | null;
   description?: string | null;
@@ -80,12 +72,6 @@ export type KakaoAlimtalkTemplateItemType = {
   };
 };
 
-/*
- memberId: { type: String, required: true },
-      isAdmin: { type: Boolean, default: false },
-      content: { type: String, default: null },
-      dateCreated: { type: Date, default: Date.now
-* */
 export interface KakaoAlimtalkTemplateInterface {
   /**
    * @description 템플릿 제목
@@ -175,7 +161,7 @@ export interface KakaoAlimtalkTemplateInterface {
   /**
    * 바로가기 연결(링크) 목록
    */
-  quickReplies?: Array<KakaoAlimtalkTemplateQuickReplyType>;
+  quickReplies?: Array<KakaoAlimtalkTemplateQuickReply>;
 
   /**
    * @description 아이템 리스트 용 헤더
@@ -233,7 +219,7 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
   imageId?: string | null;
   assignType?: KakaoAlimtalkTemplateAssignType;
   buttons?: KakaoButton[];
-  quickReplies?: KakaoAlimtalkTemplateQuickReplyType[];
+  quickReplies?: KakaoAlimtalkTemplateQuickReply[];
   header?: string | null;
   highlight?: KakaoAlimtalkTemplateHighlightType;
   item?: KakaoAlimtalkTemplateItemType;
