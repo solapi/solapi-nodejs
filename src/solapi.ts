@@ -821,10 +821,21 @@ export class SolapiMessageService {
   }
 
   /**
+   * @deprecated 해당 메소드는 더이상 사용되지 않습니다. removeKakaoAlimtalkTemplate를 이용해주세요!
    * 카카오 알림톡 템플릿 삭제(대기, 반려 상태일 때만 삭제가능)
    * @param templateId 카카오 알림톡 템플릿 ID
    */
   async deleteKakaoAlimtalkTemplate(
+    templateId: string,
+  ): Promise<KakaoAlimtalkTemplate> {
+    return this.removeKakaoAlimtalkTemplate(templateId);
+  }
+
+  /**
+   * 카카오 알림톡 템플릿 삭제(대기, 반려 상태일 때만 삭제가능)
+   * @param templateId 카카오 알림톡 템플릿 ID
+   */
+  async removeKakaoAlimtalkTemplate(
     templateId: string,
   ): Promise<KakaoAlimtalkTemplate> {
     const requestConfig: RequestConfig = {
