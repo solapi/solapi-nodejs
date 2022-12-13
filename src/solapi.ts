@@ -798,6 +798,29 @@ export class SolapiMessageService {
   }
 
   /**
+   * 카카오 알림톡 템플릿 이름 수정(검수 상태 상관없이 변경가능)
+   * @param templateId 카카오 알림톡 템플릿 ID
+   * @param name 카카오 알림톡 템플릿 이름 변경을 위한 파라미터
+   */
+  async updateKakaoAlimtalkTemplateName(
+    templateId: string,
+    name: string,
+  ): Promise<KakaoAlimtalkTemplate> {
+    const requestConfig: RequestConfig = {
+      method: 'PUT',
+      url: `${this.baseUrl}/kakao/v2/templates/${templateId}/name`,
+    };
+    const response = await defaultFetcher<
+      {
+        name: string;
+      },
+      KakaoAlimtalkTemplateInterface
+    >(this.authInfo, requestConfig, {name});
+
+    return new KakaoAlimtalkTemplate(response);
+  }
+
+  /**
    * 카카오 알림톡 템플릿 삭제(대기, 반려 상태일 때만 삭제가능)
    * @param templateId 카카오 알림톡 템플릿 ID
    */
