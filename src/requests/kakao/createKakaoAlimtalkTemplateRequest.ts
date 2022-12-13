@@ -62,14 +62,9 @@ export type BaseKakaoAlimtalkTemplateRequest = {
   item?: KakaoAlimtalkTemplateItemType;
 
   /**
-   * @description 부가정보, 치환문구를 넣을 수 없음
+   * @description 부가정보, 치환문구를 넣을 수 없음. 최대 500자
    */
   extra?: string;
-
-  /**
-   * @description 템플릿 내 수신동의요청 또는 간단 광고 문구
-   */
-  ad?: string;
 
   /**
    * @description 강조 표기 제목 (강조 표기형 유형만 등록 가능)
