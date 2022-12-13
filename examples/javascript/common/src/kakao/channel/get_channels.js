@@ -21,20 +21,8 @@ messageService
         '조회할 페이지네이션 키 입력, 보통 채널 조회 시 응답받는 nextKey 항목으로 넣어보실 수 있습니다.',
 
       // 생성일자로 검색
-      dateCreated: {
-        // 검색 조건 설명은 링크를 참조해주세요!
-        // https://docs.solapi.com/documents/references/#operator
-        gte: '2022-09-01',
-        lte: '2022-09-30',
-      },
-
-      // 수정일자로 검색
-      dateUpdated: {
-        // 검색 조건 설명은 링크를 참조해주세요!
-        // https://docs.solapi.com/documents/references/#operator
-        gte: '2022-09-01',
-        lte: '2022-09-30',
-      },
+      startDate: '2022-12-01',
+      endDate: '2022-12-09',
     },
   )
   .then(res => console.log(res));
