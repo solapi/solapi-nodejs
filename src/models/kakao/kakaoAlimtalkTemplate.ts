@@ -19,7 +19,7 @@ export type KakaoAlimtalkTemplateMessageType = 'BA' | 'EX' | 'AD' | 'MI';
 
 /**
  * @description 카카오 알림톡 템플릿 강조 유형<br>
- * NONE: 선택안함, TEXT: 강조표기형, IMAGE: 이미지형
+ * NONE: 선택안함, TEXT: 강조표기형, IMAGE: 이미지형, ITEM_LIST: 아이템리스트형
  */
 export type KakaoAlimtalkTemplateEmphasizeType =
   | 'NONE'

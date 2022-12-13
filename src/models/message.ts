@@ -28,7 +28,7 @@ export type MessageType =
   | 'NSA';
 
 export type MessageParameter = {
-  to: string;
+  to: string | Array<string>;
   from?: string;
   text?: string;
   imageId?: string;
@@ -47,7 +47,7 @@ export class Message {
   /**
    * 수신번호
    */
-  to: string;
+  to: string | Array<string>;
 
   /**
    * 발신번호
