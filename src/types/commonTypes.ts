@@ -1,111 +1,107 @@
 export type Count = {
-    total: number,
-    sentTotal: number,
-    sentFailed: number,
-    sentSuccess: number,
-    sentPending: number,
-    sentReplacement: number,
-    refund: number,
-    registeredFailed: number,
-    registeredSuccess: number
-}
+  total: number;
+  sentTotal: number;
+  sentFailed: number;
+  sentSuccess: number;
+  sentPending: number;
+  sentReplacement: number;
+  refund: number;
+  registeredFailed: number;
+  registeredSuccess: number;
+};
 
-type CountryChargeStatus = Record<string, number>
+type CountryChargeStatus = Record<string, number>;
 
 export type CountForCharge = {
-    sms: CountryChargeStatus,
-    lms: CountryChargeStatus,
-    mms: CountryChargeStatus,
-    ata: CountryChargeStatus,
-    cta: CountryChargeStatus,
-    cti: CountryChargeStatus,
-    nsa: CountryChargeStatus,
-    rcs_sms: CountryChargeStatus,
-    rcs_lms: CountryChargeStatus,
-    rcs_mms: CountryChargeStatus,
-    rcs_tpl: CountryChargeStatus
-}
+  sms: CountryChargeStatus;
+  lms: CountryChargeStatus;
+  mms: CountryChargeStatus;
+  ata: CountryChargeStatus;
+  cta: CountryChargeStatus;
+  cti: CountryChargeStatus;
+  nsa: CountryChargeStatus;
+  rcs_sms: CountryChargeStatus;
+  rcs_lms: CountryChargeStatus;
+  rcs_mms: CountryChargeStatus;
+  rcs_tpl: CountryChargeStatus;
+};
 
 export type CommonCashResponse = {
-    requested: number,
-    replacement: number,
-    refund: number,
-    sum: number
-}
+  requested: number;
+  replacement: number;
+  refund: number;
+  sum: number;
+};
 
 export type MessageTypeRecord = {
-    sms: number
-    lms: number
-    mms: number
-    ata: number
-    cta: number
-    cti: number
-    nsa: number
-    rcs_sms: number
-    rcs_lms: number
-    rcs_mms: number
-    rcs_tpl: number
-}
+  sms: number;
+  lms: number;
+  mms: number;
+  ata: number;
+  cta: number;
+  cti: number;
+  nsa: number;
+  rcs_sms: number;
+  rcs_lms: number;
+  rcs_mms: number;
+  rcs_tpl: number;
+};
 
 export type App = {
-    profit: MessageTypeRecord
-    appId: string | null | undefined
-}
+  profit: MessageTypeRecord;
+  appId: string | null | undefined;
+};
 
-export type Log = Array<object>
+export type Log = Array<object>;
 
-export type GroupId = string
+export type GroupId = string;
 
 export type Group = {
-    count: {
-        total: number,
-        sentTotal: number,
-        sentFailed: number,
-        sentSuccess: number,
-        sentPending: number,
-        sentReplacement: number,
-        refund: number,
-        registeredFailed: number,
-        registeredSuccess: number
-    },
-    balance: CommonCashResponse,
-    point: CommonCashResponse,
-    app: App,
-    sdkVersion: string,
-    osPlatform: string,
-    log: Log,
-    status: string,
-    scheduledDate?: string,
-    dateSent?: string,
-    dateCompleted?: string,
-    isRefunded: boolean,
-    groupId: GroupId,
-    accountId: string,
-    countForCharge: CountForCharge,
-    dateCreated: string,
-    dateUpdated: string
-}
-
-
-/**
- * @description 검색 조건 파라미터
- * @see https://docs.solapi.com/api-reference/overview#operator
- */
-export type OperatorType = 'eq' | 'gte' | 'lte' | 'ne' | 'in' | 'like' | 'gt' | 'lt'
+  count: {
+    total: number;
+    sentTotal: number;
+    sentFailed: number;
+    sentSuccess: number;
+    sentPending: number;
+    sentReplacement: number;
+    refund: number;
+    registeredFailed: number;
+    registeredSuccess: number;
+  };
+  balance: CommonCashResponse;
+  point: CommonCashResponse;
+  app: App;
+  sdkVersion: string;
+  osPlatform: string;
+  log: Log;
+  status: string;
+  scheduledDate?: string;
+  dateSent?: string;
+  dateCompleted?: string;
+  isRefunded: boolean;
+  groupId: GroupId;
+  accountId: string;
+  countForCharge: CountForCharge;
+  dateCreated: string;
+  dateUpdated: string;
+};
 
 /**
  * @description 검색 조건 파라미터
  * @see https://docs.solapi.com/api-reference/overview#operator
  */
-export type DateOperatorType = 'eq' | 'gte' | 'lte' | 'gt' | 'lt'
+export type OperatorType =
+  | 'eq'
+  | 'gte'
+  | 'lte'
+  | 'ne'
+  | 'in'
+  | 'like'
+  | 'gt'
+  | 'lt';
 
 /**
- * @description 카카오 알림톡 템플릿 상태<br><br>
- * PENDING - 대기<br><br>
- * INSPECTING - 검수중<br><br>
- * APPROVED - 등록완료(검수완료)<br><br>
- * REJECTED - 반려됨<br><br>
- * DELETED - 삭제됨
+ * @description 검색 조건 파라미터
+ * @see https://docs.solapi.com/api-reference/overview#operator
  */
-export type KakaoAlimtalkTemplateStatus = 'PENDING' | 'INSPECTING' | 'APPROVED' |
-    'REJECTED' | 'DELETED'
+export type DateOperatorType = 'eq' | 'gte' | 'lte' | 'gt' | 'lt';
