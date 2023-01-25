@@ -18,7 +18,7 @@ messageService.getBlacks({
   // 목록
   console.log('#page1', res.blackList);
 
-  // 응답에 nextKeyr가 있을 경우 다음 페이지도 조회 가능
+  // 응답에 nextKey가 있을 경우 다음 페이지도 조회 가능
   messageService.getBlacks({
     startKey: res.nextKey
   }).then(res => {
