@@ -86,6 +86,17 @@ export type Group = {
   dateUpdated: string;
 };
 
+export type HandleKey = string;
+
+export type Black = {
+  handleKey: HandleKey;
+  type: 'DENIAL';
+  senderNumber: string;
+  recipientNumber: string
+  dateCreated: string;
+  dateUpdated: string
+}
+
 /**
  * @description 검색 조건 파라미터
  * @see https://docs.solapi.com/api-reference/overview#operator

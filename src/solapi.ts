@@ -29,6 +29,7 @@ import {
   RequestKakaoChannelTokenResponse,
   SingleMessageSentResponse,
 } from './responses/messageResponses';
+import { GetBlacksResponse } from './responses/getBlacksResponse';
 import {GroupId} from './types/commonTypes';
 import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
@@ -70,6 +71,10 @@ import {
   GetGroupsFinalizeRequest,
   GetGroupsRequest,
 } from './requests/messages/groups/getGroupsRequest';
+import {
+  GetBlacksFinalizeRequest,
+  GetBlacksRequest,
+} from './requests/getBlacksRequest';
 import {
   GetMessagesRequest,
   GetMessagesFinalizeRequest,
@@ -343,7 +348,7 @@ export class SolapiMessageService {
   async getGroups(data?: GetGroupsRequest) {
     let payload: GetGroupsFinalizeRequest = {};
     if (data) {
-      payload = new GetGroupsFinalizeRequest(payload);
+      payload = new GetGroupsFinalizeRequest(data);
     }
     const parameter = qs.stringify(payload, {
       indices: false,
@@ -848,5 +853,30 @@ export class SolapiMessageService {
     >(this.authInfo, requestConfig);
 
     return new KakaoAlimtalkTemplate(response);
+  }
+
+  /**
+   * 080 수신 거부 조회
+   * @param data 080 수신 거부 상세 조회용 request 데이터
+   * @returns GetBlacksResponse
+   */
+  async getBlacks(data?: GetBlacksRequest): Promise<GetBlacksResponse> {
+    let payload: GetBlacksFinalizeRequest = { type: 'DENIAL' };
+    if (data) {
+      payload = new GetBlacksFinalizeRequest(data);
+    }
+    const parameter = qs.stringify(payload, {
+      indices: false,
+      addQueryPrefix: true,
+    });
+    const endpoint = `${this.baseUrl}/iam/v1/black${parameter}`;
+    const requestConfig: RequestConfig = {
+      method: 'GET',
+      url: endpoint,
+    };
+    return defaultFetcher<never, GetBlacksResponse>(
+      this.authInfo,
+      requestConfig,
+    );
   }
 }
