@@ -97,10 +97,8 @@ export type Black = {
   dateUpdated: string
 }
 
-export type BlockGroupId = string;
-
 export type BlockGroup = {
-  blockGroupId: BlockGroupId;
+  blockGroupId: string;
   accountId: string;
   status: 'INACTIVE' | 'ACTIVE';
   name: string;
@@ -109,6 +107,16 @@ export type BlockGroup = {
   dateCreated: string;
   dateUpdated: string;
 }
+
+export type BlockNumber = {
+  blockNumberId: string;
+  accountId: string;
+  memo: string;
+  phoneNumber: string;
+  blockGroupIds: string[];
+  dateCreated: string;
+  dateUpdated: string;
+};
 
 /**
  * @description 검색 조건 파라미터

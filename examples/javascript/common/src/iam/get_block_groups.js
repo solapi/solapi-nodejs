@@ -9,7 +9,10 @@ const messageService = new SolapiMessageService(
 
 messageService.getBlockGroups({
   // 해당 그룹이 켜져있는지 아닌지 확인하고 싶을 경우
-  // status: 'ACTIVE' // 'ACTIVE' 혹은 'INACTIVE'
+  // status: 'ACTIVE' // 'ACTIVE' 혹은 'INACTIVE',
+
+  // 해당 그룹의 대한 이름을 검색해보고 싶을 경우
+  // name: '070번호그룹' (부분 검색 가능)
 }).then(res => {
   // 목록
   console.log('#page1', res.blockGroups);
