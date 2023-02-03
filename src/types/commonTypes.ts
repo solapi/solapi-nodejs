@@ -97,6 +97,19 @@ export type Black = {
   dateUpdated: string
 }
 
+export type BlockGroupId = string;
+
+export type BlockGroup = {
+  blockGroupId: BlockGroupId;
+  accountId: string;
+  status: 'INACTIVE' | 'ACTIVE';
+  name: string;
+  useAll: boolean;
+  senderNumbers: string[]
+  dateCreated: string;
+  dateUpdated: string;
+}
+
 /**
  * @description 검색 조건 파라미터
  * @see https://docs.solapi.com/api-reference/overview#operator
