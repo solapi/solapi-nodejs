@@ -1,10 +1,22 @@
-import {formatWithTransfer} from '../lib/stringDateTrasnfer';
-import { DatePayloadType } from './messageRequest';
+import {formatWithTransfer} from '../../lib/stringDateTrasnfer';
+import { DatePayloadType } from '../messageRequest';
 
 export interface GetBlacksRequest {
+  /**
+   * @description 080 수신거부를 요청한 수신번호
+   */
   senderNumber?: string;
+
+  /**
+   * @description 페이지네이션 조회 키
+  */
   startKey?: string;
+
+  /**
+   * @description 조회 시 제한할 건 수 (기본: 20, 최대: 500)
+   */
   limit?: number;
+
   /**
  * @description 조회할 시작 날짜
  */
