@@ -38,6 +38,7 @@ export type MessageParameter = {
   kakaoOptions?: kakaoOptionRequest;
   country?: string;
   customFields?: Record<string, string>;
+  replacements?: Array<object>;
 };
 
 /**
@@ -113,6 +114,7 @@ export class Message {
    * 메시지 로그
    */
   log?: Array<object>;
+  replacements?: Array<object>;
 
   /**
    * 메시지 상태 코드
@@ -139,5 +141,6 @@ export class Message {
       this.kakaoOptions = new KakaoOption(parameter.kakaoOptions);
     }
     this.customFields = parameter.customFields;
+    this.replacements = parameter.replacements;
   }
 }
