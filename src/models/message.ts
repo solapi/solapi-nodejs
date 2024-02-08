@@ -1,4 +1,5 @@
 import {KakaoOption, kakaoOptionRequest} from './kakao/kakaoOption';
+import {RcsOption, RcsOptionRequest} from './rcs/rcsOption';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
@@ -36,6 +37,7 @@ export type MessageParameter = {
   subject?: string;
   autoTypeDetect?: boolean;
   kakaoOptions?: kakaoOptionRequest;
+  rcsOptions?: RcsOptionRequest;
   country?: string;
   customFields?: Record<string, string>;
   replacements?: Array<object>;
@@ -106,6 +108,11 @@ export class Message {
   kakaoOptions?: KakaoOption;
 
   /**
+   * RCS 메시지를 위한 프로퍼티
+   */
+  rcsOptions?: RcsOption;
+
+  /**
    * 해외 문자 발송을 위한 국가번호(예) "82", "1" 등)
    */
   country?: string;
@@ -140,7 +147,11 @@ export class Message {
     if (parameter.kakaoOptions != undefined) {
       this.kakaoOptions = new KakaoOption(parameter.kakaoOptions);
     }
+    if (parameter.rcsOptions != undefined) {
+      this.rcsOptions = new RcsOption(parameter.rcsOptions);
+    }
     this.customFields = parameter.customFields;
     this.replacements = parameter.replacements;
   }
 }
+
