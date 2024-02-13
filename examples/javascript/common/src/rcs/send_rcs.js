@@ -130,3 +130,29 @@ messageService
     },
   )
   .then(res => console.log(res));
+
+// RCS 발송 실패 시 일반 문자로 대체 발송하는 예제
+messageService
+  .send({
+    to: '수신번호',
+    from: '계정에서 등록한 RCS용 발신번호 입력',
+    text: '한글 45자, 영자 90자 이하 입력되면 자동으로 SMS타입의 메시지가 발송됩니다.',
+    rcsOptions: {
+      brandId: 'RCS 브랜드의 아이디',
+      buttons: [
+        {
+          buttonType: 'WL',
+          buttonName: '웹링크 버튼',
+          link: 'https://으로 시작하는 웹링크 주소',
+        }
+      ],
+    },
+    replacements: [
+      {
+        to: '수신번호',
+        from: '계정에서 등록한 발신번호 입력',
+        text: 'RCS 발송 실패 시 대체 발송될 문자 내용',
+      },
+    ],
+  })
+  .then(res => console.log(res));
