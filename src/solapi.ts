@@ -261,6 +261,7 @@ export class SolapiMessageService {
   async createGroup(
     allowDuplicates?: boolean,
     appId?: string,
+    customFields?: Record<string, string>,
   ): Promise<GroupId> {
     allowDuplicates = allowDuplicates ?? false;
     const {sdkVersion, osPlatform} = defaultAgent;
@@ -276,6 +277,7 @@ export class SolapiMessageService {
         osPlatform,
         allowDuplicates,
         appId,
+        customFields,
       },
     ).then(res => res.groupId);
   }

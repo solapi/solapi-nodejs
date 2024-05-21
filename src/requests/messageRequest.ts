@@ -126,6 +126,7 @@ export type FileUploadRequest = {
 export type CreateGroupRequest = DefaultAgentType & {
   allowDuplicates: boolean;
   appId?: string;
+  customFields?: Record<string, string>;
 };
 
 /**
