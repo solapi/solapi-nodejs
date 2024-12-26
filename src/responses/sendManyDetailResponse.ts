@@ -42,5 +42,5 @@ export type DetailGroupMessageResponse = {
   /**
    * Send 메소드 호출 당시 showMessageList 값이 true로 되어있을 때 표시되는 메시지 목록
    */
-  messageList?: MessageResponseItem[];
+  messageList?: Array<MessageResponseItem>;
 };
