@@ -18,7 +18,7 @@ export type FailedMessage = {
 /**
  * @description send 메소드 호출 당시에 showMessageList 값을 true로 넣어서 요청했을 경우 반환되는 응답 데이터
  */
-export type MessageListResponse = {
+export type MessageResponseItem = {
   messageId: string;
   statusCode: string;
   customFields?: Record<string, string>;
@@ -42,5 +42,5 @@ export type DetailGroupMessageResponse = {
   /**
    * Send 메소드 호출 당시 showMessageList 값이 true로 되어있을 때 표시되는 메시지 목록
    */
-  messageList?: MessageListResponse;
+  messageList?: Array<MessageResponseItem>;
 };
