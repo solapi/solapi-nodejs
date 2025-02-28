@@ -115,7 +115,11 @@ export type RequestConfig = {
   url: string;
 };
 
-export type FileType = 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS';
+export type FileIds = {
+  fileIds: Array<string>;
+};
+
+export type FileType = 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS' | 'FAX';
 
 export type FileUploadRequest = {
   file: string;
