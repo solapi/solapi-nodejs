@@ -8,7 +8,8 @@ export type DefaultAgentType = {
   appId?: string;
 };
 
-const sdkVersion = 'nodejs/5.2.0';
+// NOTE: Need to update when publish library.
+const sdkVersion = 'nodejs/5.4.0-beta.0';
 
 export const defaultAgent: DefaultAgentType = {
   sdkVersion,
@@ -114,7 +115,11 @@ export type RequestConfig = {
   url: string;
 };
 
-export type FileType = 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS';
+export type FileIds = {
+  fileIds: Array<string>;
+};
+
+export type FileType = 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS' | 'FAX';
 
 export type FileUploadRequest = {
   file: string;
