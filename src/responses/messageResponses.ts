@@ -53,7 +53,7 @@ export type AddMessageResult = {
   statusCode: string;
   statusMessage: string;
   accountId: string;
-  customFields?: Record<string, unknown>;
+  customFields?: Record<string, string>;
 };
 
 export type AddMessageResponse = {
