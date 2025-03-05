@@ -1,4 +1,4 @@
-import {Message, MessageParameter} from './models/message';
+import {Message} from './models/message';
 import {
   CreateGroupRequest,
   CreateKakaoChannelRequest,
@@ -8,6 +8,7 @@ import {
   FileUploadRequest,
   GetGroupMessagesRequest,
   GroupMessageAddRequest,
+  MessageParameter,
   MultipleDetailMessageSendingRequest,
   RemoveMessageIdsToGroupRequest,
   RequestConfig,
@@ -121,7 +122,8 @@ export class SolapiMessageService {
    * 한번의 요청으로 최대 10,000건까지 발송할 수 있습니다.
    * @param messages 발송 요청할 메시지 파라미터(문자, 알림톡 등)
    * @param requestConfigParameter request시 필요한 파라미터 오브젝트
-   * @throws MessageNotReceivedError
+   * @throws MessageNotReceivedError 모든 메시지 접수건이 실패건으로 진행되는 경우 반환되는 에러
+   * @throws BadRequestError 잘못된 파라미터를 기입했거나, 데이터가 아예 없는 경우 반환되는 에러
    */
   async send(
     messages: MessageParameter | Array<MessageParameter>,

@@ -1,6 +1,6 @@
-import {KakaoOption, kakaoOptionRequest} from './kakao/kakaoOption';
-import {RcsOption, RcsOptionRequest} from './rcs/rcsOption';
-import {FileIds} from '../requests/messageRequest';
+import {KakaoOption} from './kakao/kakaoOption';
+import {RcsOption} from './rcs/rcsOption';
+import {FileIds, MessageParameter} from '../requests/messageRequest';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
@@ -36,22 +36,6 @@ export type MessageType =
   | 'RCS_LTPL'
   | 'FAX'
   | 'VOICE';
-
-export type MessageParameter = {
-  to: string | Array<string>;
-  from?: string;
-  text?: string;
-  imageId?: string;
-  type?: MessageType;
-  subject?: string;
-  autoTypeDetect?: boolean;
-  kakaoOptions?: kakaoOptionRequest;
-  rcsOptions?: RcsOptionRequest;
-  country?: string;
-  customFields?: Record<string, string>;
-  replacements?: Array<object>;
-  faxOptions?: FileIds;
-};
 
 /**
  * 메시지 모델, 전체적인 메시지 발송을 위한 파라미터는 이 Message 모델에서 관장함
