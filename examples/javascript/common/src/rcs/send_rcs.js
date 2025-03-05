@@ -21,16 +21,15 @@ messageService
           buttonType: 'WL',
           buttonName: '웹링크 버튼',
           link: 'https://으로 시작하는 웹링크 주소',
-        }
+        },
       ],
     },
   })
   .then(res => console.log(res));
 
 // 단일 예약발송 예제, send 메소드로도 동일하게 사용가능
-// 예약발송 시 현재 시간보다 과거의 시간을 입력할 경우 즉시 발송됩니다.
 messageService
-  .sendOneFuture(
+  .send(
     {
       to: '수신번호',
       from: '계정에서 등록한 RCS용 발신번호 입력',
@@ -42,7 +41,7 @@ messageService
             buttonType: 'WL',
             buttonName: '웹링크 버튼',
             link: 'https://으로 시작하는 웹링크 주소',
-          }
+          },
         ],
       },
     },
@@ -64,7 +63,7 @@ messageService
             buttonType: 'WL',
             buttonName: '웹링크 버튼',
             link: 'https://으로 시작하는 웹링크 주소',
-          }
+          },
         ],
       },
     },
@@ -79,7 +78,7 @@ messageService
             buttonType: 'WL',
             buttonName: '웹링크 버튼',
             link: 'https://으로 시작하는 웹링크 주소',
-          }
+          },
         ],
       },
     },
@@ -103,7 +102,7 @@ messageService
               buttonType: 'WL',
               buttonName: '웹링크 버튼',
               link: 'https://으로 시작하는 웹링크 주소',
-            }
+            },
           ],
         },
       },
@@ -118,7 +117,7 @@ messageService
               buttonType: 'WL',
               buttonName: '웹링크 버튼',
               link: 'https://으로 시작하는 웹링크 주소',
-            }
+            },
           ],
         },
       },
@@ -144,7 +143,7 @@ messageService
           buttonType: 'WL',
           buttonName: '웹링크 버튼',
           link: 'https://으로 시작하는 웹링크 주소',
-        }
+        },
       ],
     },
     replacements: [
