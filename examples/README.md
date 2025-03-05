@@ -40,5 +40,9 @@ node ${실행 할 자바스크립트 파일}
 ## 기타
 
 ```text
+./nextjs/* Next.js + SOLAPI SDK 연동 예제(UI)
+```
+
+```text
 ./javascript/webhooks/index.js 웹훅 그룹 리포트 예제
 ```
