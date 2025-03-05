@@ -10,7 +10,7 @@ const messageService = new SolapiMessageService(
 
 // 단일 발송 예제, send 메소드로도 동일하게 사용가능
 messageService
-  .sendOne({
+  .send({
     to: '수신번호',
     from: '계정에서 등록한 발신번호 입력',
     text: '한글 45자, 영자 90자 이하 입력되면 자동으로 SMS타입의 메시지가 발송됩니다.',

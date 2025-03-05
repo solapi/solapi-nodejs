@@ -4,11 +4,11 @@
   "description": "Common Examples for SOLAPI",
   "keywords": [],
   "author": {
-    "name": "Nurigo Team",
-    "email": "contact@nurigo.net"
+    "name": "SOLAPI Team",
+    "email": "contact@solapi.com"
   },
   "license": "ISC",
   "dependencies": {
-    "solapi": "^5.2.0"
+    "solapi": "latest"
   }
 }
