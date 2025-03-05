@@ -1,6 +1,8 @@
-import {Message} from '../models/message';
+import {Message, MessageType} from '../models/message';
 import {DateOperatorType} from '../types/commonTypes';
 import {formatWithTransfer} from '../lib/stringDateTrasnfer';
+import {kakaoOptionRequest} from './kakao/kakaoOptionRequest';
+import {RcsOptionRequest} from '../models/rcs/rcsOption';
 
 export type DefaultAgentType = {
   sdkVersion: string;
@@ -8,7 +10,8 @@ export type DefaultAgentType = {
   appId?: string;
 };
 
-const sdkVersion = 'nodejs/5.2.0';
+// NOTE: Need to update when publish library.
+const sdkVersion = 'nodejs/5.4.0-beta.0';
 
 export const defaultAgent: DefaultAgentType = {
   sdkVersion,
@@ -24,6 +27,22 @@ abstract class DefaultMessageRequest {
     this.allowDuplicates = false;
   }
 }
+
+export type MessageParameter = {
+  to: string | Array<string>;
+  from?: string;
+  text?: string;
+  imageId?: string;
+  type?: MessageType;
+  subject?: string;
+  autoTypeDetect?: boolean;
+  kakaoOptions?: kakaoOptionRequest;
+  rcsOptions?: RcsOptionRequest;
+  country?: string;
+  customFields?: Record<string, string>;
+  replacements?: Array<object>;
+  faxOptions?: FileIds;
+};
 
 export class SingleMessageSendingRequest extends DefaultMessageRequest {
   message: Message;
@@ -114,7 +133,11 @@ export type RequestConfig = {
   url: string;
 };
 
-export type FileType = 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS';
+export type FileIds = {
+  fileIds: Array<string>;
+};
+
+export type FileType = 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS' | 'FAX';
 
 export type FileUploadRequest = {
   file: string;

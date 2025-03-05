@@ -1,5 +1,6 @@
-import {KakaoOption, kakaoOptionRequest} from './kakao/kakaoOption';
-import {RcsOption, RcsOptionRequest} from './rcs/rcsOption';
+import {KakaoOption} from './kakao/kakaoOption';
+import {RcsOption} from './rcs/rcsOption';
+import {FileIds, MessageParameter} from '../requests/messageRequest';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
@@ -9,11 +10,15 @@ import {RcsOption, RcsOptionRequest} from './rcs/rcsOption';
  * ATA: 알림톡
  * CTA: 친구톡
  * CTI: 사진 한장이 포함된 친구톡
+ * NSA: 네이버 스마트알림(톡톡)
  * RCS_SMS: RCS 단문 문자
  * RCS_LMS: RCS 장문 문자
  * RCS_MMS: RCS 사진 문자
  * RCS_TPL: RCS 템플릿
- * NSA: 네이버 스마트알림(톡톡)
+ * RCS_ITPL: RCS 이미지 템플릿
+ * RCS_LTPL: RCS LMS 템플릿 문자
+ * FAX: 팩스
+ * VOICE: 음성문자(TTS)
  */
 export type MessageType =
   | 'SMS'
@@ -22,26 +27,15 @@ export type MessageType =
   | 'ATA'
   | 'CTA'
   | 'CTI'
+  | 'NSA'
   | 'RCS_SMS'
   | 'RCS_LMS'
   | 'RCS_MMS'
   | 'RCS_TPL'
-  | 'NSA';
-
-export type MessageParameter = {
-  to: string | Array<string>;
-  from?: string;
-  text?: string;
-  imageId?: string;
-  type?: MessageType;
-  subject?: string;
-  autoTypeDetect?: boolean;
-  kakaoOptions?: kakaoOptionRequest;
-  rcsOptions?: RcsOptionRequest;
-  country?: string;
-  customFields?: Record<string, string>;
-  replacements?: Array<object>;
-};
+  | 'RCS_ITPL'
+  | 'RCS_LTPL'
+  | 'FAX'
+  | 'VOICE';
 
 /**
  * 메시지 모델, 전체적인 메시지 발송을 위한 파라미터는 이 Message 모델에서 관장함
@@ -135,6 +129,8 @@ export class Message {
    */
   customFields?: Record<string, string>;
 
+  faxOptions?: FileIds;
+
   constructor(parameter: MessageParameter) {
     this.to = parameter.to;
     this.from = parameter.from;
@@ -152,6 +148,6 @@ export class Message {
     }
     this.customFields = parameter.customFields;
     this.replacements = parameter.replacements;
+    this.faxOptions = parameter.faxOptions;
   }
 }
-

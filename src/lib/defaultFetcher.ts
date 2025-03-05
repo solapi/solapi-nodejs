@@ -1,5 +1,4 @@
 import getAuthInfo, {AuthenticationParameter} from './authenticator';
-import fetch from 'cross-fetch';
 import {DefaultError, ErrorResponse} from '../errors/defaultError';
 
 type DefaultRequest = {
@@ -36,11 +35,12 @@ export default async function defaultFetcher<T, R>(
       );
     } else if (res.status >= 500) {
       const responseText = await res.text();
-      throw new DefaultError('UnknownException', responseText);
+      throw new DefaultError('UnknownError', responseText);
     }
     try {
       return res.json();
     } catch (exception) {
+      console.error(exception);
       throw new Error(await res.text());
     }
   });
