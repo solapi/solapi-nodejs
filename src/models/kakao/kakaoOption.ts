@@ -1,14 +1,5 @@
 import {KakaoButton} from './kakaoButton';
-
-export type kakaoOptionRequest = {
-  pfId: string;
-  templateId?: string;
-  variables?: Record<string, string>;
-  disableSms?: boolean;
-  adFlag?: boolean;
-  buttons?: Array<KakaoButton>;
-  imageId?: string;
-};
+import {kakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
 
 export class KakaoOption {
   pfId: string;
