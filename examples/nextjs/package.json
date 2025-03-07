@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "@next/env": "^15.2.1",
-    "next": "15.2.1",
+    "jotai": "^2.12.1",
+    "motion": "^12.4.10",
+    "next": "^15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "solapi": "latest"
+    "solapi": "^5",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
