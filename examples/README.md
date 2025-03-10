@@ -43,7 +43,7 @@ node ${실행 할 자바스크립트 파일}
 ./nextjs/* Next.js + SOLAPI SDK 연동 예제(UI)
 
 # Next.js 예제만 확인해보고 싶다면 아래의 명령어를 입력해주세요!(npm 설치 필수)
-npx degit solapi/solapi-nodejs/examples/nextjs#main sdk-test-app
+npx degit solapi/solapi-nodejs/examples/nextjs sdk-test-app
 ```
 
 ```text
