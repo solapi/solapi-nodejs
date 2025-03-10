@@ -11,7 +11,7 @@ export type DefaultAgentType = {
 };
 
 // NOTE: Need to update when publish library.
-const sdkVersion = 'nodejs/5.4.0-beta.0';
+const sdkVersion = 'nodejs/5.4.0';
 
 export const defaultAgent: DefaultAgentType = {
   sdkVersion,
