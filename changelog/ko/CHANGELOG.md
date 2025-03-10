@@ -1,3 +1,36 @@
+# 5.4.0 (2025년 3월 10일)
+
+## 변경사항
+* crypto-js, nanoid, cross-fetch 의존성을 제거했습니다!
+* eslint 버전을 8에서 9버전으로 마이그레이션 했습니다!
+* yarn 버전을 3.2.3에서 4.6.0으로 업그레이드 했습니다!
+* 이제 index.mjs로 ES Module을 지원합니다!
+* fax 발송을 위한 faxOptions 프로퍼티를 Message 모델에 추가했습니다!
+* SDK 번들 방식이 sourceMap을 사용하고 js inline optimize를 진행하도록 변경했습니다!
+
+## 중요 안내사항
+* SOLAPI Node.js SDK는 5.4.0 버전 이상부터 Node.js 18이상의 버전만 호환합니다, 그 아래의 Node.js 버전을 사용하신다면 5.3.1 버전의 SDK를 사용해주세요!!
+* sendMany, sendManyFuture 메소드를 제거했습니다. 5.4.0 버전 부터는 send 메소드로 대체하여 사용해주세요!!
+* sendOneFuture 메소드를 decpreated로 전환했습니다. 해당 메소드는 5.5.0에 삭제될 예정입니다, send 메소드로 대체하여 사용해주세요!!
+
+### 번외
+* Next.js를 이용하여 UI를 통해 SMS/카카오 알림톡 발송을 확인해볼 수 있는 예제를 추가했습니다!  
+[예제 바로가기](https://github.com/solapi/solapi-nodejs/tree/master/examples/nextjs)
+
+**전체 변경사항**: https://github.com/solapi/solapi-nodejs/compare/v5.3.1...v5.4.0
+
+# 5.3.1 (2024년 5월 21일)
+
+- RCS 발송 실패 시 일반 문자 대체 발송 예제 추가
+
+# 5.3.0 (2024년 2월 8일)
+
+- RCS 메시지 발송 및 예제 추가
+
+# 5.2.4 (2023년 8월 29일)
+
+- 알림톡, 친구톡 발송시 대체발송 기능 추가
+
 # 5.2.3 (2023년 8월 29일)
 
 - 알림톡, 친구톡 발송시 대체발송 기능 추가
