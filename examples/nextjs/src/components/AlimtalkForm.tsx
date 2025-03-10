@@ -62,7 +62,7 @@ export default function AlimtalkForm() {
       let tempContent: string;
       tempContent = `${template.content} ${template.emphasizeTitle} ${template.emphasizeSubtitle}`;
       template.buttons?.forEach(btn => {
-        tempContent += `${btn.linkAnd} ${btn.linkIos} ${btn.linkMo} ${btn.linkPc}`;
+        tempContent += ` ${btn.linkAnd} ${btn.linkIos} ${btn.linkMo} ${btn.linkPc}`;
       });
 
       const parsedContent = getKakaoTemplateVariables(tempContent);
