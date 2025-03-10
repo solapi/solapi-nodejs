@@ -13,7 +13,7 @@ import {
 import {extractVariablesFields, formDataToObject} from '@/lib/formData';
 
 // 주의!! 실제 발송 연동시에는 오로지 서버에서 api key를 관리해서 MessageService를 호출 하도록 해주세요.
-// 본인의 Api Key가 유출되어 발생하는 피해는 오로지 개인에게 있습니다!
+// 본인의 부주의로 인해 Api Key가 유출되어 발생하는 피해는 오로지 개인에게 있습니다!
 export async function getApiKeys(): Promise<Array<string | undefined>> {
   return [process.env.SOLAPI_API_KEY, process.env.SOLAPI_API_SECRET];
 }
@@ -31,7 +31,7 @@ export async function sendMessage(formData: FormData) {
     messageFormSchema.parse(rawFormData);
 
   // 주의!! 실제 발송 연동시에는 오로지 서버에서 api key를 관리해서 MessageService를 호출 하도록 해주세요.
-  // 본인의 Api Key가 유출되어 발생하는 피해는 오로지 개인에게 있습니다!
+  // 본인의 부주의로 인해 Api Key가 유출되어 발생하는 피해는 오로지 개인에게 있습니다!
   const messageService = new SolapiMessageService(apiKey, apiSecret);
   await messageService.send({from, to, text}).then(console.log);
 
@@ -74,6 +74,8 @@ export async function sendAlimtalk(formData: FormData) {
 
   const variables = extractVariablesFields(data);
 
+  // 주의!! 실제 발송 연동시에는 오로지 서버에서 api key를 관리해서 MessageService를 호출 하도록 해주세요.
+  // 본인의 부주의로 인해 Api Key가 유출되어 발생하는 피해는 오로지 개인에게 있습니다!
   const messageService = new SolapiMessageService(data.apiKey, data.apiSecret);
   await messageService
     .send({
