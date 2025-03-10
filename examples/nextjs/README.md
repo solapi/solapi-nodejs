@@ -40,5 +40,5 @@ bun dev
 ```
 ## 주의사항
 
-* 반드시 .env 파일에 등록 및 활성화하신 API Key, API Secret Key를 설정하셔야 합니다!
+* 반드시 .env 파일에 등록 및 활성화하신 API Key, API Secret Key를 설정하셔야 합니다! 설정하지 않을 경우 실제 실행 시 표시되는 apiKey, apiSecret 폼을 입력하여 테스트해보실 수 있습니다.
 * 본 예제는 Node.js 18.18 버전 이상을 호환하는 [Next.js 15.2.1](https://nextjs.org/docs/app/getting-started/installation) 버전으로 만들어졌습니다. 반드시 Node.js 18.18 이상의 버전으로 진행해주세요!  
