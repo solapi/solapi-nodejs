@@ -59,15 +59,14 @@ export default function AlimtalkForm() {
 
   useEffect(() => {
     if (template != null) {
-      setVariables(
-        getKakaoTemplateVariables(
-          template.content +
-            ' ' +
-            template.emphasizeTitle +
-            ' ' +
-            template.emphasizeSubtitle,
-        ),
-      );
+      let tempContent: string;
+      tempContent = `${template.content} ${template.emphasizeTitle} ${template.emphasizeSubtitle}`;
+      template.buttons?.forEach(btn => {
+        tempContent += `${btn.linkAnd} ${btn.linkIos} ${btn.linkMo} ${btn.linkPc}`;
+      });
+
+      const parsedContent = getKakaoTemplateVariables(tempContent);
+      setVariables(parsedContent);
     }
   }, [template]);
 
@@ -169,6 +168,43 @@ export default function AlimtalkForm() {
       {variables.length > 0 && (
         <>
           <h3 className="text-2xl">템플릿에 등록된 치환문구 목록</h3>
+          <p className="">
+            <b className="font-extrabold text-2xl"># 주의사항 #</b>
+            <br />
+            등록된 템플릿의 변수 중 링크를 변수화 시켰다면, 템플릿 내용을
+            확인해주세요.
+            <br />
+            http:// 나 https:// 를 변수의 앞에 미리 입력해두었다면, 실제
+            치환문구 입력시에는 http:// 혹은 https:// 는 제거되어야 합니다!
+          </p>
+          <div>
+            <h4 className="mb-2 text-xl font-bold">
+              템플릿 치환문구 확인용 내용
+            </h4>
+            <ul>
+              {template?.emphasizeTitle && template.emphasizeTitle != '' && (
+                <li>강조표기 제목: {template?.emphasizeTitle}</li>
+              )}
+              {template?.emphasizeSubtitle &&
+                template.emphasizeSubtitle != '' && (
+                  <li>강조표기 부제목: {template?.emphasizeSubtitle}</li>
+                )}
+              <li>템플릿 내용: {template?.content}</li>
+              {template?.buttons?.map((btn, idx) => (
+                <div key={idx}>
+                  <h4 className="text-lg font-bold mt-1.5">
+                    {btn.buttonName} 버튼의 링크 목록:
+                  </h4>
+                  <ul>
+                    {btn.linkMo && <li>모바일 링크: {btn.linkMo}</li>}
+                    {btn.linkPc && <li>PC 링크: {btn.linkPc}</li>}
+                    {btn.linkAnd && <li>{btn.linkAnd}</li>}
+                    {btn.linkIos && <li>{btn.linkIos}</li>}
+                  </ul>
+                </div>
+              ))}
+            </ul>
+          </div>
           {variables.map((variable, key) => (
             <div className="w-full" key={key}>
               <div>
