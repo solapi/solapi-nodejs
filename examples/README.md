@@ -40,5 +40,12 @@ node ${실행 할 자바스크립트 파일}
 ## 기타
 
 ```text
+./nextjs/* Next.js + SOLAPI SDK 연동 예제(UI)
+
+# Next.js 예제만 확인해보고 싶다면 아래의 명령어를 입력해주세요!(npm 설치 필수)
+npx degit solapi/solapi-nodejs/examples/nextjs#main sdk-test-app
+```
+
+```text
 ./javascript/webhooks/index.js 웹훅 그룹 리포트 예제
 ```

@@ -1,4 +1,4 @@
-import {Message, MessageParameter} from './models/message';
+import {Message} from './models/message';
 import {
   CreateGroupRequest,
   CreateKakaoChannelRequest,
@@ -8,8 +8,8 @@ import {
   FileUploadRequest,
   GetGroupMessagesRequest,
   GroupMessageAddRequest,
+  MessageParameter,
   MultipleDetailMessageSendingRequest,
-  MultipleMessageSendingRequest,
   RemoveMessageIdsToGroupRequest,
   RequestConfig,
   ScheduledDateSendingRequest,
@@ -29,9 +29,9 @@ import {
   RequestKakaoChannelTokenResponse,
   SingleMessageSentResponse,
 } from './responses/messageResponses';
-import { GetBlacksResponse } from './responses/iam/getBlacksResponse';
-import { GetBlockGroupsResponse } from './responses/iam/getBlockGroupsResponse';
-import { GetBlockNumbersResponse } from './responses/iam/getBlockNumbersResponse';
+import {GetBlacksResponse} from './responses/iam/getBlacksResponse';
+import {GetBlockGroupsResponse} from './responses/iam/getBlockGroupsResponse';
+import {GetBlockNumbersResponse} from './responses/iam/getBlockNumbersResponse';
 import {GroupId} from './types/commonTypes';
 import {formatISO} from 'date-fns';
 import ImageToBase64 from 'image-to-base64';
@@ -79,11 +79,11 @@ import {
 } from './requests/iam/getBlacksRequest';
 import {
   GetBlockGroupsFinalizeRequest,
-  GetBlockGroupsRequest
+  GetBlockGroupsRequest,
 } from './requests/iam/getBlockGroupsRequest';
 import {
   GetBlockNumbersFinalizeRequest,
-  GetBlockNumbersRequest
+  GetBlockNumbersRequest,
 } from './requests/iam/getBlockNumbersRequest';
 import {
   GetMessagesRequest,
@@ -101,6 +101,7 @@ export * from './errors/defaultError';
  * 발송 및 조회 등 SOLAPI에서 제공되는 여러 API의 기능을 쉽게 사용할 수 있습니다.
  * SOLAPI 자체의 서비스에 관한 사항은 SOLAPI 홈페이지를 참고해주세요.
  * @see https://solapi.github.io/solapi-nodejs
+ * @see https://developers.solapi.com/category/nodejs
  */
 export class SolapiMessageService {
   private readonly baseUrl = 'https://api.solapi.com';
@@ -117,11 +118,12 @@ export class SolapiMessageService {
   }
 
   /**
-   * 메시지 발송 기능, sendMany 함수에서 조금 더 개선된 오류 표시 기능등을 제공합니다.
+   * 메시지 발송 기능, sendMany 함수보다 개선된 오류 표시 기능등을 제공합니다.
    * 한번의 요청으로 최대 10,000건까지 발송할 수 있습니다.
    * @param messages 발송 요청할 메시지 파라미터(문자, 알림톡 등)
    * @param requestConfigParameter request시 필요한 파라미터 오브젝트
-   * @throws MessageNotReceivedError
+   * @throws MessageNotReceivedError 모든 메시지 접수건이 실패건으로 진행되는 경우 반환되는 에러
+   * @throws BadRequestError 잘못된 파라미터를 기입했거나, 데이터가 아예 없는 경우 반환되는 에러
    */
   async send(
     messages: MessageParameter | Array<MessageParameter>,
@@ -192,6 +194,7 @@ export class SolapiMessageService {
 
   /**
    * 단일 메시지 예약 발송 기능
+   * @deprecated 해당 함수는 더이상 지원하지 않습니다, send 메소드를 사용하세요!
    * @param message 메시지(문자, 알림톡 등)
    * @param scheduledDate 예약일시
    */
@@ -206,57 +209,10 @@ export class SolapiMessageService {
   }
 
   /**
-   * @deprecated 이 기능은 더이상 사용되지 않습니다. send 메소드를 이용하세요!
-   * 여러 메시지 즉시 발송 기능
-   * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
-   * @param messages 여러 메시지(문자, 알림톡 등)
-   * @param allowDuplicates 중복 수신번호 허용
-   * @param appId appstore용 app id
-   */
-  async sendMany(
-    messages: Array<Message>,
-    allowDuplicates = false,
-    appId?: string,
-  ): Promise<GroupMessageResponse> {
-    const parameter = new MultipleMessageSendingRequest(
-      messages,
-      allowDuplicates,
-      appId,
-    );
-    const requestConfig: RequestConfig = {
-      method: 'POST',
-      url: `${this.baseUrl}/messages/v4/send-many`,
-    };
-    return defaultFetcher<MultipleMessageSendingRequest, GroupMessageResponse>(
-      this.authInfo,
-      requestConfig,
-      parameter,
-    );
-  }
-
-  /**
-   * @deprecated 이 기능은 더이상 사용되지 않습니다. send 메소드를 이용하세요!
-   * 여러 메시지 예약 발송 기능
-   * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
-   * @param messages 여러 메시지(문자, 알림톡 등)
-   * @param scheduledDate 예약 발송 일자
-   * @param allowDuplicates 중복 수신번호 허용
-   * @param appId appstore용 app id
-   */
-  async sendManyFuture(
-    messages: Array<Message>,
-    scheduledDate: string | Date,
-    allowDuplicates = false,
-    appId?: string,
-  ): Promise<GroupMessageResponse> {
-    const groupId = await this.createGroup(allowDuplicates, appId);
-    await this.addMessagesToGroup(groupId, messages);
-    scheduledDate = stringDateTransfer(scheduledDate);
-    return this.reserveGroup(groupId, scheduledDate);
-  }
-
-  /**
    * 그룹 생성
+   * @param allowDuplicates 생성할 그룹이 중복 수신번호를 허용하는지 여부를 확인합니다.
+   * @param appId 생성할 그룹에 특정 appId를 넣을 수 있습니다.
+   * @param customFields 생성할 그룹에 사용자 정의 데이터를 Record 형태로 삽입할 수 있습니다.
    */
   async createGroup(
     allowDuplicates?: boolean,
@@ -285,6 +241,7 @@ export class SolapiMessageService {
   /**
    * 그룹 메시지 추가
    * 한번 요청으로 최대 10,000건의 메시지를 추가할 수 있습니다.
+   * 추가 가능한 최대 메시지 건 수는 1,000,000건 입니다.
    * @param groupId 생성 된 Group ID
    * @param messages 여러 메시지(문자, 알림톡 등)
    */
@@ -873,7 +830,7 @@ export class SolapiMessageService {
    * @returns GetBlacksResponse
    */
   async getBlacks(data?: GetBlacksRequest): Promise<GetBlacksResponse> {
-    let payload: GetBlacksFinalizeRequest = { type: 'DENIAL' };
+    let payload: GetBlacksFinalizeRequest = {type: 'DENIAL'};
     if (data) {
       payload = new GetBlacksFinalizeRequest(data);
     }
@@ -897,8 +854,10 @@ export class SolapiMessageService {
    * @param data 수신 거부 그룹 조회용 request 데이터
    * @returns GetBlockGroupsResponse
    */
-  async getBlockGroups(data?: GetBlockGroupsRequest): Promise<GetBlockGroupsResponse> {
-    let payload: GetBlockGroupsFinalizeRequest = { };
+  async getBlockGroups(
+    data?: GetBlockGroupsRequest,
+  ): Promise<GetBlockGroupsResponse> {
+    let payload: GetBlockGroupsFinalizeRequest = {};
     if (data) {
       payload = new GetBlockGroupsFinalizeRequest(data);
     }
@@ -922,8 +881,10 @@ export class SolapiMessageService {
    * @param data 수신 거부 그룹 별 수신번호 조회용 request 데이터
    * @returns GetBlockNumbersResponse
    */
-  async getBlockNumbers(data?: GetBlockNumbersRequest): Promise<GetBlockNumbersResponse> {
-    let payload: GetBlockNumbersFinalizeRequest = { };
+  async getBlockNumbers(
+    data?: GetBlockNumbersRequest,
+  ): Promise<GetBlockNumbersResponse> {
+    let payload: GetBlockNumbersFinalizeRequest = {};
     if (data) {
       payload = new GetBlockNumbersFinalizeRequest(data);
     }
