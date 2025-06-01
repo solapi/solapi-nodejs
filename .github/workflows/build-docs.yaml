@@ -17,7 +17,7 @@ jobs:
     - name: Commit and push docs
       working-directory: ./
       run: |
-        git config --global user.email "solapi-robot@solapi.com"
+        git config --global user.email "robot@solapi.com"
         git config --global user.name "SOLAPI Robot"
         git add ./docs
         git commit -m "Update SDK API References"
