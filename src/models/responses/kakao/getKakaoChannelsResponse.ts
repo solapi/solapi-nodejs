@@ -1,7 +1,4 @@
-import {
-  KakaoChannel,
-  KakaoChannelInterface,
-} from '../../models/kakao/kakaoChannel';
+import {KakaoChannel, KakaoChannelInterface} from '../../kakao/kakaoChannel';
 
 export type GetKakaoChannelsResponse = {
   limit: number;

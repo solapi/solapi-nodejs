@@ -1,6 +1,6 @@
+import {FileIds, MessageParameter} from '../models/requests/messageRequest';
 import {KakaoOption} from './kakao/kakaoOption';
 import {RcsOption} from './rcs/rcsOption';
-import {FileIds, MessageParameter} from '../requests/messageRequest';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)

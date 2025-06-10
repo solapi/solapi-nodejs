@@ -1,5 +1,5 @@
+import {kakaoOptionRequest} from '../../models/requests/kakao/kakaoOptionRequest';
 import {KakaoButton} from './kakaoButton';
-import {kakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
 
 export class KakaoOption {
   pfId: string;

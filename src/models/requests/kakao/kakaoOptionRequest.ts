@@ -1,4 +1,4 @@
-import {KakaoButton} from '../../models/kakao/kakaoButton';
+import {KakaoButton} from '../../kakao/kakaoButton';
 
 export type kakaoOptionRequest = {
   pfId: string;

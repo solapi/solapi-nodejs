@@ -1,4 +1,4 @@
-import {formatWithTransfer} from '../../../lib/stringDateTrasnfer';
+import {formatWithTransfer} from '../../../../lib/stringDateTrasnfer';
 
 export type GetStatisticsRequest = {
   masterAccountId?: string;

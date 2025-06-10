@@ -1,6 +1,6 @@
 import {AuthenticationParameter} from '../lib/authenticator';
 import defaultFetcher from '../lib/defaultFetcher';
-import {RequestConfig} from '../requests/messageRequest';
+import {RequestConfig} from '../models/requests/messageRequest';
 
 type DefaultServiceParameter<T> = {
   httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE';

@@ -1,4 +1,3 @@
-import {Message, MessageType} from '../models/message';
 import {
   App,
   CommonCashResponse,
@@ -8,7 +7,8 @@ import {
   GroupId,
   Log,
   MessageTypeRecord,
-} from '../types/commonTypes';
+} from '../../types/commonTypes';
+import {Message, MessageType} from '../message';
 
 export type SingleMessageSentResponse = {
   groupId: string;

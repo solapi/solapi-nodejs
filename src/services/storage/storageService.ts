@@ -1,6 +1,9 @@
 import fileToBase64 from '../../lib/fileToBase64';
-import {FileType, FileUploadRequest} from '../../requests/messageRequest';
-import {FileUploadResponse} from '../../responses/messageResponses';
+import {
+  FileType,
+  FileUploadRequest,
+} from '../../models/requests/messageRequest';
+import {FileUploadResponse} from '../../models/responses/messageResponses';
 import DefaultService from '../defaultService';
 
 export default class StorageService extends DefaultService {

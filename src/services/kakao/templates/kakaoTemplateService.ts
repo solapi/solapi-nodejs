@@ -4,17 +4,17 @@ import {
   KakaoAlimtalkTemplateCategory,
   KakaoAlimtalkTemplateInterface,
 } from '../../../models/kakao/kakaoAlimtalkTemplate';
-import {CreateKakaoAlimtalkTemplateRequest} from '../../../requests/kakao/createKakaoAlimtalkTemplateRequest';
+import {CreateKakaoAlimtalkTemplateRequest} from '../../../models/requests/kakao/createKakaoAlimtalkTemplateRequest';
 import {
   GetKakaoAlimtalkTemplatesFinalizeRequest,
   GetKakaoAlimtalkTemplatesRequest,
-} from '../../../requests/kakao/getKakaoAlimtalkTemplatesRequest';
-import {UpdateKakaoAlimtalkTemplateRequest} from '../../../requests/kakao/updateKakaoAlimtalkTemplateRequest';
+} from '../../../models/requests/kakao/getKakaoAlimtalkTemplatesRequest';
+import {UpdateKakaoAlimtalkTemplateRequest} from '../../../models/requests/kakao/updateKakaoAlimtalkTemplateRequest';
 import {
   GetKakaoAlimtalkTemplatesFinalizeResponse,
   GetKakaoAlimtalkTemplatesResponse,
-} from '../../../responses/kakao/getKakaoAlimtalkTemplatesResponse';
-import {GetKakaoTemplateResponse} from '../../../responses/kakao/getKakaoTemplateResponse';
+} from '../../../models/responses/kakao/getKakaoAlimtalkTemplatesResponse';
+import {GetKakaoTemplateResponse} from '../../../models/responses/kakao/getKakaoTemplateResponse';
 import DefaultService from '../../defaultService';
 
 export default class KakaoTemplateService extends DefaultService {

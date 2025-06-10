@@ -1,7 +1,7 @@
 import {
   KakaoAlimtalkTemplateAssignType,
   KakaoAlimtalkTemplateInterface,
-} from '../../models/kakao/kakaoAlimtalkTemplate';
+} from '../../kakao/kakaoAlimtalkTemplate';
 
 export interface GetKakaoTemplateResponse
   extends KakaoAlimtalkTemplateInterface {

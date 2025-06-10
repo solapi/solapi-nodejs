@@ -1,5 +1,5 @@
-import {formatWithTransfer} from '../../lib/stringDateTrasnfer';
-import { DatePayloadType } from '../messageRequest';
+import {formatWithTransfer} from '../../../lib/stringDateTrasnfer';
+import {DatePayloadType} from '../messageRequest';
 
 export interface GetBlacksRequest {
   /**
@@ -9,7 +9,7 @@ export interface GetBlacksRequest {
 
   /**
    * @description 페이지네이션 조회 키
-  */
+   */
   startKey?: string;
 
   /**
@@ -18,8 +18,8 @@ export interface GetBlacksRequest {
   limit?: number;
 
   /**
- * @description 조회할 시작 날짜
- */
+   * @description 조회할 시작 날짜
+   */
   startDate?: string | Date;
 
   /**

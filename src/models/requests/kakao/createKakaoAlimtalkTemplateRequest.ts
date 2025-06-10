@@ -3,28 +3,28 @@ import {
   KakaoAlimtalkTemplateHighlightType,
   KakaoAlimtalkTemplateItemType,
   KakaoAlimtalkTemplateMessageType,
-} from '../../models/kakao/kakaoAlimtalkTemplate';
-import {KakaoButton} from '../../models/kakao/kakaoButton';
-import {KakaoAlimtalkTemplateQuickReply} from '../../models/kakao/kakaoAlimtalkTemplateQuickReply';
+} from '../../kakao/kakaoAlimtalkTemplate';
+import {KakaoAlimtalkTemplateQuickReply} from '../../kakao/kakaoAlimtalkTemplateQuickReply';
+import {KakaoButton} from '../../kakao/kakaoButton';
 
 /**
  * @description 카카오 알림톡 템플릿 요청 타입
  */
-export type UpdateKakaoAlimtalkTemplateRequest = {
+export type BaseKakaoAlimtalkTemplateRequest = {
   /**
    * @description 알림톡 템플릿 제목
    */
-  name?: string;
+  name: string;
 
   /**
    * @description 알림톡 템플릿 내용
    */
-  content?: string;
+  content: string;
 
   /**
    * @description 알림톡 템플릿 카테고리 코드, KakaoAlimtalkTemplateCategory 타입 참고
    */
-  categoryCode?: string;
+  categoryCode: string;
 
   /**
    * @description 알림톡 템플릿 버튼 배열
@@ -47,7 +47,7 @@ export type UpdateKakaoAlimtalkTemplateRequest = {
   emphasizeType?: KakaoAlimtalkTemplateEmphasizeType;
 
   /**
-   * @description 아이템 리스트 용 헤더
+   * @description 아이템 리스트용 헤더
    */
   header?: string;
 
@@ -62,7 +62,7 @@ export type UpdateKakaoAlimtalkTemplateRequest = {
   item?: KakaoAlimtalkTemplateItemType;
 
   /**
-   * @description 부가정보, 치환문구를 넣을 수 없음
+   * @description 부가정보, 치환문구를 넣을 수 없음. 최대 500자
    */
   extra?: string;
 
@@ -86,3 +86,26 @@ export type UpdateKakaoAlimtalkTemplateRequest = {
    */
   imageId?: string;
 };
+
+type CreateKakaoChannelAlimtalkTemplateRequest =
+  BaseKakaoAlimtalkTemplateRequest & {
+    /**
+     * @description 템플릿을 생성할 채널의 ID
+     */
+    channelId: string;
+  };
+
+type CreateKakaoChannelGroupAlimtalkTemplateRequest =
+  BaseKakaoAlimtalkTemplateRequest & {
+    /**
+     * @description 템플릿을 생성할 채널 그룹의 ID
+     */
+    channelGroupId: string;
+  };
+
+/**
+ * @description 카카오 알림톡 템플릿 생성 요청 타입
+ */
+export type CreateKakaoAlimtalkTemplateRequest =
+  | CreateKakaoChannelAlimtalkTemplateRequest
+  | CreateKakaoChannelGroupAlimtalkTemplateRequest;

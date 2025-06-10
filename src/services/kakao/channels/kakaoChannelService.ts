@@ -7,19 +7,19 @@ import {
 import {
   GetKakaoChannelsFinalizeRequest,
   GetKakaoChannelsRequest,
-} from '../../../requests/kakao/getKakaoChannelsRequest';
+} from '../../../models/requests/kakao/getKakaoChannelsRequest';
 import {
   CreateKakaoChannelRequest,
   CreateKakaoChannelTokenRequest,
-} from '../../../requests/messageRequest';
+} from '../../../models/requests/messageRequest';
 import {
   GetKakaoChannelsFinalizeResponse,
   GetKakaoChannelsResponse,
-} from '../../../responses/kakao/getKakaoChannelsResponse';
+} from '../../../models/responses/kakao/getKakaoChannelsResponse';
 import {
   CreateKakaoChannelResponse,
   RequestKakaoChannelTokenResponse,
-} from '../../../responses/messageResponses';
+} from '../../../models/responses/messageResponses';
 import DefaultService from '../../defaultService';
 
 export default class KakaoChannelService extends DefaultService {

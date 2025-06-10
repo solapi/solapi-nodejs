@@ -1,8 +1,8 @@
-import {KakaoButton} from './kakaoButton';
 import stringDateTransfer from '../../lib/stringDateTrasnfer';
-import {GetKakaoTemplateResponse} from '../../responses/kakao/getKakaoTemplateResponse';
-import {KakaoChannelCategory} from './kakaoChannel';
+import {GetKakaoTemplateResponse} from '../../models/responses/kakao/getKakaoTemplateResponse';
 import {KakaoAlimtalkTemplateQuickReply} from './kakaoAlimtalkTemplateQuickReply';
+import {KakaoButton} from './kakaoButton';
+import {KakaoChannelCategory} from './kakaoChannel';
 
 /**
  * @description 카카오 채널 카테고리 타입

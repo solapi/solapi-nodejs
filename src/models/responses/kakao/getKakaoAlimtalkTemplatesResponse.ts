@@ -1,5 +1,5 @@
+import {KakaoAlimtalkTemplate} from '../../kakao/kakaoAlimtalkTemplate';
 import {GetKakaoTemplateResponse} from './getKakaoTemplateResponse';
-import {KakaoAlimtalkTemplate} from '../../models/kakao/kakaoAlimtalkTemplate';
 
 export interface GetKakaoAlimtalkTemplatesResponse {
   limit: number;

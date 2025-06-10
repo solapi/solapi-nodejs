@@ -1,3 +1,4 @@
+import {Effect, Match, Schedule, pipe} from 'effect';
 import {DefaultError, ErrorResponse} from '../errors/defaultError';
 import getAuthInfo, {AuthenticationParameter} from './authenticator';
 
@@ -5,6 +6,40 @@ type DefaultRequest = {
   url: string;
   method: string;
 };
+
+class RetryableError {
+  readonly _tag = 'RetryableError';
+  constructor(readonly error?: unknown) {}
+}
+
+const handleOkResponse = <R>(res: Response) =>
+  Effect.tryPromise({
+    try: async (): Promise<R> => {
+      const responseText = await res.text();
+      return responseText ? JSON.parse(responseText) : ({} as R);
+    },
+    catch: e => new DefaultError('ParseError', (e as Error).message),
+  });
+
+const handleClientErrorResponse = (res: Response) =>
+  pipe(
+    Effect.tryPromise({
+      try: () => res.json() as Promise<ErrorResponse>,
+      catch: e => new DefaultError('ParseError', (e as Error).message),
+    }),
+    Effect.flatMap(error =>
+      Effect.fail(new DefaultError(error.errorCode, error.errorMessage)),
+    ),
+  );
+
+const handleServerErrorResponse = (res: Response) =>
+  pipe(
+    Effect.tryPromise({
+      try: () => res.text(),
+      catch: e => new DefaultError('ResponseReadError', (e as Error).message),
+    }),
+    Effect.flatMap(text => Effect.fail(new DefaultError('UnknownError', text))),
+  );
 
 /**
  * 공용 API 클라이언트 함수
@@ -19,31 +54,75 @@ export default async function defaultFetcher<T, R>(
   data?: T,
 ): Promise<R> {
   const authorizationHeaderData = getAuthInfo(authParameter);
-  const res = await fetch(request.url, {
-    headers: {
-      Authorization: authorizationHeaderData,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-    method: request.method,
-  });
 
-  if (!res.ok) {
-    if (res.status >= 400 && res.status < 500) {
-      const errorResponse = (await res.json()) as ErrorResponse;
-      throw new DefaultError(
-        errorResponse.errorCode,
-        errorResponse.errorMessage,
-      );
-    } else {
-      const responseText = await res.text();
-      throw new DefaultError('UnknownError', responseText);
-    }
-  }
+  const effect = pipe(
+    Effect.tryPromise({
+      try: () =>
+        fetch(request.url, {
+          headers: {
+            Authorization: authorizationHeaderData,
+            'Content-Type': 'application/json',
+          },
+          body: data ? JSON.stringify(data) : undefined,
+          method: request.method,
+        }),
+      catch: (error: unknown) => {
+        if (error instanceof Error) {
+          const cause = error.cause;
+          const causeCode =
+            cause && typeof cause === 'object' && 'code' in cause
+              ? String(cause.code)
+              : '';
+          const message = (error.message + ' ' + causeCode).toLowerCase();
+          if (
+            message.includes('aborted') ||
+            message.includes('refused') ||
+            message.includes('reset') ||
+            message.includes('econn')
+          ) {
+            return new RetryableError(error);
+          }
+          return new DefaultError('RequestError', error.message);
+        }
+        return new DefaultError('UnknownRequestError', String(error));
+      },
+    }),
+    Effect.flatMap(res =>
+      pipe(
+        Match.value(res),
+        Match.when(
+          res => res.status === 503,
+          () => Effect.fail(new RetryableError()),
+        ),
+        Match.when(
+          res => res.status >= 400 && res.status < 500,
+          handleClientErrorResponse,
+        ),
+        Match.when(res => !res.ok, handleServerErrorResponse),
+        Match.orElse(handleOkResponse<R>),
+      ),
+    ),
+  );
 
-  const responseText = await res.text();
-  if (responseText) {
-    return JSON.parse(responseText);
-  }
-  return res.json() as unknown as R;
+  const policy = pipe(
+    Schedule.recurs(3),
+    Schedule.whileInput(
+      (e: unknown): e is RetryableError => e instanceof RetryableError,
+    ),
+  );
+
+  const program = pipe(
+    effect,
+    Effect.retry(policy),
+    Effect.catchTag('RetryableError', () =>
+      Effect.fail(
+        new DefaultError(
+          'RequestFailedAfterRetries',
+          'Request failed after multiple retries',
+        ),
+      ),
+    ),
+  );
+
+  return Effect.runPromise(program);
 }

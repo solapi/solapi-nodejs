@@ -1,6 +1,6 @@
-import {GroupId} from '../../types/commonTypes';
-import {MessageType} from '../../models/message';
-import {formatWithTransfer} from '../../lib/stringDateTrasnfer';
+import {formatWithTransfer} from '../../../lib/stringDateTrasnfer';
+import {GroupId} from '../../../types/commonTypes';
+import {MessageType} from '../../message';
 
 export type DateType = 'CREATED' | 'UPDATED';
 

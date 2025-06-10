@@ -8,22 +8,22 @@ import {
   MessageParameter,
   MultipleDetailMessageSendingRequest,
   SingleMessageSendingRequest,
-} from '../../requests/messageRequest';
+} from '../../models/requests/messageRequest';
 import {
   GetMessagesFinalizeRequest,
   GetMessagesRequest,
-} from '../../requests/messages/getMessagesRequest';
+} from '../../models/requests/messages/getMessagesRequest';
 import {
   GetStatisticsFinalizeRequest,
   GetStatisticsRequest,
-} from '../../requests/messages/statistics/getStatisticsRequest';
-import {SendRequestConfig} from '../../requests/sendRequestConfig';
+} from '../../models/requests/messages/statistics/getStatisticsRequest';
+import {SendRequestConfig} from '../../models/requests/sendRequestConfig';
 import {
   GetMessagesResponse,
   GetStatisticsResponse,
   SingleMessageSentResponse,
-} from '../../responses/messageResponses';
-import {DetailGroupMessageResponse} from '../../responses/sendManyDetailResponse';
+} from '../../models/responses/messageResponses';
+import {DetailGroupMessageResponse} from '../../models/responses/sendManyDetailResponse';
 import DefaultService from '../defaultService';
 
 export default class MessageService extends DefaultService {

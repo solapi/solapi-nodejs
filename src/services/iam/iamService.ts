@@ -2,13 +2,13 @@ import stringifyQuery from '../../lib/stringifyQuery';
 import {
   GetBlacksFinalizeRequest,
   GetBlacksRequest,
-} from '../../requests/iam/getBlacksRequest';
+} from '../../models/requests/iam/getBlacksRequest';
 import {
   GetBlockGroupsFinalizeRequest,
   GetBlockGroupsRequest,
-} from '../../requests/iam/getBlockGroupsRequest';
-import {GetBlacksResponse} from '../../responses/iam/getBlacksResponse';
-import {GetBlockGroupsResponse} from '../../responses/iam/getBlockGroupsResponse';
+} from '../../models/requests/iam/getBlockGroupsRequest';
+import {GetBlacksResponse} from '../../models/responses/iam/getBlacksResponse';
+import {GetBlockGroupsResponse} from '../../models/responses/iam/getBlockGroupsResponse';
 import DefaultService from '../defaultService';
 
 export default class IamService extends DefaultService {

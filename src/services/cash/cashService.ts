@@ -1,4 +1,4 @@
-import {GetBalanceResponse} from '../../responses/messageResponses';
+import {GetBalanceResponse} from '../../models/responses/messageResponses';
 import DefaultService from '../defaultService';
 
 export default class CashService extends DefaultService {

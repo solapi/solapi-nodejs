@@ -8,18 +8,18 @@ import {
   GroupMessageAddRequest,
   RemoveMessageIdsToGroupRequest,
   ScheduledDateSendingRequest,
-} from '../../requests/messageRequest';
+} from '../../models/requests/messageRequest';
 import {
   GetGroupsFinalizeRequest,
   GetGroupsRequest,
-} from '../../requests/messages/groups/getGroupsRequest';
+} from '../../models/requests/messages/groups/getGroupsRequest';
 import {
   AddMessageResponse,
   GetGroupsResponse,
   GetMessagesResponse,
   GroupMessageResponse,
   RemoveGroupMessagesResponse,
-} from '../../responses/messageResponses';
+} from '../../models/responses/messageResponses';
 import {GroupId} from '../../types/commonTypes';
 import DefaultService from '../defaultService';
 

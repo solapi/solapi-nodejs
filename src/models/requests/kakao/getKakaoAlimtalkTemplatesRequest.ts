@@ -1,5 +1,5 @@
-import {KakaoAlimtalkTemplateStatus} from '../../models/kakao/kakaoAlimtalkTemplate';
-import {formatWithTransfer} from '../../lib/stringDateTrasnfer';
+import {formatWithTransfer} from '../../../lib/stringDateTrasnfer';
+import {KakaoAlimtalkTemplateStatus} from '../../kakao/kakaoAlimtalkTemplate';
 import {DatePayloadType} from '../messageRequest';
 
 type GetKakaoAlimtalkTemplatesNameType =

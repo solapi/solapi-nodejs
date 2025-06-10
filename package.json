@@ -39,7 +39,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "date-fns": "^4.1.0"
+    "date-fns": "^4.1.0",
+    "effect": "^3.16.5",
+    "zod": "^3.25.57"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
