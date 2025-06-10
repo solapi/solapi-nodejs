@@ -1,5 +1,5 @@
-import getAuthInfo, {AuthenticationParameter} from './authenticator';
 import {DefaultError, ErrorResponse} from '../errors/defaultError';
+import getAuthInfo, {AuthenticationParameter} from './authenticator';
 
 type DefaultRequest = {
   url: string;
@@ -19,29 +19,31 @@ export default async function defaultFetcher<T, R>(
   data?: T,
 ): Promise<R> {
   const authorizationHeaderData = getAuthInfo(authParameter);
-  return await fetch(request.url, {
+  const res = await fetch(request.url, {
     headers: {
       Authorization: authorizationHeaderData,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
     method: request.method,
-  }).then<R>(async res => {
+  });
+
+  if (!res.ok) {
     if (res.status >= 400 && res.status < 500) {
-      const errorResponse: ErrorResponse = await res.json();
+      const errorResponse = (await res.json()) as ErrorResponse;
       throw new DefaultError(
         errorResponse.errorCode,
         errorResponse.errorMessage,
       );
-    } else if (res.status >= 500) {
+    } else {
       const responseText = await res.text();
       throw new DefaultError('UnknownError', responseText);
     }
-    try {
-      return res.json();
-    } catch (exception) {
-      console.error(exception);
-      throw new Error(await res.text());
-    }
-  });
+  }
+
+  const responseText = await res.text();
+  if (responseText) {
+    return JSON.parse(responseText);
+  }
+  return res.json() as unknown as R;
 }

@@ -7,8 +7,8 @@ enum AuthenticateType {
 }
 
 export type AuthenticationParameter = {
-  apiKey?: string;
-  apiSecret?: string;
+  apiKey: string;
+  apiSecret: string;
 };
 
 /**

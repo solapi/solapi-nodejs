@@ -2,13 +2,13 @@
 
 You can send text messages(SMS, LMS, MMS), Kakao friendtalk(include notification friendtalk) in Korea using this
 package.
-This package is 100% compatible with SOLAPI family services (Purple Book, Nurigo, etc.).
+This package is 100% compatible with SOLAPI family services (CoolSMS and etc..).
 
 ## Installing
 
 To use the SDK, simply use npm package manager CLI. Type the following into a terminal window.
 
-### npm
+### NPM
 
 ```bash
 npm install --save solapi
@@ -20,18 +20,22 @@ npm install --save solapi
 yarn add solapi
 ```
 
+### PNPM
+
+```bash
+pnpm add solapi
+```
+
 ## Usage
 
 See [examples folders](https://github.com/solapi/solapi-nodejs/tree/master/examples)
 
-[//]: # (TODO: Need to add next solapi document link)
-
 ## Opening Issues
 
-If you encounter a bug with the SOLAPI SDK for Javascript we would like to hear about it. Search
-the [existing issues](https://github.com/solapi/solapi-nodejs/issues) and try to make sure your problem doesn’t
-already exist before opening a new issue. It’s helpful if you include the version of the SDK, Node.js or browser
-environment and OS you’re using. Please include a stack trace and reduced repro case when appropriate, too.
+If you’ve encountered a bug with the SOLAPI SDK for Node.js, we’d love to hear about it.  
+Before opening a new issue, please check the [existing issues](https://github.com/solapi/solapi-nodejs/issues) to see if your problem has already been reported.  
+It’s helpful to include the SDK version, your Node.js environment, and the OS you’re using.  
+If applicable, please also provide a stack trace and a minimal reproducible example.
 
 ## License
 
