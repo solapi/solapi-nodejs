@@ -33,10 +33,11 @@
     "/dist"
   ],
   "scripts": {
-    "build": "yarn lint && tsup-node src/index.ts --minify",
+    "build": "yarn lint && tsup-node src/index.ts",
     "docs": "typedoc --entryPointStrategy expand ./src",
     "format": "prettier ./**/*.ts ./**/*.js ./**/*.mjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "dev": "tsup src/index.ts --watch"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
