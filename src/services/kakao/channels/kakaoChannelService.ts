@@ -1,25 +1,25 @@
-import stringifyQuery from '../../../lib/stringifyQuery';
+import stringifyQuery from '@lib/stringifyQuery';
 import {
   KakaoChannel,
   KakaoChannelCategory,
   KakaoChannelInterface,
-} from '../../../models/kakao/kakaoChannel';
-import {
-  GetKakaoChannelsFinalizeRequest,
-  GetKakaoChannelsRequest,
-} from '../../../models/requests/kakao/getKakaoChannelsRequest';
+} from '@models/base/kakao/kakaoChannel';
 import {
   CreateKakaoChannelRequest,
   CreateKakaoChannelTokenRequest,
-} from '../../../models/requests/messageRequest';
+} from '@models/requests/kakao/createKakaoChannelRequest';
+import {
+  GetKakaoChannelsFinalizeRequest,
+  GetKakaoChannelsRequest,
+} from '@models/requests/kakao/getKakaoChannelsRequest';
 import {
   GetKakaoChannelsFinalizeResponse,
   GetKakaoChannelsResponse,
-} from '../../../models/responses/kakao/getKakaoChannelsResponse';
+} from '@models/responses/kakao/getKakaoChannelsResponse';
 import {
   CreateKakaoChannelResponse,
   RequestKakaoChannelTokenResponse,
-} from '../../../models/responses/messageResponses';
+} from '@models/responses/messageResponses';
 import DefaultService from '../../defaultService';
 
 export default class KakaoChannelService extends DefaultService {

@@ -1,26 +1,25 @@
-import {formatISO} from 'date-fns';
-import stringifyQuery from '../../lib/stringifyQuery';
-import {Message} from '../../models/message';
+import {GroupId} from '@internal-types/commonTypes';
+import stringifyQuery from '@lib/stringifyQuery';
+import {Message} from '@models/base/messages/message';
+import {
+  GetGroupsFinalizeRequest,
+  GetGroupsRequest,
+} from '@models/requests/messages/getGroupsRequest';
 import {
   CreateGroupRequest,
-  defaultAgent,
   GetGroupMessagesRequest,
   GroupMessageAddRequest,
   RemoveMessageIdsToGroupRequest,
   ScheduledDateSendingRequest,
-} from '../../models/requests/messageRequest';
-import {
-  GetGroupsFinalizeRequest,
-  GetGroupsRequest,
-} from '../../models/requests/messages/groups/getGroupsRequest';
+} from '@models/requests/messages/groupMessageRequest';
 import {
   AddMessageResponse,
   GetGroupsResponse,
   GetMessagesResponse,
   GroupMessageResponse,
   RemoveGroupMessagesResponse,
-} from '../../models/responses/messageResponses';
-import {GroupId} from '../../types/commonTypes';
+} from '@models/responses/messageResponses';
+import {formatISO} from 'date-fns';
 import DefaultService from '../defaultService';
 
 /**
@@ -43,7 +42,10 @@ export default class GroupService extends DefaultService {
     appId?: string,
     customFields?: Record<string, string>,
   ): Promise<GroupId> {
-    const {sdkVersion, osPlatform} = defaultAgent;
+    const {sdkVersion, osPlatform} = {
+      sdkVersion: 'nodejs/5.5.0',
+      osPlatform: `${process.platform} | ${process.version}`,
+    };
 
     return this.request<CreateGroupRequest, GroupMessageResponse>({
       httpMethod: 'POST',

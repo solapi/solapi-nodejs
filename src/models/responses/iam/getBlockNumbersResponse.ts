@@ -1,4 +1,4 @@
-import {BlockNumber} from '../../../types/commonTypes';
+import {BlockNumber} from '@internal-types/commonTypes';
 
 export type GetBlockNumbersResponse = {
   startKey: string | null | undefined;

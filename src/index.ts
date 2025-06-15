@@ -1,11 +1,11 @@
-import CashService from './services/cash/cashService';
-import DefaultService from './services/defaultService';
-import IamService from './services/iam/iamService';
-import KakaoChannelService from './services/kakao/channels/kakaoChannelService';
-import KakaoTemplateService from './services/kakao/templates/kakaoTemplateService';
-import GroupService from './services/messages/groupService';
-import MessageService from './services/messages/messageService';
-import StorageService from './services/storage/storageService';
+import CashService from '@services/cash/cashService';
+import DefaultService from '@services/defaultService';
+import IamService from '@services/iam/iamService';
+import KakaoChannelService from '@services/kakao/channels/kakaoChannelService';
+import KakaoTemplateService from '@services/kakao/templates/kakaoTemplateService';
+import GroupService from '@services/messages/groupService';
+import MessageService from '@services/messages/messageService';
+import StorageService from '@services/storage/storageService';
 
 type Writable<T> = {-readonly [P in keyof T]: T[P]};
 
@@ -210,6 +210,7 @@ export class SolapiMessageService {
    * @param message 메시지(문자, 알림톡 등)
    * @param appId appstore용 app id
    */
+  // TODO: temporary remove
   readonly sendOne: typeof MessageService.prototype.sendOne;
 
   /**

@@ -1,6 +1,8 @@
-import {FileIds, MessageParameter} from '../models/requests/messageRequest';
-import {KakaoOption} from './kakao/kakaoOption';
-import {RcsOption} from './rcs/rcsOption';
+import {z} from 'zod/v4';
+import {FileIds} from '../../requests/messages/groupMessageRequest';
+import {KakaoOption, baseKakaoOptionSchema} from '../kakao/kakaoOption';
+import {naverOptionSchema} from '../naver/naverOption';
+import {RcsOption, rcsOptionSchema} from '../rcs/rcsOption';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
@@ -36,6 +38,64 @@ export type MessageType =
   | 'RCS_LTPL'
   | 'FAX'
   | 'VOICE';
+
+export const messageTypeSchema = z.enum([
+  'SMS',
+  'LMS',
+  'MMS',
+  'ATA',
+  'CTA',
+  'CTI',
+  'NSA',
+  'RCS_SMS',
+  'RCS_LMS',
+  'RCS_MMS',
+  'RCS_TPL',
+  'RCS_ITPL',
+  'RCS_LTPL',
+  'FAX',
+  'VOICE',
+]);
+
+export const messageSchema = z
+  .object({
+    to: z.union([z.string(), z.array(z.string())]).describe('수신번호'),
+    from: z.string().optional().describe('발신번호'),
+    text: z.string().optional().describe('메시지 내용'),
+    imageId: z.string().optional().describe('MMS 전용 스토리지(이미지) ID'),
+    type: messageTypeSchema.optional().describe('메시지 유형'),
+    subject: z.string().optional().describe('문자 제목(LMS, MMS 전용)'),
+    autoTypeDetect: z
+      .boolean()
+      .optional()
+      .default(true)
+      .describe('메시지 타입 감지 여부'),
+    kakaoOptions: baseKakaoOptionSchema
+      .optional()
+      .describe('카카오 알림톡/친구톡을 위한 프로퍼티'),
+    rcsOptions: rcsOptionSchema
+      .optional()
+      .describe('RCS 메시지를 위한 프로퍼티'),
+    country: z.string().optional().describe('해외 문자 발송을 위한 국가번호'),
+    replacements: z.array(z.object({})).optional(),
+    customFields: z
+      .record(z.string(), z.string())
+      .optional()
+      .describe('사용자 커스텀 필드'),
+    faxOptions: z
+      .object({
+        fileIds: z.array(z.string()),
+      })
+      .optional(),
+    naverOptions: z
+      .object({...naverOptionSchema})
+      .optional()
+      .describe('네이버 톡톡 발송을 위한 프로퍼티'),
+  })
+  // 모든 필드는 명시적으로 정의된 항목만 허용
+  .strict();
+
+export type MessageSchema = z.infer<typeof messageSchema>;
 
 /**
  * 메시지 모델, 전체적인 메시지 발송을 위한 파라미터는 이 Message 모델에서 관장함
@@ -131,7 +191,7 @@ export class Message {
 
   faxOptions?: FileIds;
 
-  constructor(parameter: MessageParameter) {
+  constructor(parameter: MessageSchema) {
     this.to = parameter.to;
     this.from = parameter.from;
     this.text = parameter.text;

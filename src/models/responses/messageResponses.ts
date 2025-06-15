@@ -7,8 +7,8 @@ import {
   GroupId,
   Log,
   MessageTypeRecord,
-} from '../../types/commonTypes';
-import {Message, MessageType} from '../message';
+} from '@internal-types/commonTypes';
+import {Message, MessageType} from '../base/messages/message';
 
 export type SingleMessageSentResponse = {
   groupId: string;

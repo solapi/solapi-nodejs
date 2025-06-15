@@ -92,10 +92,10 @@ export type Black = {
   handleKey: HandleKey;
   type: 'DENIAL';
   senderNumber: string;
-  recipientNumber: string
+  recipientNumber: string;
   dateCreated: string;
-  dateUpdated: string
-}
+  dateUpdated: string;
+};
 
 export type BlockGroup = {
   blockGroupId: string;
@@ -103,10 +103,10 @@ export type BlockGroup = {
   status: 'INACTIVE' | 'ACTIVE';
   name: string;
   useAll: boolean;
-  senderNumbers: string[]
+  senderNumbers: string[];
   dateCreated: string;
   dateUpdated: string;
-}
+};
 
 export type BlockNumber = {
   blockNumberId: string;
@@ -134,6 +134,6 @@ export type OperatorType =
 
 /**
  * @description 검색 조건 파라미터
- * @see https://docs.solapi.com/api-reference/overview#operator
+ * @see https://developers.solapi.com/references/#operator
  */
 export type DateOperatorType = 'eq' | 'gte' | 'lte' | 'gt' | 'lt';

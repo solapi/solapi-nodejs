@@ -1,30 +1,47 @@
-import {
-  BadRequestError,
-  MessageNotReceivedError,
-} from '../../errors/defaultError';
-import stringifyQuery from '../../lib/stringifyQuery';
-import {Message} from '../../models/message';
-import {
-  MessageParameter,
-  MultipleDetailMessageSendingRequest,
-  SingleMessageSendingRequest,
-} from '../../models/requests/messageRequest';
+import stringifyQuery from '@lib/stringifyQuery';
 import {
   GetMessagesFinalizeRequest,
   GetMessagesRequest,
-} from '../../models/requests/messages/getMessagesRequest';
+} from '@models/requests/messages/getMessagesRequest';
 import {
   GetStatisticsFinalizeRequest,
   GetStatisticsRequest,
-} from '../../models/requests/messages/statistics/getStatisticsRequest';
-import {SendRequestConfig} from '../../models/requests/sendRequestConfig';
+} from '@models/requests/messages/getStatisticsRequest';
+import {
+  SendRequestConfigSchema,
+  sendRequestConfigSchema,
+} from '@models/requests/messages/requestConfig';
+import {
+  multipleMessageSendingRequestSchema,
+  MultipleMessageSendingRequestSchema,
+  requestSendMessageSchema,
+  RequestSendMessagesSchema,
+  requestSendOneMessageSchema,
+  RequestSendOneMessageSchema,
+} from '@models/requests/messages/sendMessage';
 import {
   GetMessagesResponse,
   GetStatisticsResponse,
   SingleMessageSentResponse,
-} from '../../models/responses/messageResponses';
-import {DetailGroupMessageResponse} from '../../models/responses/sendManyDetailResponse';
+} from '@models/responses/messageResponses';
+import {DetailGroupMessageResponse} from '@models/responses/sendManyDetailResponse';
+import * as Effect from 'effect/Effect';
+import {defaultRuntime, runPromise as runtimeRunPromise} from 'effect/Runtime';
+import {
+  BadRequestError,
+  MessageNotReceivedError,
+} from '../../errors/defaultError';
 import DefaultService from '../defaultService';
+
+// 단건 메시지 발송 요청 바디 타입
+export type SingleMessageSendingRequestSchema = {
+  message: RequestSendOneMessageSchema;
+  agent?: {
+    appId?: string;
+    sdkVersion?: string;
+    osPlatform?: string;
+  };
+};
 
 export default class MessageService extends DefaultService {
   constructor(apiKey: string, apiSecret: string) {
@@ -37,17 +54,24 @@ export default class MessageService extends DefaultService {
    * @param appId appstore용 app id
    */
   async sendOne(
-    message: Message,
+    message: RequestSendOneMessageSchema,
     appId?: string,
   ): Promise<SingleMessageSentResponse> {
-    const parameter = new SingleMessageSendingRequest(message, false, appId);
-    return this.request<SingleMessageSendingRequest, SingleMessageSentResponse>(
-      {
-        httpMethod: 'POST',
-        url: 'messages/v4/send',
-        body: parameter,
-      },
-    );
+    // Zod 스키마를 통한 파라미터 검증
+    const parsedMessage = requestSendOneMessageSchema.parse(message);
+
+    const parameter = {
+      message: parsedMessage,
+      ...(appId ? {agent: {appId}} : {}),
+    };
+    return this.request<
+      SingleMessageSendingRequestSchema,
+      SingleMessageSentResponse
+    >({
+      httpMethod: 'POST',
+      url: 'messages/v4/send',
+      body: parameter,
+    });
   }
 
   /**
@@ -58,49 +82,90 @@ export default class MessageService extends DefaultService {
    * @throws MessageNotReceivedError 모든 메시지 접수건이 실패건으로 진행되는 경우 반환되는 에러
    * @throws BadRequestError 잘못된 파라미터를 기입했거나, 데이터가 아예 없는 경우 반환되는 에러
    */
-  async send(
-    messages: MessageParameter | Array<MessageParameter>,
-    requestConfigParameter?: SendRequestConfig,
+  send(
+    messages: RequestSendMessagesSchema,
+    requestConfigParameter?: SendRequestConfigSchema,
   ): Promise<DetailGroupMessageResponse> {
-    const payload: Array<Message> = [];
-    if (Array.isArray(messages)) {
-      messages.forEach(value => {
-        payload.push(new Message(value));
-      });
-    } else if (!Array.isArray(messages)) {
-      payload.push(new Message(messages));
-    } else {
-      throw new BadRequestError('잘못된 값이 입력되었습니다.');
-    }
-    if (payload.length === 0) {
-      throw new BadRequestError(
-        '데이터가 반드시 1건 이상 기입되어 있어야 합니다.',
-      );
-    }
-    const parameter = new MultipleDetailMessageSendingRequest(
-      payload,
-      requestConfigParameter?.allowDuplicates,
-      requestConfigParameter?.appId,
-      requestConfigParameter?.scheduledDate,
-      requestConfigParameter?.showMessageList,
-    );
-    return this.request<
-      MultipleDetailMessageSendingRequest,
-      DetailGroupMessageResponse
-    >({
-      httpMethod: 'POST',
-      url: 'messages/v4/send-many/detail',
-      body: parameter,
-    }).then((res: DetailGroupMessageResponse) => {
-      const count = res.groupInfo.count;
-      if (
-        res.failedMessageList.length > 0 &&
-        count.total === count.registeredFailed
-      ) {
-        throw new MessageNotReceivedError(res.failedMessageList);
+    const request = this.request.bind(this);
+    const messageSchema = requestSendMessageSchema.parse(messages);
+
+    const effect = Effect.gen(function* (_) {
+      /**
+       * 1. MessageParameter → Message 변환 및 기본 검증
+       */
+      const messageParameters = Array.isArray(messageSchema)
+        ? messageSchema
+        : [messageSchema];
+
+      if (messageParameters.length === 0) {
+        return yield* _(
+          Effect.fail(
+            new BadRequestError(
+              '데이터가 반드시 1건 이상 기입되어 있어야 합니다.',
+            ),
+          ),
+        );
       }
-      return res;
+
+      /**
+       * 2. sendRequestConfigSchema 기반 requestConfig 검증 및 파라미터 생성
+       */
+      const parsedConfig =
+        sendRequestConfigSchema.parse(requestConfigParameter) ??
+        ({} as SendRequestConfigSchema);
+
+      const parameterObject = {
+        messages: messageParameters,
+        ...(parsedConfig.allowDuplicates
+          ? {allowDuplicates: parsedConfig.allowDuplicates}
+          : {}),
+        ...(parsedConfig.appId ? {agent: {appId: parsedConfig.appId}} : {}),
+        ...(parsedConfig.scheduledDate
+          ? {scheduledDate: parsedConfig.scheduledDate}
+          : {}),
+        ...(parsedConfig.showMessageList
+          ? {showMessageList: parsedConfig.showMessageList}
+          : {}),
+      };
+
+      // 스키마 검증 및 파라미터 확정
+      const parameter =
+        multipleMessageSendingRequestSchema.parse(parameterObject);
+
+      /**
+       * 3. API 호출 (this.request) – Promise → Effect 변환
+       */
+      const response: DetailGroupMessageResponse = yield* _(
+        Effect.promise(() =>
+          request<
+            MultipleMessageSendingRequestSchema,
+            DetailGroupMessageResponse
+          >({
+            httpMethod: 'POST',
+            url: 'messages/v4/send-many/detail',
+            body: parameter,
+          }),
+        ),
+      );
+
+      /**
+       * 4. 모든 메시지 발송건이 실패인 경우 MessageNotReceivedError 반환
+       */
+      const {count} = response.groupInfo;
+      const failedAll =
+        response.failedMessageList.length > 0 &&
+        count.total === count.registeredFailed;
+
+      if (failedAll) {
+        return yield* _(
+          Effect.fail(new MessageNotReceivedError(response.failedMessageList)),
+        );
+      }
+
+      return response;
     });
+
+    return runtimeRunPromise(defaultRuntime, effect);
   }
 
   /**

@@ -3,9 +3,9 @@ import {
   KakaoAlimtalkTemplateHighlightType,
   KakaoAlimtalkTemplateItemType,
   KakaoAlimtalkTemplateMessageType,
-} from '../../kakao/kakaoAlimtalkTemplate';
-import {KakaoAlimtalkTemplateQuickReply} from '../../kakao/kakaoAlimtalkTemplateQuickReply';
-import {KakaoButton} from '../../kakao/kakaoButton';
+} from '../../base/kakao/kakaoAlimtalkTemplate';
+import {KakaoAlimtalkTemplateQuickReply} from '../../base/kakao/kakaoAlimtalkTemplateQuickReply';
+import {KakaoButton} from '../../base/kakao/kakaoButton';
 
 /**
  * @description 카카오 알림톡 템플릿 요청 타입

@@ -1,7 +1,11 @@
-import stringDateTransfer from '../../lib/stringDateTrasnfer';
-import {GetKakaoTemplateResponse} from '../../models/responses/kakao/getKakaoTemplateResponse';
-import {KakaoAlimtalkTemplateQuickReply} from './kakaoAlimtalkTemplateQuickReply';
-import {KakaoButton} from './kakaoButton';
+import {z} from 'zod/v4';
+import stringDateTransfer from '@lib/stringDateTrasnfer';
+import {GetKakaoTemplateResponse} from '../../responses/kakao/getKakaoTemplateResponse';
+import {
+  KakaoAlimtalkTemplateQuickReply,
+  kakaoAlimtalkTemplateQuickReplySchema,
+} from './kakaoAlimtalkTemplateQuickReply';
+import {KakaoButton, kakaoButtonSchema} from './kakaoButton';
 import {KakaoChannelCategory} from './kakaoChannel';
 
 /**
@@ -17,6 +21,13 @@ export type KakaoAlimtalkTemplateCategory = KakaoChannelCategory;
  */
 export type KakaoAlimtalkTemplateMessageType = 'BA' | 'EX' | 'AD' | 'MI';
 
+export const kakaoAlimtalkTemplateMessageTypeSchema = z.enum([
+  'BA',
+  'EX',
+  'AD',
+  'MI',
+]);
+
 /**
  * @description 카카오 알림톡 템플릿 강조 유형<br>
  * NONE: 선택안함, TEXT: 강조표기형, IMAGE: 이미지형, ITEM_LIST: 아이템리스트형
@@ -27,10 +38,22 @@ export type KakaoAlimtalkTemplateEmphasizeType =
   | 'IMAGE'
   | 'ITEM_LIST';
 
+export const kakaoAlimtalkTemplateEmphasizeTypeSchema = z.enum([
+  'NONE',
+  'TEXT',
+  'IMAGE',
+  'ITEM_LIST',
+]);
+
 /**
  * @description 카카오 알림톡 템플릿 그룹 유형(기본값은 Channel)
  */
 export type KakaoAlimtalkTemplateAssignType = 'CHANNEL' | 'GROUP';
+
+export const kakaoAlimtalkTemplateAssignTypeSchema = z.enum([
+  'CHANNEL',
+  'GROUP',
+]);
 
 /**
  * @description 카카오 알림톡 템플릿 상태<br><br>
@@ -45,6 +68,13 @@ export type KakaoAlimtalkTemplateStatus =
   | 'APPROVED'
   | 'REJECTED';
 
+export const kakaoAlimtalkTemplateStatusSchema = z.enum([
+  'PENDING',
+  'INSPECTING',
+  'APPROVED',
+  'REJECTED',
+]);
+
 /**
  * @description 알림톡 템플릿 댓글 타입
  */
@@ -55,11 +85,24 @@ export type KakaoAlimtalkTemplateCommentType = {
   dateCreated: string;
 };
 
+export const kakaoAlimtalkTemplateCommentTypeSchema = z.object({
+  isAdmin: z.boolean(),
+  memberId: z.string(),
+  content: z.string(),
+  dateCreated: z.string(),
+});
+
 export type KakaoAlimtalkTemplateHighlightType = {
   title?: string | null;
   description?: string | null;
   imageId?: string | null;
 };
+
+export const kakaoAlimtalkTemplateHighlightTypeSchema = z.object({
+  title: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  imageId: z.string().nullable().optional(),
+});
 
 export type KakaoAlimtalkTemplateItemType = {
   list: Array<{
@@ -71,6 +114,97 @@ export type KakaoAlimtalkTemplateItemType = {
     description?: string | null;
   };
 };
+
+export const kakaoAlimtalkTemplateItemTypeSchema = z.object({
+  list: z.array(
+    z.object({
+      title: z.string(),
+      description: z.string(),
+    }),
+  ),
+  summary: z.object({
+    title: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
+  }),
+});
+
+export const kakaoAlimtalkTemplateSchema = z.object({
+  name: z.string().describe('템플릿 제목'),
+  channelId: z
+    .string()
+    .nullable()
+    .optional()
+    .describe('카카오 비즈니스 채널 ID'),
+  channelGroupId: z
+    .string()
+    .nullable()
+    .optional()
+    .describe('카카오 비즈니스 채널 그룹 ID'),
+  content: z.string().optional().describe('알림톡 템플릿 내용'),
+  isHidden: z.boolean().optional().describe('알림톡 템플릿 숨김 여부'),
+  messageType:
+    kakaoAlimtalkTemplateMessageTypeSchema.describe(
+      '알림톡 템플릿 메시지 유형',
+    ),
+  emphasizeType: kakaoAlimtalkTemplateEmphasizeTypeSchema.describe('강조 유형'),
+  extra: z.string().nullable().optional().describe('부가정보'),
+  ad: z.string().nullable().optional().describe('간단 광고 문구'),
+  emphasizeTitle: z
+    .string()
+    .nullable()
+    .optional()
+    .describe('강조표기 핵심문구'),
+  emphasizeSubtitle: z
+    .string()
+    .nullable()
+    .optional()
+    .describe('강조표기 보조문구'),
+  securityFlag: z.boolean().describe('PC 노출 여부'),
+  imageId: z
+    .string()
+    .nullable()
+    .optional()
+    .describe('템플릿에 사용되는 이미지 ID'),
+  assignType: kakaoAlimtalkTemplateAssignTypeSchema
+    .optional()
+    .describe('카카오 알림톡 템플릿 그룹 유형'),
+  buttons: z
+    .array(kakaoButtonSchema)
+    .optional()
+    .describe('카카오 알림톡 템플릿 버튼 목록'),
+  comments: z
+    .array(kakaoAlimtalkTemplateCommentTypeSchema)
+    .optional()
+    .describe('카카오 알림톡 템플릿 상태 현황목록'),
+  commentable: z
+    .boolean()
+    .optional()
+    .describe('의견을 남길 수 있는 템플릿 여부'),
+  quickReplies: z
+    .array(kakaoAlimtalkTemplateQuickReplySchema)
+    .optional()
+    .describe('바로가기 연결(링크) 목록'),
+  header: z.string().nullable().optional().describe('아이템 리스트 용 헤더'),
+  highlight: kakaoAlimtalkTemplateHighlightTypeSchema
+    .optional()
+    .describe('아이템 리스트용 하이라이트 정보 유형'),
+  item: kakaoAlimtalkTemplateItemTypeSchema
+    .optional()
+    .describe('아이템 리스트 유형'),
+  templateId: z.string().describe('카카오 알림톡 템플릿 ID'),
+  code: z
+    .string()
+    .optional()
+    .describe('긴급 검수를 위한 알림토 딜러사 측 템플릿 코드'),
+  status:
+    kakaoAlimtalkTemplateStatusSchema.describe('카카오 알림톡 템플릿 상태'),
+  dateCreated: z.date().optional().describe('알림톡 템플릿 생성일자'),
+  dateUpdated: z.date().optional().describe('알림톡 템플릿 수정일자'),
+});
+
+export type KakaoAlimtalkTemplateSchema = z.infer<
+  typeof kakaoAlimtalkTemplateSchema
+>;
 
 export interface KakaoAlimtalkTemplateInterface {
   /**

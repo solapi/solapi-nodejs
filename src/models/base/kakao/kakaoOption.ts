@@ -1,5 +1,16 @@
-import {kakaoOptionRequest} from '../../models/requests/kakao/kakaoOptionRequest';
-import {KakaoButton} from './kakaoButton';
+import z from 'zod/v4';
+import {kakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
+import {KakaoButton, kakaoButtonSchema} from './kakaoButton';
+
+export const baseKakaoOptionSchema = z.object({
+  pfId: z.string(),
+  templateId: z.string().optional(),
+  variables: z.record(z.string(), z.string()).optional(),
+  disableSms: z.boolean().optional(),
+  adFlag: z.boolean().optional(),
+  imageId: z.string().optional(),
+  buttons: z.array(kakaoButtonSchema).optional(),
+});
 
 export class KakaoOption {
   pfId: string;

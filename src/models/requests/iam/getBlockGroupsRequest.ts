@@ -17,7 +17,7 @@ export interface GetBlockGroupsRequest {
   /**
    * @description 수신 거부 그룹 이름 (부분 검색 가능)
    */
-  name?: { like: string } | string;
+  name?: {like: string} | string;
 
   /**
    * @description 수신 거부 그룹 활성화 상태
@@ -39,7 +39,7 @@ export class GetBlockGroupsFinalizeRequest implements GetBlockGroupsRequest {
   blockGroupId?: string;
   useAll?: boolean;
   senderNumber?: string;
-  name?: { like: string } | string;
+  name?: {like: string} | string;
   status?: 'ACTIVE' | 'INACTIVE';
   startKey?: string;
   limit?: number;

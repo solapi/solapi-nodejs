@@ -1,4 +1,4 @@
-import {KakaoAlimtalkTemplate} from '../../kakao/kakaoAlimtalkTemplate';
+import {KakaoAlimtalkTemplate} from '../../base/kakao/kakaoAlimtalkTemplate';
 import {GetKakaoTemplateResponse} from './getKakaoTemplateResponse';
 
 export interface GetKakaoAlimtalkTemplatesResponse {

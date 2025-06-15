@@ -1,4 +1,4 @@
-import {BlockGroup} from '../../../types/commonTypes';
+import {BlockGroup} from '@internal-types/commonTypes';
 
 export type GetBlockGroupsResponse = {
   startKey: string | null | undefined;

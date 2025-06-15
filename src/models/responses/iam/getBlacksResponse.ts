@@ -1,4 +1,4 @@
-import {Black, HandleKey} from '../../../types/commonTypes';
+import {Black, HandleKey} from '@internal-types/commonTypes';
 
 export type GetBlacksResponse = {
   startKey: string | null | undefined;

@@ -1,14 +1,14 @@
-import stringifyQuery from '../../lib/stringifyQuery';
+import stringifyQuery from '@lib/stringifyQuery';
 import {
   GetBlacksFinalizeRequest,
   GetBlacksRequest,
-} from '../../models/requests/iam/getBlacksRequest';
+} from '@models/requests/iam/getBlacksRequest';
 import {
   GetBlockGroupsFinalizeRequest,
   GetBlockGroupsRequest,
-} from '../../models/requests/iam/getBlockGroupsRequest';
-import {GetBlacksResponse} from '../../models/responses/iam/getBlacksResponse';
-import {GetBlockGroupsResponse} from '../../models/responses/iam/getBlockGroupsResponse';
+} from '@models/requests/iam/getBlockGroupsRequest';
+import {GetBlacksResponse} from '@models/responses/iam/getBlacksResponse';
+import {GetBlockGroupsResponse} from '@models/responses/iam/getBlockGroupsResponse';
 import DefaultService from '../defaultService';
 
 export default class IamService extends DefaultService {

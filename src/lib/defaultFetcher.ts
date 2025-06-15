@@ -104,8 +104,10 @@ export default async function defaultFetcher<T, R>(
     ),
   );
 
+  const retryCount = 3;
+
   const policy = pipe(
-    Schedule.recurs(3),
+    Schedule.recurs(retryCount),
     Schedule.whileInput(
       (e: unknown): e is RetryableError => e instanceof RetryableError,
     ),
@@ -117,8 +119,8 @@ export default async function defaultFetcher<T, R>(
     Effect.catchTag('RetryableError', () =>
       Effect.fail(
         new DefaultError(
-          'RequestFailedAfterRetries',
-          'Request failed after multiple retries',
+          'RequestFailedAfterRetryError',
+          `Request failed after retry(count: ${retryCount})`,
         ),
       ),
     ),

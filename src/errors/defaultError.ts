@@ -1,4 +1,4 @@
-import {FailedMessage} from '../models/responses/sendManyDetailResponse';
+import {FailedMessage} from '@models/responses/sendManyDetailResponse';
 
 export type ErrorResponse = {
   errorCode: string;

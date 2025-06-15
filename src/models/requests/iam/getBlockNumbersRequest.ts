@@ -17,7 +17,7 @@ export interface GetBlockNumbersRequest {
   /**
    * @description 수신 차단 그룹 별 수신번호 목록에 대한 메모 (부분 검색 가능)
    */
-  memo?: { like: string } | string;
+  memo?: {like: string} | string;
 
   /**
    * @description 페이지네이션 조회 키
@@ -34,7 +34,7 @@ export class GetBlockNumbersFinalizeRequest implements GetBlockNumbersRequest {
   blockNumberId?: string;
   phoneNumber?: string;
   blockGroupId?: string;
-  memo?: { like: string } | string;
+  memo?: {like: string} | string;
   startKey?: string;
   limit?: number;
 
