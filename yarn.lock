@@ -1272,6 +1272,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-file-progress@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "eslint-plugin-file-progress@npm:3.0.2"
+  dependencies:
+    nanospinner: "npm:^1.2.0"
+    picocolors: "npm:^1.1.1"
+  peerDependencies:
+    eslint: ^9.0.0
+  checksum: 10/eb5d65a8b9745699ba2c93eb9a08843a4da3c0939b659d0c04a0a5dc3e13a36398673b74e6b91010d6bbe6d0f916bd5034564db178fa05301d7b5376905a2bd5
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-tsdoc@npm:^0.4.0":
   version: 0.4.0
   resolution: "eslint-plugin-tsdoc@npm:0.4.0"
@@ -2152,6 +2164,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanospinner@npm:^1.2.0":
+  version: 1.2.2
+  resolution: "nanospinner@npm:1.2.2"
+  dependencies:
+    picocolors: "npm:^1.1.1"
+  checksum: 10/40ed63364c95b58806a9989b16af8728fdb57d19a8bf05e643542a0c64b184df29435308a07a618af48817f22850dc1ef5827724c226047cab7e70bd22705a0e
+  languageName: node
+  linkType: hard
+
 "natural-compare@npm:^1.4.0":
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
@@ -2651,6 +2672,7 @@ __metadata:
     date-fns: "npm:^4.1.0"
     effect: "npm:^3.16.5"
     eslint: "npm:^9"
+    eslint-plugin-file-progress: "npm:^3.0.2"
     eslint-plugin-tsdoc: "npm:^0.4.0"
     eslint-plugin-unused-imports: "npm:^4.1.4"
     globals: "npm:^16.0.0"

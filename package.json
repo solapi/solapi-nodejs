@@ -33,11 +33,11 @@
     "/dist"
   ],
   "scripts": {
-    "build": "yarn lint && tsup-node src/index.ts",
+    "build": "yarn lint && tsup",
     "docs": "typedoc --entryPointStrategy expand ./src",
     "format": "prettier ./**/*.ts ./**/*.js ./**/*.mjs",
-    "lint": "eslint .",
-    "dev": "tsup src/index.ts --watch"
+    "lint": "eslint . --plugin file-progress --rule \"file-progress/activate: 1\"",
+    "dev": "tsup --watch"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
@@ -51,6 +51,7 @@
     "@typescript-eslint/eslint-plugin": "^8.34.0",
     "@typescript-eslint/parser": "^8.34.0",
     "eslint": "^9",
+    "eslint-plugin-file-progress": "^3.0.2",
     "eslint-plugin-tsdoc": "^0.4.0",
     "eslint-plugin-unused-imports": "^4.1.4",
     "globals": "^16.0.0",

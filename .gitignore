@@ -31,3 +31,6 @@ Thumbs.db
 # Windows
 Desktop.ini
 $RECYCLE.BIN/
+
+# Claude
+CLAUDE.md

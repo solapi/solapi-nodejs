@@ -36,5 +36,15 @@ export default defineConfig(({watch}) => {
 
     // ESM 포맷에서 코드 분할을 비활성화하여 단일 파일 생성 (라이브러리 배포에 유리)
     splitting: false,
+
+    // 경로 별칭 설정 – 특정 디렉토리용 별칭 정의
+    alias: {
+      '@models': './src/models',
+      '@lib': './src/lib',
+      '@internal-types': './src/types',
+      '@services': './src/services',
+      // 루트 src 하위 전체를 가리키는 옵션을 추가적으로 원한다면 아래 라인을 유지하세요.
+      // '@': './src',
+    },
   };
 });

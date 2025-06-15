@@ -25,6 +25,16 @@
     "strictPropertyInitialization": false,
 
     /* Completeness */
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    /* Path mapping */
+    "baseUrl": "./",
+    "paths": {
+      "@models/*": ["src/models/*"],
+      "@models/requests/messages/*": ["src/models/requests/messages/*"],
+      "@lib/*": ["src/lib/*"],
+      "@internal-types/*": ["src/types/*"],
+      "@services/*": ["src/services/*"]
+    }
   }
 }
