@@ -1,4 +1,4 @@
-import {z} from 'zod/v4';
+import {Schema} from 'effect';
 import {FileIds} from '../../requests/messages/groupMessageRequest';
 import {KakaoOption, baseKakaoOptionSchema} from '../kakao/kakaoOption';
 import {naverOptionSchema} from '../naver/naverOption';
@@ -39,7 +39,7 @@ export type MessageType =
   | 'FAX'
   | 'VOICE';
 
-export const messageTypeSchema = z.enum([
+export const messageTypeSchema = Schema.Literal(
   'SMS',
   'LMS',
   'MMS',
@@ -55,47 +55,30 @@ export const messageTypeSchema = z.enum([
   'RCS_LTPL',
   'FAX',
   'VOICE',
-]);
+);
 
-export const messageSchema = z
-  .object({
-    to: z.union([z.string(), z.array(z.string())]).describe('수신번호'),
-    from: z.string().optional().describe('발신번호'),
-    text: z.string().optional().describe('메시지 내용'),
-    imageId: z.string().optional().describe('MMS 전용 스토리지(이미지) ID'),
-    type: messageTypeSchema.optional().describe('메시지 유형'),
-    subject: z.string().optional().describe('문자 제목(LMS, MMS 전용)'),
-    autoTypeDetect: z
-      .boolean()
-      .optional()
-      .default(true)
-      .describe('메시지 타입 감지 여부'),
-    kakaoOptions: baseKakaoOptionSchema
-      .optional()
-      .describe('카카오 알림톡/친구톡을 위한 프로퍼티'),
-    rcsOptions: rcsOptionSchema
-      .optional()
-      .describe('RCS 메시지를 위한 프로퍼티'),
-    country: z.string().optional().describe('해외 문자 발송을 위한 국가번호'),
-    replacements: z.array(z.object({})).optional(),
-    customFields: z
-      .record(z.string(), z.string())
-      .optional()
-      .describe('사용자 커스텀 필드'),
-    faxOptions: z
-      .object({
-        fileIds: z.array(z.string()),
-      })
-      .optional(),
-    naverOptions: z
-      .object({...naverOptionSchema})
-      .optional()
-      .describe('네이버 톡톡 발송을 위한 프로퍼티'),
-  })
-  // 모든 필드는 명시적으로 정의된 항목만 허용
-  .strict();
+export const messageSchema = Schema.Struct({
+  to: Schema.Union(Schema.String, Schema.Array(Schema.String)),
+  from: Schema.optional(Schema.String),
+  text: Schema.optional(Schema.String),
+  imageId: Schema.optional(Schema.String),
+  type: Schema.optional(messageTypeSchema),
+  subject: Schema.optional(Schema.String),
+  autoTypeDetect: Schema.optional(Schema.Boolean),
+  kakaoOptions: Schema.optional(baseKakaoOptionSchema),
+  rcsOptions: Schema.optional(rcsOptionSchema),
+  country: Schema.optional(Schema.String),
+  replacements: Schema.optional(Schema.Array(Schema.Struct({}))),
+  customFields: Schema.optional(
+    Schema.Record({key: Schema.String, value: Schema.String}),
+  ),
+  faxOptions: Schema.optional(
+    Schema.Struct({fileIds: Schema.Array(Schema.String)}),
+  ),
+  naverOptions: Schema.optional(naverOptionSchema),
+});
 
-export type MessageSchema = z.infer<typeof messageSchema>;
+export type MessageSchema = Schema.Schema.Type<typeof messageSchema>;
 
 /**
  * 메시지 모델, 전체적인 메시지 발송을 위한 파라미터는 이 Message 모델에서 관장함
@@ -104,7 +87,7 @@ export class Message {
   /**
    * 수신번호
    */
-  to: string | Array<string>;
+  to: string | ReadonlyArray<string>;
 
   /**
    * 발신번호
@@ -174,8 +157,8 @@ export class Message {
   /**
    * 메시지 로그
    */
-  log?: Array<object>;
-  replacements?: Array<object>;
+  log?: ReadonlyArray<object>;
+  replacements?: ReadonlyArray<object>;
 
   /**
    * 메시지 상태 코드

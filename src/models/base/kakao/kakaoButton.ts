@@ -1,4 +1,4 @@
-import {z} from 'zod/v4';
+import {Schema} from 'effect';
 
 /**
  * @name "카카오 버튼타입"
@@ -42,29 +42,29 @@ export type KakaoDefaultButton = {
 
 export type KakaoButton = KakaoWebButton | KakaoAppButton | KakaoDefaultButton;
 
-export const kakaoWebButtonSchema = z.object({
-  buttonName: z.string(),
-  buttonType: z.literal('WL'),
-  linkMo: z.string(),
-  linkPc: z.string().optional(),
+export const kakaoWebButtonSchema = Schema.Struct({
+  buttonName: Schema.String,
+  buttonType: Schema.Literal('WL'),
+  linkMo: Schema.String,
+  linkPc: Schema.optional(Schema.String),
 });
 
-export const kakaoAppButtonSchema = z.object({
-  buttonName: z.string(),
-  buttonType: z.literal('AL'),
-  linkAnd: z.string(),
-  linkIos: z.string(),
+export const kakaoAppButtonSchema = Schema.Struct({
+  buttonName: Schema.String,
+  buttonType: Schema.Literal('AL'),
+  linkAnd: Schema.String,
+  linkIos: Schema.String,
 });
 
-export const kakaoDefaultButtonSchema = z.object({
-  buttonName: z.string(),
-  buttonType: z.enum(['BK', 'MD', 'DS', 'BC', 'BT', 'AC']),
+export const kakaoDefaultButtonSchema = Schema.Struct({
+  buttonName: Schema.String,
+  buttonType: Schema.Literal('BK', 'MD', 'DS', 'BC', 'BT', 'AC'),
 });
 
-export const kakaoButtonSchema = z.union([
+export const kakaoButtonSchema = Schema.Union(
   kakaoWebButtonSchema,
   kakaoAppButtonSchema,
   kakaoDefaultButtonSchema,
-]);
+);
 
-export type KakaoButtonSchema = z.infer<typeof kakaoButtonSchema>;
+export type KakaoButtonSchema = Schema.Schema.Type<typeof kakaoButtonSchema>;

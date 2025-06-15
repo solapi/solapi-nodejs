@@ -5,7 +5,7 @@ import type {DefaultAgentType} from './requestConfig';
  * 그룹 메시지 추가 요청
  */
 export class GroupMessageAddRequest {
-  messages: Array<Message>;
+  messages: ReadonlyArray<Message>;
 
   constructor(messages: Array<Message>) {
     this.messages = messages;
@@ -23,7 +23,7 @@ export type ScheduledDateSendingRequest = {
  * 그룹에서 특정 메시지 삭제 요청
  */
 export type RemoveMessageIdsToGroupRequest = {
-  messageIds: Array<string>;
+  messageIds: ReadonlyArray<string>;
 };
 
 /**
@@ -38,7 +38,7 @@ export type GetGroupMessagesRequest = {
  * Storage API에서 사용하는 파일 ID 컬렉션 타입
  */
 export type FileIds = {
-  fileIds: Array<string>;
+  fileIds: ReadonlyArray<string>;
 };
 
 export type FileType = 'KAKAO' | 'MMS' | 'DOCUMENT' | 'RCS' | 'FAX';

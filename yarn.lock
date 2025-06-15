@@ -2680,7 +2680,6 @@ __metadata:
     tsup: "npm:^8.5.0"
     typedoc: "npm:^0.28.5"
     typescript: "npm:^5.8.3"
-    zod: "npm:^3.25.57"
   languageName: unknown
   linkType: soft
 
@@ -3114,12 +3113,5 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: 10/f77b3d8d00310def622123df93d4ee654fc6a0096182af8bd60679ddcdfb3474c56c6c7190817c84a2785648cdee9d721c0154eb45698c62176c322fb46fc700
-  languageName: node
-  linkType: hard
-
-"zod@npm:^3.25.57":
-  version: 3.25.57
-  resolution: "zod@npm:3.25.57"
-  checksum: 10/20d4597d92fe4adaa3164e07a354037eb547a1f33142e18c703ffa205ae3254b6dcdb84f39927bf6ffceacccb1089c340b3c833ed141752431af1eb1d7e213e1
   languageName: node
   linkType: hard

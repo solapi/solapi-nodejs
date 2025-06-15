@@ -1,5 +1,4 @@
-import {z} from 'zod/v4';
-import {formatWithTransfer} from '@lib/stringDateTrasnfer';
+import {Schema} from 'effect';
 
 // SDK 및 OS 정보
 const osPlatform = `${process.platform} | ${process.version}`;
@@ -14,37 +13,32 @@ export type DefaultAgentType = {
 };
 
 // Agent 정보 Zod 스키마
-export const defaultAgentTypeSchema = z.object({
-  sdkVersion: z.string().optional().default(sdkVersion),
-  osPlatform: z.string().optional().default(osPlatform),
-  appId: z.string().optional(),
+export const defaultAgentTypeSchema = Schema.Struct({
+  sdkVersion: Schema.optional(Schema.String).pipe(
+    Schema.withDecodingDefault(() => sdkVersion),
+    Schema.withConstructorDefault(() => sdkVersion),
+  ),
+  osPlatform: Schema.optional(Schema.String).pipe(
+    Schema.withDecodingDefault(() => osPlatform),
+    Schema.withConstructorDefault(() => osPlatform),
+  ),
+  appId: Schema.optional(Schema.String),
 });
 
 // send 요청 시 사용되는 Config 스키마
-export const sendRequestConfigSchema = z.object({
-  scheduledDate: z
-    .preprocess(
-      val => {
-        if (typeof val === 'string') {
-          return formatWithTransfer(val);
-        }
-        return val;
-      },
-      z.union([z.string(), z.date()]),
-    )
-    .optional(),
-  allowDuplicates: z.boolean().optional(),
-  appId: z.string().optional(),
-  showMessageList: z.boolean().optional(),
+export const sendRequestConfigSchema = Schema.Struct({
+  scheduledDate: Schema.optional(Schema.Union(Schema.String, Schema.Date)),
+  allowDuplicates: Schema.optional(Schema.Boolean),
+  appId: Schema.optional(Schema.String),
+  showMessageList: Schema.optional(Schema.Boolean),
 });
 
-export type SendRequestConfigSchema = z.infer<typeof sendRequestConfigSchema>;
+export type SendRequestConfigSchema = Schema.Schema.Type<
+  typeof sendRequestConfigSchema
+>;
 
 // 메시지 요청 시 공통으로 사용하는 기본 스키마
-export const defaultMessageRequestSchema = z.object({
-  allowDuplicates: z.boolean().optional().default(false),
-  agent: defaultAgentTypeSchema.default({
-    sdkVersion,
-    osPlatform,
-  }),
+export const defaultMessageRequestSchema = Schema.Struct({
+  allowDuplicates: Schema.optional(Schema.Boolean),
+  agent: Schema.optional(defaultAgentTypeSchema),
 });

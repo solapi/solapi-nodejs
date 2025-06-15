@@ -1,4 +1,4 @@
-import {z} from 'zod/v4';
+import {Schema} from 'effect';
 
 /**
  * @name "RCS 버튼타입"
@@ -13,7 +13,7 @@ export type RcsButtonType =
   | 'DL' // (전화걸기)
   | 'MS'; // (메시지보내기)
 
-export const rcsButtonTypeSchema = z.enum([
+export const rcsButtonTypeSchema = Schema.Literal(
   'WL',
   'ML',
   'MQ',
@@ -22,7 +22,7 @@ export const rcsButtonTypeSchema = z.enum([
   'CL',
   'DL',
   'MS',
-]);
+);
 
 export type RcsWebButton = {
   buttonName: string;
@@ -45,29 +45,29 @@ export type RcsDefaultButton = {
 
 export type RcsButton = RcsWebButton | RcsMapButton | RcsDefaultButton;
 
-export const rcsWebButtonSchema = z.object({
-  buttonName: z.string(),
-  buttonType: z.literal('WL'),
-  link: z.string(),
+export const rcsWebButtonSchema = Schema.Struct({
+  buttonName: Schema.String,
+  buttonType: Schema.Literal('WL'),
+  link: Schema.String,
 });
 
-export const rcsMapButtonSchema = z.object({
-  buttonName: z.string(),
-  buttonType: z.literal('ML'),
-  latitude: z.string(),
-  longitude: z.string(),
+export const rcsMapButtonSchema = Schema.Struct({
+  buttonName: Schema.String,
+  buttonType: Schema.Literal('ML'),
+  latitude: Schema.String,
+  longitude: Schema.String,
 });
 
-export const rcsDefaultButtonSchema = z.object({
-  buttonName: z.string(),
-  buttonType: z.enum(['MQ', 'MR', 'CA', 'CL', 'DL', 'MS']),
-  link: z.string(),
+export const rcsDefaultButtonSchema = Schema.Struct({
+  buttonName: Schema.String,
+  buttonType: Schema.Literal('MQ', 'MR', 'CA', 'CL', 'DL', 'MS'),
+  link: Schema.String,
 });
 
-export const rcsButtonSchema = z.union([
+export const rcsButtonSchema = Schema.Union(
   rcsWebButtonSchema,
   rcsMapButtonSchema,
   rcsDefaultButtonSchema,
-]);
+);
 
-export type RcsButtonSchema = z.infer<typeof rcsButtonSchema>;
+export type RcsButtonSchema = Schema.Schema.Type<typeof rcsButtonSchema>;

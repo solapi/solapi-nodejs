@@ -1,4 +1,4 @@
-import {z} from 'zod/v4';
+import {Schema} from 'effect';
 import {KakaoButtonType} from './kakaoButton';
 
 export type KakaoAlimtalkTemplateQuickReplyWebLink = {
@@ -33,31 +33,31 @@ export type KakaoAlimtalkTemplateQuickReply =
   | KakaoAlimtalkTemplateQuickReplyAppLink
   | KakaoAlimtalkTemplateQuickReplyDefault;
 
-export const kakaoAlimtalkTemplateQuickReplyWebLinkSchema = z.object({
-  name: z.string(),
-  linkType: z.literal('WL'),
-  linkMo: z.string(),
-  linkPc: z.string().optional(),
+export const kakaoAlimtalkTemplateQuickReplyWebLinkSchema = Schema.Struct({
+  name: Schema.String,
+  linkType: Schema.Literal('WL'),
+  linkMo: Schema.String,
+  linkPc: Schema.optional(Schema.String),
 });
 
-export const kakaoAlimtalkTemplateQuickReplyAppLinkSchema = z.object({
-  name: z.string(),
-  linkType: z.literal('AL'),
-  linkAnd: z.string(),
-  linkIos: z.string(),
+export const kakaoAlimtalkTemplateQuickReplyAppLinkSchema = Schema.Struct({
+  name: Schema.String,
+  linkType: Schema.Literal('AL'),
+  linkAnd: Schema.String,
+  linkIos: Schema.String,
 });
 
-export const kakaoAlimtalkTemplateQuickReplyDefaultSchema = z.object({
-  name: z.string(),
-  linkType: z.enum(['BK', 'BT', 'BC']),
+export const kakaoAlimtalkTemplateQuickReplyDefaultSchema = Schema.Struct({
+  name: Schema.String,
+  linkType: Schema.Literal('BK', 'BT', 'BC'),
 });
 
-export const kakaoAlimtalkTemplateQuickReplySchema = z.union([
+export const kakaoAlimtalkTemplateQuickReplySchema = Schema.Union(
   kakaoAlimtalkTemplateQuickReplyWebLinkSchema,
   kakaoAlimtalkTemplateQuickReplyAppLinkSchema,
   kakaoAlimtalkTemplateQuickReplyDefaultSchema,
-]);
+);
 
-export type KakaoAlimtalkTemplateQuickReplySchema = z.infer<
+export type KakaoAlimtalkTemplateQuickReplySchema = Schema.Schema.Type<
   typeof kakaoAlimtalkTemplateQuickReplySchema
 >;

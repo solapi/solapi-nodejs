@@ -1,15 +1,17 @@
-import z from 'zod/v4';
+import {Schema} from 'effect';
 import {kakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
 import {KakaoButton, kakaoButtonSchema} from './kakaoButton';
 
-export const baseKakaoOptionSchema = z.object({
-  pfId: z.string(),
-  templateId: z.string().optional(),
-  variables: z.record(z.string(), z.string()).optional(),
-  disableSms: z.boolean().optional(),
-  adFlag: z.boolean().optional(),
-  imageId: z.string().optional(),
-  buttons: z.array(kakaoButtonSchema).optional(),
+export const baseKakaoOptionSchema = Schema.Struct({
+  pfId: Schema.String,
+  templateId: Schema.optional(Schema.String),
+  variables: Schema.optional(
+    Schema.Record({key: Schema.String, value: Schema.String}),
+  ),
+  disableSms: Schema.optional(Schema.Boolean),
+  adFlag: Schema.optional(Schema.Boolean),
+  imageId: Schema.optional(Schema.String),
+  buttons: Schema.optional(Schema.Array(kakaoButtonSchema)),
 });
 
 export class KakaoOption {
@@ -18,7 +20,7 @@ export class KakaoOption {
   variables?: Record<string, string>;
   disableSms?: boolean;
   adFlag?: boolean;
-  buttons?: Array<KakaoButton>;
+  buttons?: ReadonlyArray<KakaoButton>;
   imageId?: string;
 
   constructor(parameter: kakaoOptionRequest) {

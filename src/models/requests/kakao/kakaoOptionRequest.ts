@@ -1,4 +1,4 @@
-import {z} from 'zod/v4';
+import {Schema} from 'effect';
 import {KakaoButton, kakaoButtonSchema} from '../../base/kakao/kakaoButton';
 
 export type kakaoOptionRequest = {
@@ -7,16 +7,18 @@ export type kakaoOptionRequest = {
   variables?: Record<string, string>;
   disableSms?: boolean;
   adFlag?: boolean;
-  buttons?: Array<KakaoButton>;
+  buttons?: ReadonlyArray<KakaoButton>;
   imageId?: string;
 };
 
-export const kakaoOptionRequestSchema = z.object({
-  pfId: z.string(),
-  templateId: z.string().optional(),
-  variables: z.record(z.string(), z.string()).optional(),
-  disableSms: z.boolean().optional(),
-  adFlag: z.boolean().optional(),
-  buttons: z.array(kakaoButtonSchema).optional(),
-  imageId: z.string().optional(),
+export const kakaoOptionRequestSchema = Schema.Struct({
+  pfId: Schema.String,
+  templateId: Schema.optional(Schema.String),
+  variables: Schema.optional(
+    Schema.Record({key: Schema.String, value: Schema.String}),
+  ),
+  disableSms: Schema.optional(Schema.Boolean),
+  adFlag: Schema.optional(Schema.Boolean),
+  buttons: Schema.optional(Schema.Array(kakaoButtonSchema)),
+  imageId: Schema.optional(Schema.String),
 });

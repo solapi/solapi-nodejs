@@ -1,3 +1,4 @@
+import {formatWithTransfer} from '@lib/stringDateTrasnfer';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   GetMessagesFinalizeRequest,
@@ -25,6 +26,7 @@ import {
   SingleMessageSentResponse,
 } from '@models/responses/messageResponses';
 import {DetailGroupMessageResponse} from '@models/responses/sendManyDetailResponse';
+import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import {defaultRuntime, runPromise as runtimeRunPromise} from 'effect/Runtime';
 import {
@@ -57,8 +59,10 @@ export default class MessageService extends DefaultService {
     message: RequestSendOneMessageSchema,
     appId?: string,
   ): Promise<SingleMessageSentResponse> {
-    // Zod 스키마를 통한 파라미터 검증
-    const parsedMessage = requestSendOneMessageSchema.parse(message);
+    // Effect-Schema 기반 런타임 검증
+    const parsedMessage = Schema.decodeSync(requestSendOneMessageSchema)(
+      message,
+    );
 
     const parameter = {
       message: parsedMessage,
@@ -87,7 +91,7 @@ export default class MessageService extends DefaultService {
     requestConfigParameter?: SendRequestConfigSchema,
   ): Promise<DetailGroupMessageResponse> {
     const request = this.request.bind(this);
-    const messageSchema = requestSendMessageSchema.parse(messages);
+    const messageSchema = Schema.decodeSync(requestSendMessageSchema)(messages);
 
     const effect = Effect.gen(function* (_) {
       /**
@@ -107,30 +111,27 @@ export default class MessageService extends DefaultService {
         );
       }
 
-      /**
-       * 2. sendRequestConfigSchema 기반 requestConfig 검증 및 파라미터 생성
-       */
-      const parsedConfig =
-        sendRequestConfigSchema.parse(requestConfigParameter) ??
-        ({} as SendRequestConfigSchema);
+      const parsedConfig = Schema.decodeUnknownSync(sendRequestConfigSchema)(
+        requestConfigParameter,
+      );
+
+      const scheduledDate =
+        parsedConfig.scheduledDate != undefined
+          ? formatWithTransfer(parsedConfig.scheduledDate)
+          : undefined;
 
       const parameterObject = {
         messages: messageParameters,
-        ...(parsedConfig.allowDuplicates
-          ? {allowDuplicates: parsedConfig.allowDuplicates}
-          : {}),
+        allowDuplicates: parsedConfig.allowDuplicates,
         ...(parsedConfig.appId ? {agent: {appId: parsedConfig.appId}} : {}),
-        ...(parsedConfig.scheduledDate
-          ? {scheduledDate: parsedConfig.scheduledDate}
-          : {}),
-        ...(parsedConfig.showMessageList
-          ? {showMessageList: parsedConfig.showMessageList}
-          : {}),
+        scheduledDate,
+        showMessageList: parsedConfig.showMessageList,
       };
 
       // 스키마 검증 및 파라미터 확정
-      const parameter =
-        multipleMessageSendingRequestSchema.parse(parameterObject);
+      const parameter = Schema.decodeSync(multipleMessageSendingRequestSchema)(
+        parameterObject,
+      );
 
       /**
        * 3. API 호출 (this.request) – Promise → Effect 변환
