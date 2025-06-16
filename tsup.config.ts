@@ -46,5 +46,13 @@ export default defineConfig(({watch}) => {
       // 루트 src 하위 전체를 가리키는 옵션을 추가적으로 원한다면 아래 라인을 유지하세요.
       // '@': './src',
     },
+
+    // tsup --watch 시 변경 감지를 무시할 경로
+    ignoreWatch: [
+      '**/debug/**',
+      '**/changelog/**',
+      '**/examples/**',
+      '**/docs/**',
+    ],
   };
 });
