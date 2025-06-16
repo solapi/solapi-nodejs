@@ -1,4 +1,4 @@
-import {formatWithTransfer} from '@lib/stringDateTrasnfer';
+import { formatWithTransfer } from '@lib/stringDateTrasnfer';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   GetMessagesFinalizeRequest,
@@ -19,31 +19,22 @@ import {
   RequestSendMessagesSchema,
   requestSendOneMessageSchema,
   RequestSendOneMessageSchema,
+  SingleMessageSendingRequestSchema,
 } from '@models/requests/messages/sendMessage';
 import {
   GetMessagesResponse,
   GetStatisticsResponse,
   SingleMessageSentResponse,
 } from '@models/responses/messageResponses';
-import {DetailGroupMessageResponse} from '@models/responses/sendManyDetailResponse';
-import {Schema} from 'effect';
+import { DetailGroupMessageResponse } from '@models/responses/sendManyDetailResponse';
+import { Schema } from 'effect';
 import * as Effect from 'effect/Effect';
-import {defaultRuntime, runPromise as runtimeRunPromise} from 'effect/Runtime';
+import { defaultRuntime, runPromise as runtimeRunPromise } from 'effect/Runtime';
 import {
   BadRequestError,
   MessageNotReceivedError,
 } from '../../errors/defaultError';
 import DefaultService from '../defaultService';
-
-// 단건 메시지 발송 요청 바디 타입
-export type SingleMessageSendingRequestSchema = {
-  message: RequestSendOneMessageSchema;
-  agent?: {
-    appId?: string;
-    sdkVersion?: string;
-    osPlatform?: string;
-  };
-};
 
 export default class MessageService extends DefaultService {
   constructor(apiKey: string, apiSecret: string) {
@@ -60,14 +51,15 @@ export default class MessageService extends DefaultService {
     appId?: string,
   ): Promise<SingleMessageSentResponse> {
     // Effect-Schema 기반 런타임 검증
-    const parsedMessage = Schema.decodeUnknownSync(requestSendOneMessageSchema)(
+    const decodedMessage = Schema.decodeUnknownSync(requestSendOneMessageSchema)(
       message,
     );
 
     const parameter = {
-      message: parsedMessage,
-      ...(appId ? {agent: {appId}} : {}),
-    };
+      message: decodedMessage,
+      ...(appId ? { agent: { appId } } : {}),
+    } as SingleMessageSendingRequestSchema;
+
     return this.request<
       SingleMessageSendingRequestSchema,
       SingleMessageSentResponse
@@ -125,7 +117,7 @@ export default class MessageService extends DefaultService {
       const parameterObject = {
         messages: messageParameters,
         allowDuplicates: decodedConfig.allowDuplicates,
-        ...(decodedConfig.appId ? {agent: {appId: decodedConfig.appId}} : {}),
+        ...(decodedConfig.appId ? { agent: { appId: decodedConfig.appId } } : {}),
         scheduledDate,
         showMessageList: decodedConfig.showMessageList,
       };
@@ -154,7 +146,7 @@ export default class MessageService extends DefaultService {
       /**
        * 4. 모든 메시지 발송건이 실패인 경우 MessageNotReceivedError 반환
        */
-      const {count} = response.groupInfo;
+      const { count } = response.groupInfo;
       const failedAll =
         response.failedMessageList.length > 0 &&
         count.total === count.registeredFailed;
