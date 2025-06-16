@@ -91,7 +91,9 @@ export default class MessageService extends DefaultService {
     requestConfigParameter?: SendRequestConfigSchema,
   ): Promise<DetailGroupMessageResponse> {
     const request = this.request.bind(this);
-    const messageSchema = Schema.decodeSync(requestSendMessageSchema)(messages);
+    const messageSchema = Schema.decodeUnknownSync(requestSendMessageSchema)(
+      messages,
+    );
 
     const effect = Effect.gen(function* (_) {
       /**

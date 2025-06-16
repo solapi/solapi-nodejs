@@ -12,7 +12,7 @@ export type DefaultAgentType = {
   appId?: string;
 };
 
-// Agent 정보 Zod 스키마
+// Agent 정보 Effect 스키마
 export const defaultAgentTypeSchema = Schema.Struct({
   sdkVersion: Schema.optional(Schema.String).pipe(
     Schema.withDecodingDefault(() => sdkVersion),
@@ -27,7 +27,9 @@ export const defaultAgentTypeSchema = Schema.Struct({
 
 // send 요청 시 사용되는 Config 스키마
 export const sendRequestConfigSchema = Schema.Struct({
-  scheduledDate: Schema.optional(Schema.Union(Schema.String, Schema.Date)),
+  scheduledDate: Schema.optional(
+    Schema.Union(Schema.DateFromSelf, Schema.String),
+  ),
   allowDuplicates: Schema.optional(Schema.Boolean),
   appId: Schema.optional(Schema.String),
   showMessageList: Schema.optional(Schema.Boolean),
