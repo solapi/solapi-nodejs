@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "date-fns": "^4.1.0",
-    "effect": "^3.16.5"
+    "effect": "^3.16.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -113,21 +113,21 @@ export default class MessageService extends DefaultService {
         );
       }
 
-      const parsedConfig = Schema.decodeUnknownSync(sendRequestConfigSchema)(
+      const decodedConfig = Schema.decodeUnknownSync(sendRequestConfigSchema)(
         requestConfigParameter,
       );
 
       const scheduledDate =
-        parsedConfig.scheduledDate != undefined
-          ? formatWithTransfer(parsedConfig.scheduledDate)
+        decodedConfig.scheduledDate != undefined
+          ? formatWithTransfer(decodedConfig.scheduledDate)
           : undefined;
 
       const parameterObject = {
         messages: messageParameters,
-        allowDuplicates: parsedConfig.allowDuplicates,
-        ...(parsedConfig.appId ? {agent: {appId: parsedConfig.appId}} : {}),
+        allowDuplicates: decodedConfig.allowDuplicates,
+        ...(decodedConfig.appId ? {agent: {appId: decodedConfig.appId}} : {}),
         scheduledDate,
-        showMessageList: parsedConfig.showMessageList,
+        showMessageList: decodedConfig.showMessageList,
       };
 
       // 스키마 검증 및 파라미터 확정
