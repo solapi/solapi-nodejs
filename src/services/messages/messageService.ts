@@ -60,7 +60,7 @@ export default class MessageService extends DefaultService {
     appId?: string,
   ): Promise<SingleMessageSentResponse> {
     // Effect-Schema 기반 런타임 검증
-    const parsedMessage = Schema.decodeSync(requestSendOneMessageSchema)(
+    const parsedMessage = Schema.decodeUnknownSync(requestSendOneMessageSchema)(
       message,
     );
 

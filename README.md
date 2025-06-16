@@ -8,23 +8,32 @@ This package is 100% compatible with SOLAPI family services (CoolSMS and etc..).
 
 To use the SDK, simply use npm package manager CLI. Type the following into a terminal window.
 
-### NPM
+<details>
+<summary><strong>npm</strong></summary>
 
 ```bash
 npm install --save solapi
 ```
 
-### Yarn
+</details>
+
+<details>
+<summary><strong>yarn</strong></summary>
 
 ```bash
 yarn add solapi
 ```
 
-### PNPM
+</details>
+
+<details>
+<summary><strong>pnpm</strong></summary>
 
 ```bash
 pnpm add solapi
 ```
+
+</details>
 
 ## Usage
 
