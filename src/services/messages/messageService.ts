@@ -105,7 +105,7 @@ export default class MessageService extends DefaultService {
       }
 
       const decodedConfig = Schema.decodeUnknownSync(sendRequestConfigSchema)(
-        requestConfigParameter,
+        requestConfigParameter ?? {},
       );
 
       const parameterObject = {
