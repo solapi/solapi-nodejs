@@ -52,6 +52,7 @@ const fromPath = (path: string) =>
  * – http(s) URL 인 경우 네트워크로 가져오고, 그 외는 로컬 파일로 처리합니다.
  * – 오류는 명확하게 구분하여 반환합니다.
  * @param path 파일의 로컬 경로 또는 접근 가능한 URL
+ * @returns Base64 문자열
  */
 export default async function fileToBase64(path: string): Promise<string> {
   const program = isHttpUrl(path) ? fromUrl(path) : fromPath(path);
