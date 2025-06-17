@@ -1,3 +1,4 @@
+import {formatWithTransfer} from '@lib/stringDateTrasnfer';
 import {Schema} from 'effect';
 
 // SDK 및 OS 정보
@@ -28,7 +29,12 @@ export const defaultAgentTypeSchema = Schema.Struct({
 // send 요청 시 사용되는 Config 스키마
 export const sendRequestConfigSchema = Schema.Struct({
   scheduledDate: Schema.optional(
-    Schema.Union(Schema.DateFromSelf, Schema.String),
+    Schema.Union(Schema.DateFromSelf, Schema.DateFromString).pipe(
+      Schema.transform(Schema.String, {
+        decode: fromA => formatWithTransfer(fromA),
+        encode: toI => new Date(toI),
+      }),
+    ),
   ),
   allowDuplicates: Schema.optional(Schema.Boolean),
   appId: Schema.optional(Schema.String),

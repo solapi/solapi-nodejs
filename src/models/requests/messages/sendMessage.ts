@@ -1,6 +1,6 @@
-import { Schema } from 'effect';
-import { messageSchema } from '@models/base/messages/message';
-import { defaultAgentTypeSchema } from './requestConfig';
+import {messageSchema} from '@models/base/messages/message';
+import {Schema} from 'effect';
+import {defaultAgentTypeSchema} from './requestConfig';
 
 /**
  * 단건 메시지 발송 요청 모델
@@ -53,7 +53,6 @@ export type RequestSendMessagesSchema = Schema.Schema.Type<
 // 기본 Agent 객체 (sdkVersion, osPlatform 값 포함) – 빈 객체 디코딩으로 생성
 const defaultAgentValue = Schema.decodeSync(defaultAgentTypeSchema)({});
 
-// --- 추가: 단건 메시지 발송 요청 스키마 정의 ---
 export const singleMessageSendingRequestSchema = Schema.Struct({
   message: requestSendOneMessageSchema,
   agent: Schema.optional(defaultAgentTypeSchema).pipe(
@@ -69,7 +68,9 @@ export const multipleMessageSendingRequestSchema = Schema.Struct({
     Schema.withConstructorDefault(() => defaultAgentValue),
   ),
   messages: Schema.Array(requestSendOneMessageSchema),
-  scheduledDate: Schema.optional(Schema.Union(Schema.String, Schema.Date)),
+  scheduledDate: Schema.optional(
+    Schema.Union(Schema.DateFromSelf, Schema.DateFromString),
+  ),
   showMessageList: Schema.optional(Schema.Boolean),
 });
 
@@ -77,7 +78,6 @@ export type MultipleMessageSendingRequestSchema = Schema.Schema.Type<
   typeof multipleMessageSendingRequestSchema
 >;
 
-// --- 수정: Effect Schema 기반 타입으로 변경 ---
 export type SingleMessageSendingRequestSchema = Schema.Schema.Type<
   typeof singleMessageSendingRequestSchema
 >;
