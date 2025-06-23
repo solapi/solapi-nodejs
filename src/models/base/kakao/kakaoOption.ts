@@ -6,7 +6,23 @@ export const baseKakaoOptionSchema = Schema.Struct({
   pfId: Schema.String,
   templateId: Schema.optional(Schema.String),
   variables: Schema.optional(
-    Schema.Record({key: Schema.String, value: Schema.String}),
+    Schema.Record({key: Schema.String, value: Schema.String}).pipe(
+      Schema.transform(
+        Schema.Record({key: Schema.String, value: Schema.String}),
+        {
+          decode: fromA => {
+            const VARIABLE_KEY_PATTERN = /^#\{.+}$/;
+            return Object.fromEntries(
+              Object.entries(fromA).map(([key, value]) => [
+                VARIABLE_KEY_PATTERN.test(key) ? key : `#{${key}}`,
+                value,
+              ]),
+            );
+          },
+          encode: toI => toI,
+        },
+      ),
+    ),
   ),
   disableSms: Schema.optional(Schema.Boolean),
   adFlag: Schema.optional(Schema.Boolean),
