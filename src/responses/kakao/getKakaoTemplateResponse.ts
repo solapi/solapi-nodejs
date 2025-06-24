@@ -10,4 +10,7 @@ export interface GetKakaoTemplateResponse
   commentable: boolean;
   dateCreated: string;
   dateUpdated: string;
+  variables: Array<{
+    name: string;
+  }>;
 }

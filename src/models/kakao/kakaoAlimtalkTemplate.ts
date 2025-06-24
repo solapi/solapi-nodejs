@@ -196,6 +196,13 @@ export interface KakaoAlimtalkTemplateInterface {
    * REJECTED - 반려됨<br><br>
    */
   status: KakaoAlimtalkTemplateStatus;
+
+  /**
+   * @description 템플릿 변수 목록
+   */
+  variables?: Array<{
+    name: string;
+  }>;
 }
 
 /**
@@ -228,6 +235,9 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
   comments?: Array<KakaoAlimtalkTemplateCommentType>;
   code?: string;
   status: KakaoAlimtalkTemplateStatus;
+  variables?: Array<{
+    name: string;
+  }>;
 
   /**
    * 알림톡 템플릿 생성일자
@@ -266,6 +276,7 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
     this.commentable = parameter.commentable;
     this.code = parameter.code;
     this.status = parameter.status;
+    this.variables = parameter.variables;
 
     if ('dateCreated' in parameter) {
       this.dateCreated = stringDateTransfer(parameter.dateCreated);
