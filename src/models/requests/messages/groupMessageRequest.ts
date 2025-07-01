@@ -1,16 +1,16 @@
-import {Message} from '../../base/messages/message';
+import {Schema} from 'effect';
+import {messageSchema} from '../../base/messages/message';
 import type {DefaultAgentType} from './requestConfig';
 
 /**
  * 그룹 메시지 추가 요청
  */
-export class GroupMessageAddRequest {
-  messages: ReadonlyArray<Message>;
-
-  constructor(messages: Array<Message>) {
-    this.messages = messages;
-  }
-}
+export const groupMessageAddRequestSchema = Schema.Struct({
+  messages: Schema.Array(messageSchema),
+});
+export type GroupMessageAddRequest = Schema.Schema.Type<
+  typeof groupMessageAddRequestSchema
+>;
 
 /**
  * 그룹 예약 발송 설정 요청

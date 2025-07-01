@@ -1,6 +1,9 @@
+import {
+  requestSendMessageSchema,
+  RequestSendMessagesSchema,
+} from '@/models/requests/messages/sendMessage';
 import {GroupId} from '@internal-types/commonTypes';
 import stringifyQuery from '@lib/stringifyQuery';
-import {Message} from '@models/base/messages/message';
 import {
   GetGroupsFinalizeRequest,
   GetGroupsRequest,
@@ -8,10 +11,11 @@ import {
 import {
   CreateGroupRequest,
   GetGroupMessagesRequest,
-  GroupMessageAddRequest,
+  type GroupMessageAddRequest,
   RemoveMessageIdsToGroupRequest,
   ScheduledDateSendingRequest,
 } from '@models/requests/messages/groupMessageRequest';
+import {osPlatform, sdkVersion} from '@models/requests/messages/requestConfig';
 import {
   AddMessageResponse,
   GetGroupsResponse,
@@ -20,6 +24,7 @@ import {
   RemoveGroupMessagesResponse,
 } from '@models/responses/messageResponses';
 import {formatISO} from 'date-fns';
+import {Schema} from 'effect';
 import DefaultService from '../defaultService';
 
 /**
@@ -42,11 +47,6 @@ export default class GroupService extends DefaultService {
     appId?: string,
     customFields?: Record<string, string>,
   ): Promise<GroupId> {
-    const {sdkVersion, osPlatform} = {
-      sdkVersion: 'nodejs/5.5.0',
-      osPlatform: `${process.platform} | ${process.version}`,
-    };
-
     return this.request<CreateGroupRequest, GroupMessageResponse>({
       httpMethod: 'POST',
       url: 'messages/v4/groups',
@@ -69,12 +69,23 @@ export default class GroupService extends DefaultService {
    */
   async addMessagesToGroup(
     groupId: GroupId,
-    messages: Array<Message>,
+    messages: RequestSendMessagesSchema,
   ): Promise<AddMessageResponse> {
+    const validatedMessages = Schema.decodeUnknownSync(
+      requestSendMessageSchema,
+    )(messages);
+
+    // GroupMessageAddRequest 타입에 맞게 데이터 변환
+    const requestBody: GroupMessageAddRequest = {
+      messages: Array.isArray(validatedMessages)
+        ? validatedMessages
+        : [validatedMessages],
+    };
+
     return this.request<GroupMessageAddRequest, AddMessageResponse>({
       httpMethod: 'PUT',
       url: `messages/v4/groups/${groupId}/messages`,
-      body: new GroupMessageAddRequest(messages),
+      body: requestBody,
     });
   }
 

@@ -49,6 +49,13 @@ export class SolapiMessageService {
    */
   readonly getBlockGroups: typeof IamService.prototype.getBlockGroups;
 
+  /**
+   * 수신 거부 번호 조회
+   * @param data 수신 거부 번호 상세 조회용 request 데이터
+   * @returns GetBlockNumbersResponse
+   */
+  readonly getBlockNumbers: typeof IamService.prototype.getBlockNumbers;
+
   // KakaoChannelService 위임
   /**
    * 카카오 채널 카테고리 조회

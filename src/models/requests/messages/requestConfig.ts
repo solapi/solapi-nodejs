@@ -2,9 +2,9 @@ import {formatWithTransfer} from '@lib/stringDateTrasnfer';
 import {Schema} from 'effect';
 
 // SDK 및 OS 정보
-const osPlatform = `${process.platform} | ${process.version}`;
+export const osPlatform = `${process.platform} | ${process.version}`;
 // NOTE: 라이브러리 배포 시 반드시 업데이트해야 합니다.
-const sdkVersion = 'nodejs/5.5.0';
+export const sdkVersion = 'nodejs/5.5.0';
 
 // Agent 정보 타입
 export type DefaultAgentType = {

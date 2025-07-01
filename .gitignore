@@ -32,5 +32,8 @@ Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
+# env
+.env
+
 # Claude
 CLAUDE.md

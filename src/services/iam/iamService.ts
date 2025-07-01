@@ -7,8 +7,13 @@ import {
   GetBlockGroupsFinalizeRequest,
   GetBlockGroupsRequest,
 } from '@models/requests/iam/getBlockGroupsRequest';
+import {
+  GetBlockNumbersFinalizeRequest,
+  GetBlockNumbersRequest,
+} from '@models/requests/iam/getBlockNumbersRequest';
 import {GetBlacksResponse} from '@models/responses/iam/getBlacksResponse';
 import {GetBlockGroupsResponse} from '@models/responses/iam/getBlockGroupsResponse';
+import {GetBlockNumbersResponse} from '@models/responses/iam/getBlockNumbersResponse';
 import DefaultService from '../defaultService';
 
 export default class IamService extends DefaultService {
@@ -55,6 +60,28 @@ export default class IamService extends DefaultService {
     return this.request<never, GetBlockGroupsResponse>({
       httpMethod: 'GET',
       url: `iam/v1/block/groups${parameter}`,
+    });
+  }
+
+  /**
+   * 수신 거부 번호 조회
+   * @param data 수신 거부 번호 상세 조회용 request 데이터
+   * @returns GetBlockNumbersResponse
+   */
+  async getBlockNumbers(
+    data?: GetBlockNumbersRequest,
+  ): Promise<GetBlockNumbersResponse> {
+    let payload: GetBlockNumbersFinalizeRequest = {};
+    if (data) {
+      payload = new GetBlockNumbersFinalizeRequest(data);
+    }
+    const parameter = stringifyQuery(payload, {
+      indices: false,
+      addQueryPrefix: true,
+    });
+    return this.request<never, GetBlockNumbersResponse>({
+      httpMethod: 'GET',
+      url: `iam/v1/block/numbers${parameter}`,
     });
   }
 }

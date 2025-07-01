@@ -2,6 +2,16 @@ import {Schema} from 'effect';
 import {kakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
 import {KakaoButton, kakaoButtonSchema} from './kakaoButton';
 
+const kakaoOptionBmsSchema = Schema.Struct({
+  targeting: Schema.optional(
+    Schema.Enums({
+      M: 'M',
+      N: 'N',
+      I: 'I',
+    }),
+  ),
+});
+
 export const baseKakaoOptionSchema = Schema.Struct({
   pfId: Schema.String,
   templateId: Schema.optional(Schema.String),
@@ -28,6 +38,7 @@ export const baseKakaoOptionSchema = Schema.Struct({
   adFlag: Schema.optional(Schema.Boolean),
   imageId: Schema.optional(Schema.String),
   buttons: Schema.optional(Schema.Array(kakaoButtonSchema)),
+  bms: Schema.optional(kakaoOptionBmsSchema),
 });
 
 export class KakaoOption {

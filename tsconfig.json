@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/**/*"],
   "compilerOptions": {
     /* Language and Environment */
     "target": "ES2022",
@@ -8,7 +8,7 @@
     /* Modules */
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["node"],
+    "types": ["node", "vitest/globals"],
     "resolveJsonModule": true,
 
     /* Emit */
@@ -30,6 +30,7 @@
     /* Path mapping */
     "baseUrl": "./",
     "paths": {
+      "@/*": ["src/*"],
       "@models/*": ["src/models/*"],
       "@models/requests/messages/*": ["src/models/requests/messages/*"],
       "@lib/*": ["src/lib/*"],

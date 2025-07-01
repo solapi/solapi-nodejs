@@ -1,8 +1,11 @@
-import { Schema } from 'effect';
-import { FileIds } from '@models/requests/messages/groupMessageRequest';
-import { KakaoOption, baseKakaoOptionSchema } from '@models/base/kakao/kakaoOption';
-import { naverOptionSchema } from '@models/base/naver/naverOption';
-import { RcsOption, rcsOptionSchema } from '@models/base/rcs/rcsOption';
+import {
+  KakaoOption,
+  baseKakaoOptionSchema,
+} from '@models/base/kakao/kakaoOption';
+import {naverOptionSchema} from '@models/base/naver/naverOption';
+import {RcsOption, rcsOptionSchema} from '@models/base/rcs/rcsOption';
+import {FileIds} from '@models/requests/messages/groupMessageRequest';
+import {Schema} from 'effect';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)
@@ -70,10 +73,10 @@ export const messageSchema = Schema.Struct({
   country: Schema.optional(Schema.String),
   replacements: Schema.optional(Schema.Array(Schema.Struct({}))),
   customFields: Schema.optional(
-    Schema.Record({ key: Schema.String, value: Schema.String }),
+    Schema.Record({key: Schema.String, value: Schema.String}),
   ),
   faxOptions: Schema.optional(
-    Schema.Struct({ fileIds: Schema.Array(Schema.String) }),
+    Schema.Struct({fileIds: Schema.Array(Schema.String)}),
   ),
   naverOptions: Schema.optional(naverOptionSchema),
 });

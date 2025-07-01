@@ -44,7 +44,7 @@ export default defineConfig(({watch}) => {
       '@internal-types': './src/types',
       '@services': './src/services',
       // 루트 src 하위 전체를 가리키는 옵션을 추가적으로 원한다면 아래 라인을 유지하세요.
-      // '@': './src',
+      '@': './src',
     },
 
     // tsup --watch 시 변경 감지를 무시할 경로
