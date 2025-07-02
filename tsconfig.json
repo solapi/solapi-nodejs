@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "tests/**/*"],
+  "include": ["src/**/*", "test/**/*"],
   "compilerOptions": {
     /* Language and Environment */
     "target": "ES2022",
