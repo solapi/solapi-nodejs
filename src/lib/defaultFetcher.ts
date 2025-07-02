@@ -1,16 +1,22 @@
-import {Effect, Match, Schedule, pipe} from 'effect';
-import {DefaultError, ErrorResponse} from '../errors/defaultError';
+import {Data, Effect, Match, Schedule, pipe} from 'effect';
+import {
+  ApiError,
+  DefaultError,
+  ErrorResponse,
+  NetworkError,
+} from '../errors/defaultError';
 import getAuthInfo, {AuthenticationParameter} from './authenticator';
+import {runSafePromise} from './effectErrorHandler';
 
 type DefaultRequest = {
   url: string;
   method: string;
 };
 
-class RetryableError {
-  readonly _tag = 'RetryableError';
-  constructor(readonly error?: unknown) {}
-}
+// Effect Data 타입으로 RetryableError 정의
+class RetryableError extends Data.TaggedError('RetryableError')<{
+  readonly error?: unknown;
+}> {}
 
 const handleOkResponse = <R>(res: Response) =>
   Effect.tryPromise({
@@ -18,17 +24,40 @@ const handleOkResponse = <R>(res: Response) =>
       const responseText = await res.text();
       return responseText ? JSON.parse(responseText) : ({} as R);
     },
-    catch: e => new DefaultError('ParseError', (e as Error).message),
+    catch: e =>
+      new DefaultError({
+        errorCode: 'ParseError',
+        errorMessage: (e as Error).message,
+        context: {
+          responseStatus: res.status,
+          responseUrl: res.url,
+        },
+      }),
   });
 
 const handleClientErrorResponse = (res: Response) =>
   pipe(
     Effect.tryPromise({
       try: () => res.json() as Promise<ErrorResponse>,
-      catch: e => new DefaultError('ParseError', (e as Error).message),
+      catch: e =>
+        new DefaultError({
+          errorCode: 'ParseError',
+          errorMessage: (e as Error).message,
+          context: {
+            responseStatus: res.status,
+            responseUrl: res.url,
+          },
+        }),
     }),
     Effect.flatMap(error =>
-      Effect.fail(new DefaultError(error.errorCode, error.errorMessage)),
+      Effect.fail(
+        new ApiError({
+          errorCode: error.errorCode,
+          errorMessage: error.errorMessage,
+          httpStatus: res.status,
+          url: res.url,
+        }),
+      ),
     ),
   );
 
@@ -36,9 +65,28 @@ const handleServerErrorResponse = (res: Response) =>
   pipe(
     Effect.tryPromise({
       try: () => res.text(),
-      catch: e => new DefaultError('ResponseReadError', (e as Error).message),
+      catch: e =>
+        new DefaultError({
+          errorCode: 'ResponseReadError',
+          errorMessage: (e as Error).message,
+          context: {
+            responseStatus: res.status,
+            responseUrl: res.url,
+          },
+        }),
     }),
-    Effect.flatMap(text => Effect.fail(new DefaultError('UnknownError', text))),
+    Effect.flatMap(text =>
+      Effect.fail(
+        new DefaultError({
+          errorCode: 'UnknownError',
+          errorMessage: text,
+          context: {
+            responseStatus: res.status,
+            responseUrl: res.url,
+          },
+        }),
+      ),
+    ),
   );
 
 /**
@@ -74,17 +122,31 @@ export default async function defaultFetcher<T, R>(
               ? String(cause.code)
               : '';
           const message = (error.message + ' ' + causeCode).toLowerCase();
-          if (
+
+          // 재시도 가능한 네트워크 오류 판별
+          const isRetryable =
             message.includes('aborted') ||
             message.includes('refused') ||
             message.includes('reset') ||
-            message.includes('econn')
-          ) {
-            return new RetryableError(error);
+            message.includes('econn');
+
+          if (isRetryable) {
+            return new RetryableError({error});
           }
-          return new DefaultError('RequestError', error.message);
+
+          return new NetworkError({
+            url: request.url,
+            method: request.method,
+            cause: error.message,
+            isRetryable: false,
+          });
         }
-        return new DefaultError('UnknownRequestError', String(error));
+        return new NetworkError({
+          url: request.url,
+          method: request.method,
+          cause: String(error),
+          isRetryable: false,
+        });
       },
     }),
     Effect.flatMap(res =>
@@ -92,7 +154,7 @@ export default async function defaultFetcher<T, R>(
         Match.value(res),
         Match.when(
           res => res.status === 503,
-          () => Effect.fail(new RetryableError()),
+          () => Effect.fail(new RetryableError({error: 'Service Unavailable'})),
         ),
         Match.when(
           res => res.status >= 400 && res.status < 500,
@@ -118,13 +180,19 @@ export default async function defaultFetcher<T, R>(
     Effect.retry(policy),
     Effect.catchTag('RetryableError', () =>
       Effect.fail(
-        new DefaultError(
-          'RequestFailedAfterRetryError',
-          `Request failed after retry(count: ${retryCount})`,
-        ),
+        new DefaultError({
+          errorCode: 'RequestFailedAfterRetryError',
+          errorMessage: `Request failed after retry(count: ${retryCount})`,
+          context: {
+            url: request.url,
+            method: request.method,
+            retryCount,
+          },
+        }),
       ),
     ),
   );
 
-  return Effect.runPromise(program);
+  // runSafePromise를 사용하여 에러 포맷팅 적용
+  return runSafePromise(program);
 }

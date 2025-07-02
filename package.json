@@ -43,16 +43,16 @@
   },
   "dependencies": {
     "date-fns": "^4.1.0",
-    "effect": "^3.16.7"
+    "effect": "^3.16.11"
   },
   "devDependencies": {
-    "@effect/vitest": "^0.23.10",
+    "@effect/vitest": "^0.23.11",
     "@eslint/eslintrc": "^3",
     "@eslint/js": "^9",
     "@types/node": "^18",
-    "@typescript-eslint/eslint-plugin": "^8.34.0",
-    "@typescript-eslint/parser": "^8.34.0",
-    "dotenv": "^16.4.5",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "dotenv": "^17.0.1",
     "eslint": "^9",
     "eslint-plugin-file-progress": "^3.0.2",
     "eslint-plugin-tsdoc": "^0.4.0",
@@ -62,7 +62,7 @@
     "tsup": "^8.5.0",
     "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
-    "vitest": "^1.6.0"
+    "vitest": "^3.2.4"
   },
   "packageManager": "yarn@4.9.2",
   "engines": {

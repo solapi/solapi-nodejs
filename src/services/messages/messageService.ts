@@ -96,9 +96,9 @@ export default class MessageService extends DefaultService {
       if (messageParameters.length === 0) {
         return yield* _(
           Effect.fail(
-            new BadRequestError(
-              '데이터가 반드시 1건 이상 기입되어 있어야 합니다.',
-            ),
+            new BadRequestError({
+              message: '데이터가 반드시 1건 이상 기입되어 있어야 합니다.',
+            }),
           ),
         );
       }
@@ -146,7 +146,12 @@ export default class MessageService extends DefaultService {
 
       if (failedAll) {
         return yield* _(
-          Effect.fail(new MessageNotReceivedError(response.failedMessageList)),
+          Effect.fail(
+            new MessageNotReceivedError({
+              failedMessageList: response.failedMessageList,
+              totalCount: response.failedMessageList.length,
+            }),
+          ),
         );
       }
 
