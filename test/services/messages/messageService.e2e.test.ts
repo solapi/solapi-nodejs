@@ -33,180 +33,20 @@
  * - 이 테스트들은 실제 메시지 발송을 수행하므로 비용이 발생할 수 있습니다
  * - 카카오 관련 테스트는 실제 비즈니스 채널과 승인된 템플릿이 필요합니다
  */
-import {KakaoAlimtalkTemplateSchema} from '@/models/base/kakao/kakaoAlimtalkTemplate';
-import KakaoChannelService from '@/services/kakao/channels/kakaoChannelService';
-import KakaoTemplateService from '@/services/kakao/templates/kakaoTemplateService';
-import MessageService from '@/services/messages/messageService';
-import StorageService from '@/services/storage/storageService';
 import {describe, expect, it} from '@effect/vitest';
-import {Config, Console, Context, Effect, Layer} from 'effect';
+import {generateTemplateVariables} from '@test/lib/kakao-test-utils';
+import {
+  KakaoChannelServiceTag,
+  KakaoTemplateServiceTag,
+  MessageServiceTag,
+  MessageTestServicesLive,
+  StorageServiceTag,
+} from '@test/lib/test-layers';
+import {Config, Console, Effect} from 'effect';
 import path from 'path';
 
-const MessageServiceTag = Context.GenericTag<MessageService>('MessageService');
-const KakaoChannelServiceTag = Context.GenericTag<KakaoChannelService>(
-  'KakaoChannelService',
-);
-const KakaoTemplateServiceTag = Context.GenericTag<KakaoTemplateService>(
-  'KakaoTemplateService',
-);
-const StorageServiceTag = Context.GenericTag<StorageService>('StorageService');
-
-const MessageServiceLive = Layer.effect(
-  MessageServiceTag,
-  Effect.gen(function* () {
-    const apiKey = yield* Config.string('API_KEY');
-    const apiSecret = yield* Config.string('API_SECRET');
-    return new MessageService(apiKey, apiSecret);
-  }),
-);
-
-const KakaoChannelServiceLive = Layer.effect(
-  KakaoChannelServiceTag,
-  Effect.gen(function* () {
-    const apiKey = yield* Config.string('API_KEY');
-    const apiSecret = yield* Config.string('API_SECRET');
-    return new KakaoChannelService(apiKey, apiSecret);
-  }),
-);
-
-const KakaoTemplateServiceLive = Layer.effect(
-  KakaoTemplateServiceTag,
-  Effect.gen(function* () {
-    const apiKey = yield* Config.string('API_KEY');
-    const apiSecret = yield* Config.string('API_SECRET');
-    return new KakaoTemplateService(apiKey, apiSecret);
-  }),
-);
-
-const StorageServiceLive = Layer.effect(
-  StorageServiceTag,
-  Effect.gen(function* () {
-    const apiKey = yield* Config.string('API_KEY');
-    const apiSecret = yield* Config.string('API_SECRET');
-    return new StorageService(apiKey, apiSecret);
-  }),
-);
-
-const AllServicesLive = Layer.merge(
-  MessageServiceLive,
-  Layer.merge(
-    KakaoChannelServiceLive,
-    Layer.merge(KakaoTemplateServiceLive, StorageServiceLive),
-  ),
-);
-
-/**
- * 카카오 템플릿 변수명에 따른 랜덤 값 생성 함수
- */
-const generateRandomValueForVariable = (variableName: string): string => {
-  const name = variableName.toLowerCase();
-
-  // 변수명에 따른 적절한 더미 데이터 생성
-  if (
-    name.includes('이름') ||
-    name.includes('name') ||
-    name.includes('고객명')
-  ) {
-    const names = ['김철수', '이영희', '박민수', '정수진', '최영호'];
-    return names[Math.floor(Math.random() * names.length)];
-  }
-
-  if (name.includes('날짜') || name.includes('date') || name.includes('일자')) {
-    const today = new Date();
-    today.setDate(today.getDate() + Math.floor(Math.random() * 30));
-    return today.toLocaleDateString('ko-KR');
-  }
-
-  if (name.includes('시간') || name.includes('time')) {
-    const hour = Math.floor(Math.random() * 24);
-    const minute = Math.floor(Math.random() * 60);
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-  }
-
-  if (
-    name.includes('금액') ||
-    name.includes('price') ||
-    name.includes('amount')
-  ) {
-    const amount = Math.floor(Math.random() * 1000000) + 1000;
-    return amount.toLocaleString('ko-KR') + '원';
-  }
-
-  if (name.includes('번호') || name.includes('number') || name.includes('no')) {
-    return Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, '0');
-  }
-
-  if (
-    name.includes('등급') ||
-    name.includes('grade') ||
-    name.includes('level')
-  ) {
-    const grades = [
-      '일반',
-      '우수',
-      'VIP',
-      'VVIP',
-      'Bronze',
-      'Silver',
-      'Gold',
-      'Platinum',
-    ];
-    return grades[Math.floor(Math.random() * grades.length)];
-  }
-
-  if (
-    name.includes('장소') ||
-    name.includes('여행지') ||
-    name.includes('location')
-  ) {
-    const places = [
-      '서울',
-      '부산',
-      '제주도',
-      '강릉',
-      '경주',
-      '전주',
-      '대전',
-      '광주',
-    ];
-    return places[Math.floor(Math.random() * places.length)];
-  }
-
-  // 기본값: 랜덤 문자열
-  const defaultValues = [
-    '테스트값',
-    '샘플데이터',
-    '예시내용',
-    'Sample',
-    'Test',
-  ];
-  return defaultValues[Math.floor(Math.random() * defaultValues.length)];
-};
-
-/**
- * 카카오 알림톡 템플릿의 variables 배열에서 변수명을 추출하여
- * 랜덤 값으로 채워진 변수 객체를 생성합니다.
- */
-const generateTemplateVariables = (
-  template: KakaoAlimtalkTemplateSchema,
-): Record<string, string> => {
-  if (!template.variables || template.variables.length === 0) {
-    return {};
-  }
-
-  return template.variables.reduce(
-    (acc, variable) => {
-      acc[variable.name] = generateRandomValueForVariable(variable.name);
-      return acc;
-    },
-    {} as Record<string, string>,
-  );
-};
-
 describe('MessageService E2E', () => {
-  it.live('should return messages', () =>
+  it.effect('should return messages', () =>
     Effect.gen(function* () {
       const messageService = yield* MessageServiceTag;
       const result = yield* Effect.tryPromise(() =>
@@ -215,10 +55,10 @@ describe('MessageService E2E', () => {
 
       expect(result.messageList).toBeDefined();
       expect(result.messageList).toBeInstanceOf(Object);
-    }).pipe(Effect.provide(MessageServiceLive)),
+    }).pipe(Effect.provide(MessageTestServicesLive)),
   );
 
-  it.live('should return statistics', () =>
+  it.effect('should return statistics', () =>
     Effect.gen(function* () {
       const messageService = yield* MessageServiceTag;
       const result = yield* Effect.tryPromise(() =>
@@ -227,13 +67,13 @@ describe('MessageService E2E', () => {
 
       expect(result).toBeInstanceOf(Object);
       expect(result.total).toBeInstanceOf(Object);
-    }).pipe(Effect.provide(MessageServiceLive)),
+    }).pipe(Effect.provide(MessageTestServicesLive)),
   );
 
   describe('Message Sending Tests', () => {
     const testPhoneNumber = '01000000000'; // 테스트용 수신번호 (고정)
 
-    it.live('should send SMS message', () =>
+    it.effect('should send SMS message', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
@@ -252,10 +92,10 @@ describe('MessageService E2E', () => {
         expect(result).toBeDefined();
         expect(result.groupInfo).toBeDefined();
         expect(result.groupInfo.count.total).toBeGreaterThan(0);
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live('should send LMS message', () =>
+    it.effect('should send LMS message', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
@@ -277,10 +117,10 @@ describe('MessageService E2E', () => {
         expect(result).toBeDefined();
         expect(result.groupInfo).toBeDefined();
         expect(result.groupInfo.count.total).toBeGreaterThan(0);
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live('should send MMS message', () =>
+    it.effect('should send MMS message', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const storageService = yield* StorageServiceTag;
@@ -311,10 +151,10 @@ describe('MessageService E2E', () => {
         expect(result).toBeDefined();
         expect(result.groupInfo).toBeDefined();
         expect(result.groupInfo.count.total).toBeGreaterThan(0);
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live(
+    it.effect(
       'should send ATA (알림톡) message with real channel and template',
       () =>
         Effect.gen(function* () {
@@ -331,7 +171,7 @@ describe('MessageService E2E', () => {
           );
 
           if (channelsResponse.channelList.length === 0) {
-            Console.log('카카오 채널이 없어서 ATA 테스트를 건너뜁니다.');
+            yield* Console.log('카카오 채널이 없어서 ATA 테스트를 건너뜁니다.');
             return;
           }
 
@@ -347,7 +187,7 @@ describe('MessageService E2E', () => {
           );
 
           if (templatesResponse.templateList.length === 0) {
-            Console.log(
+            yield* Console.log(
               '승인된 알림톡 템플릿이 없어서 ATA 테스트를 건너뜁니다.',
             );
             return;
@@ -372,10 +212,10 @@ describe('MessageService E2E', () => {
           expect(result).toBeDefined();
           expect(result.groupInfo).toBeDefined();
           expect(result.groupInfo.count.total).toBeGreaterThan(0);
-        }).pipe(Effect.provide(AllServicesLive)),
+        }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live('should send CTA (친구톡) message with real channel', () =>
+    it.effect('should send CTA (친구톡) message with real channel', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
@@ -389,7 +229,7 @@ describe('MessageService E2E', () => {
         );
 
         if (channelsResponse.channelList.length === 0) {
-          Console.log('카카오 채널이 없어서 CTA 테스트를 건너뜁니다.');
+          yield* Console.log('카카오 채널이 없어서 CTA 테스트를 건너뜁니다.');
           return;
         }
 
@@ -426,10 +266,10 @@ describe('MessageService E2E', () => {
         expect(result).toBeDefined();
         expect(result.groupInfo).toBeDefined();
         expect(result.groupInfo.count.total).toBeGreaterThan(0);
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live('should send CTI (친구톡 이미지) message with real channel', () =>
+    it.effect('should send CTI (친구톡 이미지) message with real channel', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
@@ -444,7 +284,7 @@ describe('MessageService E2E', () => {
         );
 
         if (channelsResponse.channelList.length === 0) {
-          Console.log('카카오 채널이 없어서 CTI 테스트를 건너뜁니다.');
+          yield* Console.log('카카오 채널이 없어서 CTI 테스트를 건너뜁니다.');
           return;
         }
 
@@ -483,10 +323,10 @@ describe('MessageService E2E', () => {
         expect(result).toBeDefined();
         expect(result.groupInfo).toBeDefined();
         expect(result.groupInfo.count.total).toBeGreaterThan(0);
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live('should send multiple messages with different types', () =>
+    it.effect('should send multiple messages with different types', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
@@ -564,10 +404,10 @@ describe('MessageService E2E', () => {
         expect(result).toBeDefined();
         expect(result.groupInfo).toBeDefined();
         expect(result.groupInfo.count.total).toBe(messages.length);
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live('should handle scheduled message sending', () =>
+    it.effect('should handle scheduled message sending', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
@@ -593,10 +433,10 @@ describe('MessageService E2E', () => {
         expect(result).toBeDefined();
         expect(result.groupInfo).toBeDefined();
         expect(result.groupInfo.count.total).toBeGreaterThan(0);
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live('should handle invalid message data gracefully', () =>
+    it.effect('should handle invalid message data gracefully', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
 
@@ -611,10 +451,10 @@ describe('MessageService E2E', () => {
             '데이터가 반드시 1건 이상 기입되어 있어야 합니다.',
           );
         }
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live('should handle message validation errors', () =>
+    it.effect('should handle message validation errors', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
@@ -636,10 +476,10 @@ describe('MessageService E2E', () => {
         );
 
         expect(result._tag).toBe('Left');
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
-    it.live('should handle sendOne method for single message', () =>
+    it.effect('should handle sendOne method for single message', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
@@ -658,7 +498,7 @@ describe('MessageService E2E', () => {
         expect(result).toBeDefined();
         expect(result.messageId).toBeDefined();
         expect(typeof result.messageId).toBe('string');
-      }).pipe(Effect.provide(AllServicesLive)),
+      }).pipe(Effect.provide(MessageTestServicesLive)),
     );
   });
 });

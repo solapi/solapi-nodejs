@@ -8,7 +8,7 @@
     /* Modules */
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["node", "vitest/globals"],
+    "types": ["node", "vitest/globals", "@effect/vitest"],
     "resolveJsonModule": true,
 
     /* Emit */
@@ -28,14 +28,20 @@
     "skipLibCheck": true,
 
     /* Path mapping */
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@test/*": ["test/*"],
       "@models/*": ["src/models/*"],
       "@models/requests/messages/*": ["src/models/requests/messages/*"],
       "@lib/*": ["src/lib/*"],
       "@internal-types/*": ["src/types/*"],
       "@services/*": ["src/services/*"]
-    }
+    },
+
+    /* Additional Type Checking */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true
   }
 }
