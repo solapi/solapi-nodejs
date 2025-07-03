@@ -78,7 +78,22 @@ Always write one test at a time, make it run, then improve structure. Always run
 # TypeScript-specific
 
 1. Prefer functional programming style over imperative style in Effect-ts(library). Use Schema library's feature instead of pattern matching with if let or match when possible.
-2. Don't use `any` type.
+
+2. **STRICT ANY TYPE PROHIBITION**:
+   - NEVER use the `any` type under any circumstances
+   - Use `unknown` for truly unknown data types and narrow with type guards
+   - Use union types (`string | number`) for known possible types
+   - Use generic constraints (`T extends SomeInterface`) for flexible but safe typing
+   - Use Effect Schema for runtime type validation instead of type assertions
+   - If encountering third-party libraries without types, create proper type definitions or use `unknown` with validation
+   - Acceptable alternatives to `any`:
+     - `unknown` + type guards for external data
+     - `object` or `Record<string, unknown>` for object types
+     - Generic types with constraints for reusable components
+     - Union types for known variations
+     - Effect Schema for runtime validation and type safety
+
 3. Check and fix wrong import path(alias) when you write code.
-4. lint first, fix after write down code.
+
+4. Lint first, fix after write down code.
 
