@@ -1,0 +1,323 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 프로덕션 에러 처리 및 스택 트레이스 최적화
+
+프로덕션 빌드에서 minified된 코드로 인한 긴 에러 스택 트레이스 문제를 해결하기 위한 룰입니다.
+
+## 문제 정의
+
+참조: [debug/index.js](mdc:debug/index.js)
+
+프로덕션 환경에서 tsup의 minify 옵션으로 인해:
+- 모든 코드가 한 줄로 압축됨
+- 에러 발생 시 긴 minified 코드가 스택 트레이스에 표시됨
+- 디버깅이 어려워지고 로그가 지저분해짐
+
+## 해결 전략
+
+### 1. Effect Data 타입을 활용한 에러 클래스
+
+모든 에러 클래스는 환경별 다른 메시지 포맷을 제공:
+
+```typescript
+export class CustomError extends Data.TaggedError('CustomError')<{
+  readonly code: string;
+  readonly message: string;
+  readonly context?: Record<string, unknown>;
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      // 프로덕션: 간결한 메시지만
+      return `${this.code}: ${this.message}`;
+    }
+    
+    // 개발: 상세 정보 포함
+    return `${this.code}: ${this.message}${
+      this.context ? `\nContext: ${JSON.stringify(this.context, null, 2)}` : ''
+    }`;
+  }
+}
+```
+
+### 2. Error.captureStackTrace 활용
+
+커스텀 에러에서 생성자 스택 제거:
+
+```typescript
+abstract class BaseError extends Error {
+  constructor(message: string, name: string) {
+    super(message);
+    this.name = name;
+    
+    // 이 클래스의 생성자를 스택에서 제거
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    
+    // 프로덕션에서 스택 트레이스 간소화
+    if (process.env.NODE_ENV === 'production') {
+      this.cleanStackTrace();
+    }
+  }
+
+  private cleanStackTrace() {
+    if (this.stack) {
+      // 에러 메시지만 유지
+      this.stack = `${this.name}: ${this.message}`;
+    }
+  }
+}
+```
+
+### 3. Effect 기반 에러 포맷터
+
+Effect의 Cause 시스템을 활용한 에러 포맷팅:
+
+```typescript
+export const formatErrorForProduction = (cause: Cause.Cause<unknown>): string => {
+  if (process.env.NODE_ENV === 'production') {
+    // 프로덕션: 최상위 에러 메시지만
+    const failure = Cause.failureOption(cause);
+    if (failure._tag === 'Some') {
+      const error = failure.value;
+      if (error instanceof Error) {
+        return `${error.name}: ${error.message}`;
+      }
+      return String(error);
+    }
+    return 'Unknown error occurred';
+  }
+  
+  // 개발: 전체 cause 트리
+  return Cause.pretty(cause);
+};
+```
+
+### 4. 안전한 Effect 실행 유틸리티
+
+Effect를 Promise로 변환할 때 에러 포맷팅 적용:
+
+```typescript
+export const runSafePromise = <E, A>(
+  effect: Effect.Effect<A, E>
+): Promise<A> =>
+  Effect.runPromiseExit(effect).then(
+    Exit.match({
+      onFailure: (cause) => {
+        const formattedError = formatErrorForProduction(cause);
+        const error = new Error(formattedError);
+        
+        // 프로덕션에서 스택 트레이스 제거
+        if (process.env.NODE_ENV === 'production') {
+          error.stack = undefined;
+        }
+        
+        return Promise.reject(error);
+      },
+      onSuccess: (value) => Promise.resolve(value)
+    })
+  );
+```
+
+## 빌드 설정 최적화
+
+### tsup 설정 개선
+
+참조: [tsup.config.ts](mdc:tsup.config.ts)
+
+환경 변수를 통한 조건부 빌드:
+
+```typescript
+export default defineConfig(({watch}) => {
+  const isProd = !watch;
+  const enableDebug = process.env.DEBUG === 'true';
+
+  return {
+    // ... 기존 설정 ...
+    
+    // 디버그 모드에서는 minify 비활성화
+    minify: isProd && !enableDebug,
+    
+    // 디버그 모드에서는 소스맵 생성
+    sourcemap: !isProd || enableDebug,
+    
+    // 환경 변수 정의
+    define: {
+      'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
+      'process.env.EFFECT_DEBUG': enableDebug ? '"true"' : '"false"'
+    }
+  };
+});
+```
+
+### package.json 스크립트 추가
+
+```json
+{
+  "scripts": {
+    "build": "yarn lint && tsup",
+    "build:debug": "DEBUG=true yarn build",
+    "dev": "tsup --watch",
+    "dev:debug": "DEBUG=true yarn dev"
+  }
+}
+```
+
+## 프로젝트별 적용 패턴
+
+### API Fetcher 개선
+
+참조: [src/lib/defaultFetcher.ts](mdc:src/lib/defaultFetcher.ts)
+
+기존 DefaultError를 Effect Data 타입으로 변환:
+
+```typescript
+export class NetworkError extends Data.TaggedError('NetworkError')<{
+  readonly url: string;
+  readonly method: string;
+  readonly cause: unknown;
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      return `NetworkError: Request failed`;
+    }
+    return `NetworkError: ${this.method} ${this.url} failed - ${this.cause}`;
+  }
+}
+
+export class ApiError extends Data.TaggedError('ApiError')<{
+  readonly errorCode: string;
+  readonly errorMessage: string;
+  readonly httpStatus: number;
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      return `${this.errorCode}: ${this.errorMessage}`;
+    }
+    return `${this.errorCode}: ${this.errorMessage} (HTTP ${this.httpStatus})`;
+  }
+}
+```
+
+### MessageService 에러 처리
+
+참조: [src/services/messages/messageService.ts](mdc:src/services/messages/messageService.ts)
+
+Effect 기반 에러 처리로 변환:
+
+```typescript
+export class MessageValidationError extends Data.TaggedError('MessageValidationError')<{
+  readonly field: string;
+  readonly reason: string;
+  readonly messageIndex?: number;
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      return `MessageValidationError: Invalid ${this.field}`;
+    }
+    return `MessageValidationError: ${this.field} - ${this.reason}${
+      this.messageIndex !== undefined ? ` (message #${this.messageIndex})` : ''
+    }`;
+  }
+}
+
+// MessageService.send 메서드에서 활용
+send(messages: RequestSendMessagesSchema): Promise<DetailGroupMessageResponse> {
+  const effect = Effect.gen(function* (_) {
+    // 검증 로직...
+    if (messageParameters.length === 0) {
+      return yield* _(
+        Effect.fail(
+          new MessageValidationError({
+            field: 'messages',
+            reason: 'At least one message is required'
+          })
+        )
+      );
+    }
+    
+    // ... 나머지 로직
+  });
+
+  return runSafePromise(effect);
+}
+```
+
+### Kakao 옵션 에러 처리 개선
+
+참조: [src/models/base/kakao/kakaoOption.ts](mdc:src/models/base/kakao/kakaoOption.ts)
+
+기존 VariableValidationError를 Effect Data 타입으로 변환:
+
+```typescript
+export class KakaoVariableError extends Data.TaggedError('KakaoVariableError')<{
+  readonly invalidVariables: ReadonlyArray<string>;
+  readonly operation: 'validation' | 'transformation';
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      return `KakaoVariableError: Invalid variable names detected`;
+    }
+    
+    const variableList = this.invalidVariables.map(v => `\`${v}\``).join(', ');
+    return `KakaoVariableError: 변수명 ${variableList}에 점(.)을 포함할 수 없습니다. 언더스코어(_)나 다른 문자를 사용해주세요.`;
+  }
+}
+```
+
+## 로깅 전략
+
+### 구조화된 로깅
+
+에러 로깅 시 구조화된 데이터 사용:
+
+```typescript
+const logError = (error: unknown, context: Record<string, unknown> = {}) => {
+  if (process.env.NODE_ENV === 'production') {
+    // 프로덕션: 최소한의 정보만
+    console.error({
+      level: 'error',
+      message: formatErrorForProduction(error),
+      timestamp: new Date().toISOString(),
+      ...context
+    });
+  } else {
+    // 개발: 상세 정보
+    console.error({
+      level: 'error',
+      error: error,
+      stack: error instanceof Error ? error.stack : undefined,
+      context,
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+```
+
+## 사용 가이드
+
+### 디버그용 빌드
+
+문제 진단이 필요할 때:
+
+```bash
+# 디버그 모드로 빌드 (minify 없음, 소스맵 있음)
+DEBUG=true yarn build
+
+# 또는 디버그 모드로 개발 서버 실행
+DEBUG=true yarn dev
+```
+
+### 에러 처리 패턴
+
+모든 새로운 에러는 다음 패턴을 따름:
+
+1. Effect Data 타입으로 정의
+2. toString() 메서드에서 환경별 메시지 구분
+3. runSafePromise로 안전하게 실행
+4. 구조화된 로깅 적용
+
+이 룰을 따르면 프로덕션에서 간결하고 읽기 쉬운 에러 메시지를 제공하면서, 개발 환경에서는 충분한 디버깅 정보를 유지할 수 있습니다.

@@ -1,0 +1,304 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# EFFECT 라이브러리 활용 가이드
+
+Effect 라이브러리를 최대한 활용하여 오류 제어, 함수형 프로그래밍, 성능 최적화를 진행하는 프로젝트 룰입니다.
+
+## 핵심 원칙
+
+- Effect의 타입 안전성을 활용하여 런타임 오류를 컴파일 타임에 잡아내기
+- 순수 함수형 스타일로 사이드 이펙트를 명시적으로 관리
+- Effect의 파이프라인을 활용한 읽기 쉬운 데이터 변환
+- 에러 처리를 타입 레벨에서 명시하여 예외 상황을 명확히 표현
+
+## 에러 처리 패턴
+
+### Effect Data 타입 활용
+
+모든 커스텀 에러는 `Data.TaggedError`를 상속하여 정의:
+
+```typescript
+export class ValidationError extends Data.TaggedError('ValidationError')<{
+  readonly field: string;
+  readonly reason: string;
+  readonly context?: Record<string, unknown>;
+}> {
+  toString(): string {
+    return process.env.NODE_ENV === 'production' 
+      ? `ValidationError: ${this.field} validation failed`
+      : `ValidationError: ${this.field} - ${this.reason}`;
+  }
+}
+```
+
+### 에러 포맷팅 전략
+
+프로덕션 환경에서는 minified 코드의 긴 스택 트레이스를 피하기 위해:
+
+1. **간결한 에러 메시지**: 프로덕션에서는 핵심 정보만 표시
+2. **컨텍스트 정보 제한**: 개발 환경에서만 상세 디버깅 정보 포함
+3. **스택 트레이스 제어**: Effect의 에러 핸들링으로 불필요한 스택 제거
+
+### 에러 전파 패턴
+
+```typescript
+// 올바른 패턴: Effect 체인을 통한 에러 전파
+const processData = (input: unknown) =>
+  pipe(
+    Effect.succeed(input),
+    Effect.flatMap(validateInput),
+    Effect.flatMap(transformData),
+    Effect.flatMap(saveToDatabase),
+    Effect.catchAll(handleError)
+  );
+
+// 피해야 할 패턴: try-catch로 Effect 감싸기
+const badPattern = async (input: unknown) => {
+  try {
+    return await Effect.runPromise(processData(input));
+  } catch (error) {
+    // Effect의 타입 안전성을 잃음
+    throw error;
+  }
+};
+```
+
+## 함수형 프로그래밍 패턴
+
+### Effect.gen 활용
+
+복잡한 비즈니스 로직은 `Effect.gen`으로 구현:
+
+```typescript
+const businessLogic = Effect.gen(function* (_) {
+  const config = yield* _(loadConfig);
+  const data = yield* _(fetchData(config));
+  const processed = yield* _(processData(data));
+  const result = yield* _(saveResult(processed));
+  return result;
+});
+```
+
+### 파이프라인 연산
+
+데이터 변환은 파이프라인으로 표현:
+
+```typescript
+const transformUserData = (rawData: unknown) =>
+  pipe(
+    rawData,
+    Schema.decodeUnknown(UserSchema),
+    Effect.map(user => ({...user, id: generateId()})),
+    Effect.flatMap(validateUser),
+    Effect.map(normalizeData)
+  );
+```
+
+### 스키마 검증 활용
+
+Effect Schema를 최대한 활용하여 런타임 검증:
+
+```typescript
+// 참조: [src/models/base/kakao/kakaoOption.ts](mdc:src/models/base/kakao/kakaoOption.ts)
+const KakaoVariablesSchema = Schema.Record({
+  key: Schema.String,
+  value: Schema.String
+}).pipe(
+  Schema.transform(
+    Schema.Record({key: Schema.String, value: Schema.String}),
+    {
+      decode: variables => transformVariables(variables),
+      encode: variables => variables
+    }
+  )
+);
+```
+
+## 성능 최적화 패턴
+
+### 배치 처리
+
+여러 작업을 배치로 처리할 때 Effect.all 활용:
+
+```typescript
+// 순차 처리 대신 병렬 처리
+const processMultipleItems = (items: readonly Item[]) =>
+  Effect.all(
+    items.map(item => processItem(item)),
+    { concurrency: 10 } // 동시 실행 제한
+  );
+```
+
+### 리소스 관리
+
+Effect.acquireRelease로 안전한 리소스 관리:
+
+```typescript
+const withDatabase = <A, E, R>(
+  operation: (db: Database) => Effect.Effect<A, E, R>
+): Effect.Effect<A, E | DatabaseError, R> =>
+  Effect.acquireRelease(
+    connectToDatabase,
+    (db) => Effect.promise(() => db.close())
+  ).pipe(
+    Effect.flatMap(operation)
+  );
+```
+
+### 캐싱 전략
+
+Effect.cached를 활용한 메모이제이션:
+
+```typescript
+const expensiveComputation = Effect.cached(
+  computeHeavyOperation,
+  { timeToLive: "1 hour" }
+);
+```
+
+## 프로젝트별 적용 규칙
+
+### API 클라이언트 패턴
+
+참조: [src/lib/defaultFetcher.ts](mdc:src/lib/defaultFetcher.ts)
+
+모든 API 호출은 Effect 기반으로 구현:
+
+```typescript
+const apiCall = <T, R>(request: ApiRequest<T>): Effect.Effect<R, ApiError> =>
+  pipe(
+    Effect.tryPromise({
+      try: () => fetch(request.url, buildRequestOptions(request)),
+      catch: (error) => new NetworkError({ cause: error })
+    }),
+    Effect.flatMap(handleHttpResponse),
+    Effect.retry(retryPolicy)
+  );
+```
+
+### 서비스 레이어 패턴
+
+참조: [src/services/messages/messageService.ts](mdc:src/services/messages/messageService.ts)
+
+모든 서비스 메서드는 Effect 체인으로 구성:
+
+```typescript
+export class MessageService {
+  send(messages: MessageRequest[]): Promise<SendResponse> {
+    const effect = Effect.gen(function* (_) {
+      const validated = yield* _(validateMessages(messages));
+      const transformed = yield* _(transformMessages(validated));
+      const response = yield* _(sendToApi(transformed));
+      return yield* _(processResponse(response));
+    });
+
+    return runSafePromise(effect);
+  }
+}
+```
+
+### 에러 변환 레이어
+
+기존 Promise 기반 코드와의 호환성:
+
+```typescript
+export const runSafePromise = <E, A>(
+  effect: Effect.Effect<A, E>
+): Promise<A> =>
+  Effect.runPromiseExit(effect).then(
+    Exit.match({
+      onFailure: (cause) => {
+        const formatted = formatErrorForProduction(cause);
+        return Promise.reject(new Error(formatted));
+      },
+      onSuccess: (value) => Promise.resolve(value)
+    })
+  );
+```
+
+## 테스팅 전략
+
+### Effect 기반 테스트
+
+참조: [test/models/base/kakao/kakaoOption.test.ts](mdc:test/models/base/kakao/kakaoOption.test.ts)
+
+Effect 기반 테스트는 `Effect.either`로 실행:
+
+```typescript
+it('should validate input correctly', async () => {
+  const result = await Effect.runPromise(
+    Effect.either(validateInput(invalidData))
+  );
+  
+  expect(result._tag).toBe('Left');
+  if (result._tag === 'Left') {
+    expect(result.left).toBeInstanceOf(ValidationError);
+  }
+});
+```
+
+### 모킹과 의존성 주입
+
+Effect Context를 활용한 테스트 더블:
+
+```typescript
+const TestDatabase = Context.GenericTag<Database>('TestDatabase');
+const MockDatabaseLive = Layer.succeed(TestDatabase, mockDatabase);
+
+const testEffect = myBusinessLogic.pipe(
+  Effect.provide(MockDatabaseLive)
+);
+```
+
+## 마이그레이션 전략
+
+### 점진적 도입
+
+1. **에러 타입부터 시작**: 기존 Error 클래스를 Effect Data 타입으로 변환
+2. **유틸리티 함수 변환**: 순수 함수들을 Effect 기반으로 리팩토링
+3. **API 레이어 변환**: 외부 통신 코드를 Effect 기반으로 변환
+4. **비즈니스 로직 변환**: 핵심 로직을 Effect.gen으로 변환
+
+### 호환성 유지
+
+기존 Promise 기반 API와의 호환성을 위해:
+
+```typescript
+// 기존 API 유지하면서 내부는 Effect 사용
+public async legacyMethod(input: string): Promise<Result> {
+  const effect = modernEffectBasedLogic(input);
+  return runSafePromise(effect);
+}
+```
+
+## 빌드 및 배포 고려사항
+
+### 환경별 설정
+
+참조: [tsup.config.ts](mdc:tsup.config.ts)
+
+프로덕션 빌드에서 에러 포맷팅 최적화:
+
+```typescript
+define: {
+  'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
+  'process.env.EFFECT_DEBUG': isDev ? 'true' : 'false'
+}
+```
+
+### 번들 크기 최적화
+
+Effect 라이브러리의 tree-shaking을 위해 ES 모듈 import 사용:
+
+```typescript
+// 좋은 패턴
+import { Effect, pipe } from 'effect';
+
+// 피해야 할 패턴
+import * as Effect from 'effect';
+```
+
+이 가이드를 따라 Effect 라이브러리의 강력한 기능을 최대한 활용하여 타입 안전하고 성능 최적화된 함수형 코드를 작성하세요.
