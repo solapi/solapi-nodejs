@@ -1,26 +1,26 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+description:
+globs:
+alwaysApply: false
 ---
-# 프로덕션 에러 처리 및 스택 트레이스 최적화
+# Production Error Handling and Stack Trace Optimization
 
-프로덕션 빌드에서 minified된 코드로 인한 긴 에러 스택 트레이스 문제를 해결하기 위한 룰입니다.
+This is a rule for solving the problem of long error stack traces caused by minified code in production builds.
 
-## 문제 정의
+## Problem Definition
 
-참조: [debug/index.js](mdc:debug/index.js)
+Reference: [debug/index.js](mdc:debug/index.js)
 
-프로덕션 환경에서 tsup의 minify 옵션으로 인해:
-- 모든 코드가 한 줄로 압축됨
-- 에러 발생 시 긴 minified 코드가 스택 트레이스에 표시됨
-- 디버깅이 어려워지고 로그가 지저분해짐
+Due to tsup's minify option in production environments:
+- All code is compressed into a single line
+- Long minified code appears in stack traces when errors occur
+- Debugging becomes difficult and logs become messy
 
-## 해결 전략
+## Solution Strategy
 
-### 1. Effect Data 타입을 활용한 에러 클래스
+### 1. Error Classes Using Effect Data Types
 
-모든 에러 클래스는 환경별 다른 메시지 포맷을 제공:
+All error classes should provide different message formats for different environments:
 
 ```typescript
 export class CustomError extends Data.TaggedError('CustomError')<{
@@ -30,11 +30,11 @@ export class CustomError extends Data.TaggedError('CustomError')<{
 }> {
   toString(): string {
     if (process.env.NODE_ENV === 'production') {
-      // 프로덕션: 간결한 메시지만
+      // Production: Only concise messages
       return `${this.code}: ${this.message}`;
     }
     
-    // 개발: 상세 정보 포함
+    // Development: Include detailed information
     return `${this.code}: ${this.message}${
       this.context ? `\nContext: ${JSON.stringify(this.context, null, 2)}` : ''
     }`;
@@ -42,9 +42,9 @@ export class CustomError extends Data.TaggedError('CustomError')<{
 }
 ```
 
-### 2. Error.captureStackTrace 활용
+### 2. Utilizing Error.captureStackTrace
 
-커스텀 에러에서 생성자 스택 제거:
+Remove constructor stack from custom errors:
 
 ```typescript
 abstract class BaseError extends Error {
@@ -52,12 +52,12 @@ abstract class BaseError extends Error {
     super(message);
     this.name = name;
     
-    // 이 클래스의 생성자를 스택에서 제거
+    // Remove this class's constructor from the stack
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
     }
     
-    // 프로덕션에서 스택 트레이스 간소화
+    // Simplify stack trace in production
     if (process.env.NODE_ENV === 'production') {
       this.cleanStackTrace();
     }
@@ -65,21 +65,21 @@ abstract class BaseError extends Error {
 
   private cleanStackTrace() {
     if (this.stack) {
-      // 에러 메시지만 유지
+      // Keep only the error message
       this.stack = `${this.name}: ${this.message}`;
     }
   }
 }
 ```
 
-### 3. Effect 기반 에러 포맷터
+### 3. Effect-Based Error Formatter
 
-Effect의 Cause 시스템을 활용한 에러 포맷팅:
+Error formatting utilizing Effect's Cause system:
 
 ```typescript
 export const formatErrorForProduction = (cause: Cause.Cause<unknown>): string => {
   if (process.env.NODE_ENV === 'production') {
-    // 프로덕션: 최상위 에러 메시지만
+    // Production: Only top-level error messages
     const failure = Cause.failureOption(cause);
     if (failure._tag === 'Some') {
       const error = failure.value;
@@ -91,14 +91,14 @@ export const formatErrorForProduction = (cause: Cause.Cause<unknown>): string =>
     return 'Unknown error occurred';
   }
   
-  // 개발: 전체 cause 트리
+  // Development: Full cause tree
   return Cause.pretty(cause);
 };
 ```
 
-### 4. 안전한 Effect 실행 유틸리티
+### 4. Safe Effect Execution Utility
 
-Effect를 Promise로 변환할 때 에러 포맷팅 적용:
+Apply error formatting when converting Effect to Promise:
 
 ```typescript
 export const runSafePromise = <E, A>(
@@ -110,7 +110,7 @@ export const runSafePromise = <E, A>(
         const formattedError = formatErrorForProduction(cause);
         const error = new Error(formattedError);
         
-        // 프로덕션에서 스택 트레이스 제거
+        // Remove stack trace in production
         if (process.env.NODE_ENV === 'production') {
           error.stack = undefined;
         }
@@ -122,13 +122,13 @@ export const runSafePromise = <E, A>(
   );
 ```
 
-## 빌드 설정 최적화
+## Build Configuration Optimization
 
-### tsup 설정 개선
+### tsup Configuration Improvement
 
-참조: [tsup.config.ts](mdc:tsup.config.ts)
+Reference: [tsup.config.ts](mdc:tsup.config.ts)
 
-환경 변수를 통한 조건부 빌드:
+Conditional builds through environment variables:
 
 ```typescript
 export default defineConfig(({watch}) => {
@@ -136,15 +136,15 @@ export default defineConfig(({watch}) => {
   const enableDebug = process.env.DEBUG === 'true';
 
   return {
-    // ... 기존 설정 ...
+    // ... existing configuration ...
     
-    // 디버그 모드에서는 minify 비활성화
+    // Disable minify in debug mode
     minify: isProd && !enableDebug,
     
-    // 디버그 모드에서는 소스맵 생성
+    // Generate source maps in debug mode
     sourcemap: !isProd || enableDebug,
     
-    // 환경 변수 정의
+    // Define environment variables
     define: {
       'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
       'process.env.EFFECT_DEBUG': enableDebug ? '"true"' : '"false"'
@@ -153,7 +153,7 @@ export default defineConfig(({watch}) => {
 });
 ```
 
-### package.json 스크립트 추가
+### Adding package.json Scripts
 
 ```json
 {
@@ -166,13 +166,13 @@ export default defineConfig(({watch}) => {
 }
 ```
 
-## 프로젝트별 적용 패턴
+## Project-Specific Application Patterns
 
-### API Fetcher 개선
+### API Fetcher Improvement
 
-참조: [src/lib/defaultFetcher.ts](mdc:src/lib/defaultFetcher.ts)
+Reference: [src/lib/defaultFetcher.ts](mdc:src/lib/defaultFetcher.ts)
 
-기존 DefaultError를 Effect Data 타입으로 변환:
+Convert existing DefaultError to Effect Data types:
 
 ```typescript
 export class NetworkError extends Data.TaggedError('NetworkError')<{
@@ -202,11 +202,11 @@ export class ApiError extends Data.TaggedError('ApiError')<{
 }
 ```
 
-### MessageService 에러 처리
+### MessageService Error Handling
 
-참조: [src/services/messages/messageService.ts](mdc:src/services/messages/messageService.ts)
+Reference: [src/services/messages/messageService.ts](mdc:src/services/messages/messageService.ts)
 
-Effect 기반 에러 처리로 변환:
+Convert to Effect-based error handling:
 
 ```typescript
 export class MessageValidationError extends Data.TaggedError('MessageValidationError')<{
@@ -224,10 +224,10 @@ export class MessageValidationError extends Data.TaggedError('MessageValidationE
   }
 }
 
-// MessageService.send 메서드에서 활용
+// Utilize in MessageService.send method
 send(messages: RequestSendMessagesSchema): Promise<DetailGroupMessageResponse> {
   const effect = Effect.gen(function* (_) {
-    // 검증 로직...
+    // Validation logic...
     if (messageParameters.length === 0) {
       return yield* _(
         Effect.fail(
@@ -239,18 +239,18 @@ send(messages: RequestSendMessagesSchema): Promise<DetailGroupMessageResponse> {
       );
     }
     
-    // ... 나머지 로직
+    // ... rest of the logic
   });
 
   return runSafePromise(effect);
 }
 ```
 
-### Kakao 옵션 에러 처리 개선
+### Kakao Option Error Handling Improvement
 
-참조: [src/models/base/kakao/kakaoOption.ts](mdc:src/models/base/kakao/kakaoOption.ts)
+Reference: [src/models/base/kakao/kakaoOption.ts](mdc:src/models/base/kakao/kakaoOption.ts)
 
-기존 VariableValidationError를 Effect Data 타입으로 변환:
+Convert existing VariableValidationError to Effect Data types:
 
 ```typescript
 export class KakaoVariableError extends Data.TaggedError('KakaoVariableError')<{
@@ -263,21 +263,21 @@ export class KakaoVariableError extends Data.TaggedError('KakaoVariableError')<{
     }
     
     const variableList = this.invalidVariables.map(v => `\`${v}\``).join(', ');
-    return `KakaoVariableError: 변수명 ${variableList}에 점(.)을 포함할 수 없습니다. 언더스코어(_)나 다른 문자를 사용해주세요.`;
+    return `KakaoVariableError: Variable names ${variableList} cannot contain dots(.). Please use underscores(_) or other characters.`;
   }
 }
 ```
 
-## 로깅 전략
+## Logging Strategy
 
-### 구조화된 로깅
+### Structured Logging
 
-에러 로깅 시 구조화된 데이터 사용:
+Use structured data when logging errors:
 
 ```typescript
 const logError = (error: unknown, context: Record<string, unknown> = {}) => {
   if (process.env.NODE_ENV === 'production') {
-    // 프로덕션: 최소한의 정보만
+    // Production: Minimal information only
     console.error({
       level: 'error',
       message: formatErrorForProduction(error),
@@ -285,7 +285,7 @@ const logError = (error: unknown, context: Record<string, unknown> = {}) => {
       ...context
     });
   } else {
-    // 개발: 상세 정보
+    // Development: Detailed information
     console.error({
       level: 'error',
       error: error,
@@ -297,27 +297,27 @@ const logError = (error: unknown, context: Record<string, unknown> = {}) => {
 };
 ```
 
-## 사용 가이드
+## Usage Guide
 
-### 디버그용 빌드
+### Debug Build
 
-문제 진단이 필요할 때:
+When problem diagnosis is needed:
 
 ```bash
-# 디버그 모드로 빌드 (minify 없음, 소스맵 있음)
+# Build in debug mode (no minify, with source maps)
 DEBUG=true yarn build
 
-# 또는 디버그 모드로 개발 서버 실행
+# Or run development server in debug mode
 DEBUG=true yarn dev
 ```
 
-### 에러 처리 패턴
+### Error Handling Pattern
 
-모든 새로운 에러는 다음 패턴을 따름:
+All new errors should follow this pattern:
 
-1. Effect Data 타입으로 정의
-2. toString() 메서드에서 환경별 메시지 구분
-3. runSafePromise로 안전하게 실행
-4. 구조화된 로깅 적용
+1. Define as Effect Data types
+2. Distinguish environment-specific messages in toString() method
+3. Execute safely with runSafePromise
+4. Apply structured logging
 
-이 룰을 따르면 프로덕션에서 간결하고 읽기 쉬운 에러 메시지를 제공하면서, 개발 환경에서는 충분한 디버깅 정보를 유지할 수 있습니다.
+Following this rule allows you to provide concise and readable error messages in production while maintaining sufficient debugging information in development environments.
