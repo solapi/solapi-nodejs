@@ -3,6 +3,7 @@ import {
   KakaoAlimtalkTemplate,
   KakaoAlimtalkTemplateCategory,
   KakaoAlimtalkTemplateInterface,
+  kakaoAlimtalkTemplateSchema,
 } from '@models/base/kakao/kakaoAlimtalkTemplate';
 import {CreateKakaoAlimtalkTemplateRequest} from '@models/requests/kakao/createKakaoAlimtalkTemplateRequest';
 import {
@@ -12,9 +13,10 @@ import {
 import {UpdateKakaoAlimtalkTemplateRequest} from '@models/requests/kakao/updateKakaoAlimtalkTemplateRequest';
 import {
   GetKakaoAlimtalkTemplatesFinalizeResponse,
-  GetKakaoAlimtalkTemplatesResponse,
+  GetKakaoAlimtalkTemplatesResponseSchema,
 } from '@models/responses/kakao/getKakaoAlimtalkTemplatesResponse';
 import {GetKakaoTemplateResponse} from '@models/responses/kakao/getKakaoTemplateResponse';
+import {Effect, Schema, pipe} from 'effect';
 import DefaultService from '../../defaultService';
 
 export default class KakaoTemplateService extends DefaultService {
@@ -66,19 +68,27 @@ export default class KakaoTemplateService extends DefaultService {
       payload = new GetKakaoAlimtalkTemplatesFinalizeRequest(data);
     }
 
-    const parameter = stringifyQuery(payload, {indices: false});
+    const parameter = stringifyQuery(payload, {
+      indices: false,
+      addQueryPrefix: true,
+    });
     const response = await this.request<
       never,
-      GetKakaoAlimtalkTemplatesResponse
+      GetKakaoAlimtalkTemplatesResponseSchema
     >({
       httpMethod: 'GET',
       url: `kakao/v2/templates${parameter}`,
     });
 
-    const templateList = new Array<KakaoAlimtalkTemplate>();
-    for (const template of response.templateList) {
-      templateList.push(new KakaoAlimtalkTemplate(template));
-    }
+    const processTemplate = (template: unknown) =>
+      Schema.decodeUnknown(kakaoAlimtalkTemplateSchema)(template);
+
+    const processAllTemplates = pipe(
+      Effect.all(response.templateList.map(processTemplate)),
+      Effect.runPromise,
+    );
+
+    const templateList = await processAllTemplates;
 
     return {
       limit: response.limit,

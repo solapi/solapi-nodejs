@@ -81,14 +81,14 @@ export const kakaoAlimtalkTemplateStatusSchema = Schema.Literal(
 export type KakaoAlimtalkTemplateCommentType = {
   isAdmin: boolean;
   memberId: string;
-  content: string;
+  content: string | null;
   dateCreated: string;
 };
 
 export const kakaoAlimtalkTemplateCommentTypeSchema = Schema.Struct({
   isAdmin: Schema.Boolean,
   memberId: Schema.String,
-  content: Schema.String,
+  content: Schema.NullOr(Schema.String),
   dateCreated: Schema.String,
 });
 
@@ -152,13 +152,26 @@ export const kakaoAlimtalkTemplateSchema = Schema.Struct({
     Schema.Array(kakaoAlimtalkTemplateQuickReplySchema),
   ),
   header: Schema.optional(Schema.NullOr(Schema.String)),
-  highlight: Schema.optional(kakaoAlimtalkTemplateHighlightTypeSchema),
-  item: Schema.optional(kakaoAlimtalkTemplateItemTypeSchema),
+  highlight: Schema.optional(
+    Schema.NullOr(kakaoAlimtalkTemplateHighlightTypeSchema),
+  ),
+  item: Schema.optional(Schema.NullOr(kakaoAlimtalkTemplateItemTypeSchema)),
   templateId: Schema.String,
   code: Schema.optional(Schema.String),
   status: kakaoAlimtalkTemplateStatusSchema,
-  dateCreated: Schema.optional(Schema.Date),
-  dateUpdated: Schema.optional(Schema.Date),
+  variables: Schema.optional(
+    Schema.Array(
+      Schema.Struct({
+        name: Schema.String,
+      }),
+    ),
+  ),
+  dateCreated: Schema.optional(
+    Schema.Union(Schema.DateFromString, Schema.Date, Schema.DateFromSelf),
+  ),
+  dateUpdated: Schema.optional(
+    Schema.Union(Schema.DateFromString, Schema.Date, Schema.DateFromSelf),
+  ),
 });
 
 export type KakaoAlimtalkTemplateSchema = Schema.Schema.Type<
@@ -264,12 +277,12 @@ export interface KakaoAlimtalkTemplateInterface {
   /**
    * @description 아이템 리스트용 하이라이트 정보 유형
    */
-  highlight?: KakaoAlimtalkTemplateHighlightType;
+  highlight?: KakaoAlimtalkTemplateHighlightType | null;
 
   /**
    * @description 아이템 리스트 유형
    */
-  item?: KakaoAlimtalkTemplateItemType;
+  item?: KakaoAlimtalkTemplateItemType | null;
 
   /**
    * @description 카카오 알림톡 템플릿 ID
@@ -314,8 +327,8 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
   buttons?: KakaoButton[];
   quickReplies?: KakaoAlimtalkTemplateQuickReply[];
   header?: string | null;
-  highlight?: KakaoAlimtalkTemplateHighlightType;
-  item?: KakaoAlimtalkTemplateItemType;
+  highlight?: KakaoAlimtalkTemplateHighlightType | null;
+  item?: KakaoAlimtalkTemplateItemType | null;
   templateId: string;
   commentable?: boolean;
   comments?: Array<KakaoAlimtalkTemplateCommentType>;
