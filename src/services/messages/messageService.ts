@@ -1,3 +1,4 @@
+import {toCompatibleError} from '@lib/effectErrorHandler';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   GetMessagesFinalizeRequest,
@@ -26,9 +27,8 @@ import {
   SingleMessageSentResponse,
 } from '@models/responses/messageResponses';
 import {DetailGroupMessageResponse} from '@models/responses/sendManyDetailResponse';
-import {Schema} from 'effect';
+import {Cause, Exit, Schema} from 'effect';
 import * as Effect from 'effect/Effect';
-import {defaultRuntime, runPromise as runtimeRunPromise} from 'effect/Runtime';
 import {
   BadRequestError,
   MessageNotReceivedError,
@@ -76,18 +76,29 @@ export default class MessageService extends DefaultService {
    * @throws MessageNotReceivedError 모든 메시지 접수건이 실패건으로 진행되는 경우 반환되는 에러
    * @throws BadRequestError 잘못된 파라미터를 기입했거나, 데이터가 아예 없는 경우 반환되는 에러
    */
-  send(
+  async send(
     messages: RequestSendMessagesSchema,
     requestConfigParameter?: SendRequestConfigSchema,
   ): Promise<DetailGroupMessageResponse> {
     const request = this.request.bind(this);
-    const messageSchema = Schema.encodeUnknownSync(requestSendMessageSchema)(
-      messages,
-    );
 
     const effect = Effect.gen(function* (_) {
       /**
-       * 1. MessageParameter → Message 변환 및 기본 검증
+       * 1. 스키마 검증 - Effect 내부에서 실행하여 에러를 안전하게 처리
+       */
+      const messageSchema = yield* _(
+        Effect.try({
+          try: () =>
+            Schema.encodeUnknownSync(requestSendMessageSchema)(messages),
+          catch: error =>
+            new BadRequestError({
+              message: error instanceof Error ? error.message : String(error),
+            }),
+        }),
+      );
+
+      /**
+       * 2. MessageParameter → Message 변환 및 기본 검증
        */
       const messageParameters = Array.isArray(messageSchema)
         ? messageSchema
@@ -103,8 +114,17 @@ export default class MessageService extends DefaultService {
         );
       }
 
-      const decodedConfig = Schema.encodeUnknownSync(sendRequestConfigSchema)(
-        requestConfigParameter ?? {},
+      const decodedConfig = yield* _(
+        Effect.try({
+          try: () =>
+            Schema.encodeUnknownSync(sendRequestConfigSchema)(
+              requestConfigParameter ?? {},
+            ),
+          catch: error =>
+            new BadRequestError({
+              message: error instanceof Error ? error.message : String(error),
+            }),
+        }),
       );
 
       const parameterObject = {
@@ -116,8 +136,17 @@ export default class MessageService extends DefaultService {
       };
 
       // 스키마 검증 및 파라미터 확정
-      const parameter = Schema.decodeSync(multipleMessageSendingRequestSchema)(
-        parameterObject,
+      const parameter = yield* _(
+        Effect.try({
+          try: () =>
+            Schema.decodeSync(multipleMessageSendingRequestSchema)(
+              parameterObject,
+            ),
+          catch: error =>
+            new BadRequestError({
+              message: error instanceof Error ? error.message : String(error),
+            }),
+        }),
       );
 
       /**
@@ -158,7 +187,20 @@ export default class MessageService extends DefaultService {
       return response;
     });
 
-    return runtimeRunPromise(defaultRuntime, effect);
+    // Effect를 Promise로 변환하되 에러를 표준 Error 객체로 변환
+    const exit = await Effect.runPromiseExit(effect);
+
+    return Exit.match(exit, {
+      onFailure: cause => {
+        // Effect 에러를 표준 JavaScript Error로 변환
+        const failure = Cause.failureOption(cause);
+        if (failure._tag === 'Some') {
+          throw toCompatibleError(failure.value);
+        }
+        throw new Error('Unknown error occurred');
+      },
+      onSuccess: value => value,
+    });
   }
 
   /**
