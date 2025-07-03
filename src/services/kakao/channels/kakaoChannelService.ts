@@ -48,7 +48,10 @@ export default class KakaoChannelService extends DefaultService {
     if (data) {
       payload = new GetKakaoChannelsFinalizeRequest(data);
     }
-    const parameter = stringifyQuery(payload, {indices: false});
+    const parameter = stringifyQuery(payload, {
+      indices: false,
+      addQueryPrefix: true,
+    });
     const response = await this.request<never, GetKakaoChannelsResponse>({
       httpMethod: 'GET',
       url: `kakao/v2/channels${parameter}`,
