@@ -1,8 +1,8 @@
 ---
-description:
-globs:
+description: Reference this document when you need to add errors in specific services or handle failure processing.
 alwaysApply: false
 ---
+
 # Production Error Handling and Stack Trace Optimization
 
 This is a rule for solving the problem of long error stack traces caused by minified code in production builds.
@@ -12,6 +12,7 @@ This is a rule for solving the problem of long error stack traces caused by mini
 Reference: [debug/index.js](mdc:debug/index.js)
 
 Due to tsup's minify option in production environments:
+
 - All code is compressed into a single line
 - Long minified code appears in stack traces when errors occur
 - Debugging becomes difficult and logs become messy
@@ -33,7 +34,7 @@ export class CustomError extends Data.TaggedError('CustomError')<{
       // Production: Only concise messages
       return `${this.code}: ${this.message}`;
     }
-    
+
     // Development: Include detailed information
     return `${this.code}: ${this.message}${
       this.context ? `\nContext: ${JSON.stringify(this.context, null, 2)}` : ''
@@ -51,12 +52,12 @@ abstract class BaseError extends Error {
   constructor(message: string, name: string) {
     super(message);
     this.name = name;
-    
+
     // Remove this class's constructor from the stack
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
     }
-    
+
     // Simplify stack trace in production
     if (process.env.NODE_ENV === 'production') {
       this.cleanStackTrace();
@@ -77,7 +78,9 @@ abstract class BaseError extends Error {
 Error formatting utilizing Effect's Cause system:
 
 ```typescript
-export const formatErrorForProduction = (cause: Cause.Cause<unknown>): string => {
+export const formatErrorForProduction = (
+  cause: Cause.Cause<unknown>,
+): string => {
   if (process.env.NODE_ENV === 'production') {
     // Production: Only top-level error messages
     const failure = Cause.failureOption(cause);
@@ -90,7 +93,7 @@ export const formatErrorForProduction = (cause: Cause.Cause<unknown>): string =>
     }
     return 'Unknown error occurred';
   }
-  
+
   // Development: Full cause tree
   return Cause.pretty(cause);
 };
@@ -101,24 +104,22 @@ export const formatErrorForProduction = (cause: Cause.Cause<unknown>): string =>
 Apply error formatting when converting Effect to Promise:
 
 ```typescript
-export const runSafePromise = <E, A>(
-  effect: Effect.Effect<A, E>
-): Promise<A> =>
+export const runSafePromise = <E, A>(effect: Effect.Effect<A, E>): Promise<A> =>
   Effect.runPromiseExit(effect).then(
     Exit.match({
-      onFailure: (cause) => {
+      onFailure: cause => {
         const formattedError = formatErrorForProduction(cause);
         const error = new Error(formattedError);
-        
+
         // Remove stack trace in production
         if (process.env.NODE_ENV === 'production') {
           error.stack = undefined;
         }
-        
+
         return Promise.reject(error);
       },
-      onSuccess: (value) => Promise.resolve(value)
-    })
+      onSuccess: value => Promise.resolve(value),
+    }),
   );
 ```
 
@@ -137,18 +138,18 @@ export default defineConfig(({watch}) => {
 
   return {
     // ... existing configuration ...
-    
+
     // Disable minify in debug mode
     minify: isProd && !enableDebug,
-    
+
     // Generate source maps in debug mode
     sourcemap: !isProd || enableDebug,
-    
+
     // Define environment variables
     define: {
       'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
-      'process.env.EFFECT_DEBUG': enableDebug ? '"true"' : '"false"'
-    }
+      'process.env.EFFECT_DEBUG': enableDebug ? '"true"' : '"false"',
+    },
   };
 });
 ```
@@ -238,7 +239,7 @@ send(messages: RequestSendMessagesSchema): Promise<DetailGroupMessageResponse> {
         )
       );
     }
-    
+
     // ... rest of the logic
   });
 
@@ -261,7 +262,7 @@ export class KakaoVariableError extends Data.TaggedError('KakaoVariableError')<{
     if (process.env.NODE_ENV === 'production') {
       return `KakaoVariableError: Invalid variable names detected`;
     }
-    
+
     const variableList = this.invalidVariables.map(v => `\`${v}\``).join(', ');
     return `KakaoVariableError: Variable names ${variableList} cannot contain dots(.). Please use underscores(_) or other characters.`;
   }
@@ -282,7 +283,7 @@ const logError = (error: unknown, context: Record<string, unknown> = {}) => {
       level: 'error',
       message: formatErrorForProduction(error),
       timestamp: new Date().toISOString(),
-      ...context
+      ...context,
     });
   } else {
     // Development: Detailed information
@@ -291,7 +292,7 @@ const logError = (error: unknown, context: Record<string, unknown> = {}) => {
       error: error,
       stack: error instanceof Error ? error.stack : undefined,
       context,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
