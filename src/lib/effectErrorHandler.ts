@@ -124,12 +124,43 @@ export const runSafePromise = <E, A>(
   );
 };
 
+// MessageNotReceivedError의 프로퍼티를 포함한 확장 Error 타입
+interface MessageNotReceivedErrorCompat extends Error {
+  readonly failedMessageList: ReadonlyArray<
+    import('../models/responses/sendManyDetailResponse').FailedMessage
+  >;
+  readonly totalCount: number;
+}
+
 // Effect 에러를 기존 Error로 변환 (하위 호환성)
 export const toCompatibleError = (effectError: unknown): Error => {
+  // MessageNotReceivedError의 경우 특별 처리하여 원본 프로퍼티 보존
+  if (effectError instanceof EffectError.MessageNotReceivedError) {
+    const error = new Error(
+      effectError.message,
+    ) as MessageNotReceivedErrorCompat;
+    error.name = 'MessageNotReceivedError';
+    // failedMessageList와 totalCount 프로퍼티 보존
+    Object.defineProperty(error, 'failedMessageList', {
+      value: effectError.failedMessageList,
+      writable: false,
+      enumerable: true,
+      configurable: false,
+    });
+    Object.defineProperty(error, 'totalCount', {
+      value: effectError.totalCount,
+      writable: false,
+      enumerable: true,
+      configurable: false,
+    });
+    delete error.stack;
+    return error;
+  }
+
   const formatted = formatError(effectError);
   // 하위 호환성을 위해 여전히 Error 사용하지만 스택 제거
   const error = new Error(formatted);
-  error.name = 'ApplicationError';
+  error.name = 'FromSolapiError';
   delete error.stack;
   return error;
 };

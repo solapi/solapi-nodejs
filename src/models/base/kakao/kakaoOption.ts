@@ -16,13 +16,7 @@ export class VariableValidationError extends Data.TaggedError(
 }
 
 const kakaoOptionBmsSchema = Schema.Struct({
-  targeting: Schema.optional(
-    Schema.Enums({
-      M: 'M',
-      N: 'N',
-      I: 'I',
-    }),
-  ),
+  targeting: Schema.Literal('I', 'M', 'N'),
 });
 
 // Constants for variable validation
