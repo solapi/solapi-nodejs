@@ -20,7 +20,10 @@ export default function stringDateTransfer(value: string | Date): Date {
     value = parseISO(value);
     const invalidDateText = 'Invalid Date';
     if (value.toString() === invalidDateText) {
-      throw new InvalidDateError(invalidDateText);
+      throw new InvalidDateError({
+        message: invalidDateText,
+        originalValue: typeof value === 'string' ? value : undefined,
+      });
     }
   }
   return value;
