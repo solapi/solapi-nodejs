@@ -1,0 +1,324 @@
+---
+description: Reference this document when you need to add errors in specific services or handle failure processing.
+alwaysApply: false
+---
+
+# Production Error Handling and Stack Trace Optimization
+
+This is a rule for solving the problem of long error stack traces caused by minified code in production builds.
+
+## Problem Definition
+
+Reference: [debug/index.js](mdc:debug/index.js)
+
+Due to tsup's minify option in production environments:
+
+- All code is compressed into a single line
+- Long minified code appears in stack traces when errors occur
+- Debugging becomes difficult and logs become messy
+
+## Solution Strategy
+
+### 1. Error Classes Using Effect Data Types
+
+All error classes should provide different message formats for different environments:
+
+```typescript
+export class CustomError extends Data.TaggedError('CustomError')<{
+  readonly code: string;
+  readonly message: string;
+  readonly context?: Record<string, unknown>;
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      // Production: Only concise messages
+      return `${this.code}: ${this.message}`;
+    }
+
+    // Development: Include detailed information
+    return `${this.code}: ${this.message}${
+      this.context ? `\nContext: ${JSON.stringify(this.context, null, 2)}` : ''
+    }`;
+  }
+}
+```
+
+### 2. Utilizing Error.captureStackTrace
+
+Remove constructor stack from custom errors:
+
+```typescript
+abstract class BaseError extends Error {
+  constructor(message: string, name: string) {
+    super(message);
+    this.name = name;
+
+    // Remove this class's constructor from the stack
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+
+    // Simplify stack trace in production
+    if (process.env.NODE_ENV === 'production') {
+      this.cleanStackTrace();
+    }
+  }
+
+  private cleanStackTrace() {
+    if (this.stack) {
+      // Keep only the error message
+      this.stack = `${this.name}: ${this.message}`;
+    }
+  }
+}
+```
+
+### 3. Effect-Based Error Formatter
+
+Error formatting utilizing Effect's Cause system:
+
+```typescript
+export const formatErrorForProduction = (
+  cause: Cause.Cause<unknown>,
+): string => {
+  if (process.env.NODE_ENV === 'production') {
+    // Production: Only top-level error messages
+    const failure = Cause.failureOption(cause);
+    if (failure._tag === 'Some') {
+      const error = failure.value;
+      if (error instanceof Error) {
+        return `${error.name}: ${error.message}`;
+      }
+      return String(error);
+    }
+    return 'Unknown error occurred';
+  }
+
+  // Development: Full cause tree
+  return Cause.pretty(cause);
+};
+```
+
+### 4. Safe Effect Execution Utility
+
+Apply error formatting when converting Effect to Promise:
+
+```typescript
+export const runSafePromise = <E, A>(effect: Effect.Effect<A, E>): Promise<A> =>
+  Effect.runPromiseExit(effect).then(
+    Exit.match({
+      onFailure: cause => {
+        const formattedError = formatErrorForProduction(cause);
+        const error = new Error(formattedError);
+
+        // Remove stack trace in production
+        if (process.env.NODE_ENV === 'production') {
+          error.stack = undefined;
+        }
+
+        return Promise.reject(error);
+      },
+      onSuccess: value => Promise.resolve(value),
+    }),
+  );
+```
+
+## Build Configuration Optimization
+
+### tsup Configuration Improvement
+
+Reference: [tsup.config.ts](mdc:tsup.config.ts)
+
+Conditional builds through environment variables:
+
+```typescript
+export default defineConfig(({watch}) => {
+  const isProd = !watch;
+  const enableDebug = process.env.DEBUG === 'true';
+
+  return {
+    // ... existing configuration ...
+
+    // Disable minify in debug mode
+    minify: isProd && !enableDebug,
+
+    // Generate source maps in debug mode
+    sourcemap: !isProd || enableDebug,
+
+    // Define environment variables
+    define: {
+      'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
+      'process.env.EFFECT_DEBUG': enableDebug ? '"true"' : '"false"',
+    },
+  };
+});
+```
+
+### Adding package.json Scripts
+
+```json
+{
+  "scripts": {
+    "build": "yarn lint && tsup",
+    "build:debug": "DEBUG=true yarn build",
+    "dev": "tsup --watch",
+    "dev:debug": "DEBUG=true yarn dev"
+  }
+}
+```
+
+## Project-Specific Application Patterns
+
+### API Fetcher Improvement
+
+Reference: [src/lib/defaultFetcher.ts](mdc:src/lib/defaultFetcher.ts)
+
+Convert existing DefaultError to Effect Data types:
+
+```typescript
+export class NetworkError extends Data.TaggedError('NetworkError')<{
+  readonly url: string;
+  readonly method: string;
+  readonly cause: unknown;
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      return `NetworkError: Request failed`;
+    }
+    return `NetworkError: ${this.method} ${this.url} failed - ${this.cause}`;
+  }
+}
+
+export class ApiError extends Data.TaggedError('ApiError')<{
+  readonly errorCode: string;
+  readonly errorMessage: string;
+  readonly httpStatus: number;
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      return `${this.errorCode}: ${this.errorMessage}`;
+    }
+    return `${this.errorCode}: ${this.errorMessage} (HTTP ${this.httpStatus})`;
+  }
+}
+```
+
+### MessageService Error Handling
+
+Reference: [src/services/messages/messageService.ts](mdc:src/services/messages/messageService.ts)
+
+Convert to Effect-based error handling:
+
+```typescript
+export class MessageValidationError extends Data.TaggedError('MessageValidationError')<{
+  readonly field: string;
+  readonly reason: string;
+  readonly messageIndex?: number;
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      return `MessageValidationError: Invalid ${this.field}`;
+    }
+    return `MessageValidationError: ${this.field} - ${this.reason}${
+      this.messageIndex !== undefined ? ` (message #${this.messageIndex})` : ''
+    }`;
+  }
+}
+
+// Utilize in MessageService.send method
+send(messages: RequestSendMessagesSchema): Promise<DetailGroupMessageResponse> {
+  const effect = Effect.gen(function* (_) {
+    // Validation logic...
+    if (messageParameters.length === 0) {
+      return yield* _(
+        Effect.fail(
+          new MessageValidationError({
+            field: 'messages',
+            reason: 'At least one message is required'
+          })
+        )
+      );
+    }
+
+    // ... rest of the logic
+  });
+
+  return runSafePromise(effect);
+}
+```
+
+### Kakao Option Error Handling Improvement
+
+Reference: [src/models/base/kakao/kakaoOption.ts](mdc:src/models/base/kakao/kakaoOption.ts)
+
+Convert existing VariableValidationError to Effect Data types:
+
+```typescript
+export class KakaoVariableError extends Data.TaggedError('KakaoVariableError')<{
+  readonly invalidVariables: ReadonlyArray<string>;
+  readonly operation: 'validation' | 'transformation';
+}> {
+  toString(): string {
+    if (process.env.NODE_ENV === 'production') {
+      return `KakaoVariableError: Invalid variable names detected`;
+    }
+
+    const variableList = this.invalidVariables.map(v => `\`${v}\``).join(', ');
+    return `KakaoVariableError: Variable names ${variableList} cannot contain dots(.). Please use underscores(_) or other characters.`;
+  }
+}
+```
+
+## Logging Strategy
+
+### Structured Logging
+
+Use structured data when logging errors:
+
+```typescript
+const logError = (error: unknown, context: Record<string, unknown> = {}) => {
+  if (process.env.NODE_ENV === 'production') {
+    // Production: Minimal information only
+    console.error({
+      level: 'error',
+      message: formatErrorForProduction(error),
+      timestamp: new Date().toISOString(),
+      ...context,
+    });
+  } else {
+    // Development: Detailed information
+    console.error({
+      level: 'error',
+      error: error,
+      stack: error instanceof Error ? error.stack : undefined,
+      context,
+      timestamp: new Date().toISOString(),
+    });
+  }
+};
+```
+
+## Usage Guide
+
+### Debug Build
+
+When problem diagnosis is needed:
+
+```bash
+# Build in debug mode (no minify, with source maps)
+DEBUG=true yarn build
+
+# Or run development server in debug mode
+DEBUG=true yarn dev
+```
+
+### Error Handling Pattern
+
+All new errors should follow this pattern:
+
+1. Define as Effect Data types
+2. Distinguish environment-specific messages in toString() method
+3. Execute safely with runSafePromise
+4. Apply structured logging
+
+Following this rule allows you to provide concise and readable error messages in production while maintaining sufficient debugging information in development environments.

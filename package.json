@@ -1,6 +1,6 @@
 {
   "name": "solapi",
-  "version": "5.4.0",
+  "version": "5.5.0",
   "description": "SOLAPI SDK for Node.js(Server Side Only)",
   "keywords": [
     "solapi",
@@ -25,7 +25,7 @@
     "email": "contact@solapi.com"
   },
   "type": "commonjs",
-  "source": "src/solapi.ts",
+  "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.mjs",
@@ -33,54 +33,40 @@
     "/dist"
   ],
   "scripts": {
-    "build": "yarn clean && yarn lint && parcel build",
-    "clean": "rimraf dist",
+    "build": "yarn lint && tsup",
     "docs": "typedoc --entryPointStrategy expand ./src",
     "format": "prettier ./**/*.ts ./**/*.js ./**/*.mjs",
-    "lint": "eslint .",
-    "watch": "parcel watch"
+    "lint": "eslint . --plugin file-progress --rule \"file-progress/activate: 1\"",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
-    "image-to-base64": "^2.2.0",
-    "qs": "^6.14.0"
+    "effect": "^3.16.11"
   },
   "devDependencies": {
+    "@effect/vitest": "^0.23.11",
     "@eslint/eslintrc": "^3",
     "@eslint/js": "^9",
-    "@parcel/packager-ts": "^2.13.3",
-    "@parcel/transformer-typescript-tsc": "^2.13.3",
-    "@parcel/transformer-typescript-types": "^2.13.3",
-    "@parcel/validator-typescript": "^2.13.3",
-    "@types/crypto-js": "^4.2.2",
-    "@types/image-to-base64": "^2.1.2",
     "@types/node": "^18",
-    "@types/qs": "^6.9.18",
-    "@typescript-eslint/eslint-plugin": "^8.26.0",
-    "@typescript-eslint/parser": "^8.26.0",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "dotenv": "^17.0.1",
     "eslint": "^9",
+    "eslint-plugin-file-progress": "^3.0.2",
     "eslint-plugin-tsdoc": "^0.4.0",
     "eslint-plugin-unused-imports": "^4.1.4",
     "globals": "^16.0.0",
-    "parcel": "^2.13.3",
     "prettier": "^3.5.3",
-    "rimraf": "^6.0.1",
-    "typedoc": "^0.27.9",
-    "typescript": "^5.8.2"
+    "tsup": "^8.5.0",
+    "typedoc": "^0.28.5",
+    "typescript": "^5.8.3",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
   },
-  "packageManager": "yarn@4.6.0",
+  "packageManager": "yarn@4.9.2",
   "engines": {
-    "node": ">=18",
-    "parcel": "2.x"
-  },
-  "targets": {
-    "main": {
-      "outputFormat": "commonjs",
-      "optimize": true
-    },
-    "module": {
-      "outputFormat": "esmodule",
-      "optimize": true
-    }
+    "node": ">=18"
   }
 }

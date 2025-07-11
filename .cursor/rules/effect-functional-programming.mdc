@@ -1,0 +1,304 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# EFFECT Library Utilization Guide
+
+This is a project rule for maximizing the use of the Effect library to achieve error control, functional programming, and performance optimization.
+
+## Core Principles
+
+- Leverage Effect's type safety to catch runtime errors at compile time
+- Explicitly manage side effects with pure functional style
+- Use Effect's pipeline for readable data transformations
+- Specify error handling at the type level to clearly express exceptional situations
+
+## Error Handling Patterns
+
+### Utilizing Effect Data Types
+
+All custom errors should be defined by extending `Data.TaggedError`:
+
+```typescript
+export class ValidationError extends Data.TaggedError('ValidationError')<{
+  readonly field: string;
+  readonly reason: string;
+  readonly context?: Record<string, unknown>;
+}> {
+  toString(): string {
+    return process.env.NODE_ENV === 'production' 
+      ? `ValidationError: ${this.field} validation failed`
+      : `ValidationError: ${this.field} - ${this.reason}`;
+  }
+}
+```
+
+### Error Formatting Strategy
+
+To avoid long stack traces from minified code in production environments:
+
+1. **Concise Error Messages**: Display only essential information in production
+2. **Limited Context Information**: Include detailed debugging information only in development environments
+3. **Stack Trace Control**: Remove unnecessary stacks with Effect's error handling
+
+### Error Propagation Patterns
+
+```typescript
+// Correct pattern: Error propagation through Effect chain
+const processData = (input: unknown) =>
+  pipe(
+    Effect.succeed(input),
+    Effect.flatMap(validateInput),
+    Effect.flatMap(transformData),
+    Effect.flatMap(saveToDatabase),
+    Effect.catchAll(handleError)
+  );
+
+// Pattern to avoid: Wrapping Effect with try-catch
+const badPattern = async (input: unknown) => {
+  try {
+    return await Effect.runPromise(processData(input));
+  } catch (error) {
+    // Loses Effect's type safety
+    throw error;
+  }
+};
+```
+
+## Functional Programming Patterns
+
+### Utilizing Effect.gen
+
+Implement complex business logic with `Effect.gen`:
+
+```typescript
+const businessLogic = Effect.gen(function* (_) {
+  const config = yield* _(loadConfig);
+  const data = yield* _(fetchData(config));
+  const processed = yield* _(processData(data));
+  const result = yield* _(saveResult(processed));
+  return result;
+});
+```
+
+### Pipeline Operations
+
+Express data transformations as pipelines:
+
+```typescript
+const transformUserData = (rawData: unknown) =>
+  pipe(
+    rawData,
+    Schema.decodeUnknown(UserSchema),
+    Effect.map(user => ({...user, id: generateId()})),
+    Effect.flatMap(validateUser),
+    Effect.map(normalizeData)
+  );
+```
+
+### Schema Validation Utilization
+
+Maximize the use of Effect Schema for runtime validation:
+
+```typescript
+// Reference: [src/models/base/kakao/kakaoOption.ts](mdc:src/models/base/kakao/kakaoOption.ts)
+const KakaoVariablesSchema = Schema.Record({
+  key: Schema.String,
+  value: Schema.String
+}).pipe(
+  Schema.transform(
+    Schema.Record({key: Schema.String, value: Schema.String}),
+    {
+      decode: variables => transformVariables(variables),
+      encode: variables => variables
+    }
+  )
+);
+```
+
+## Performance Optimization Patterns
+
+### Batch Processing
+
+Use Effect.all when processing multiple tasks in batches:
+
+```typescript
+// Parallel processing instead of sequential processing
+const processMultipleItems = (items: readonly Item[]) =>
+  Effect.all(
+    items.map(item => processItem(item)),
+    { concurrency: 10 } // Limit concurrent execution
+  );
+```
+
+### Resource Management
+
+Safe resource management with Effect.acquireRelease:
+
+```typescript
+const withDatabase = <A, E, R>(
+  operation: (db: Database) => Effect.Effect<A, E, R>
+): Effect.Effect<A, E | DatabaseError, R> =>
+  Effect.acquireRelease(
+    connectToDatabase,
+    (db) => Effect.promise(() => db.close())
+  ).pipe(
+    Effect.flatMap(operation)
+  );
+```
+
+### Caching Strategy
+
+Memoization using Effect.cached:
+
+```typescript
+const expensiveComputation = Effect.cached(
+  computeHeavyOperation,
+  { timeToLive: "1 hour" }
+);
+```
+
+## Project-Specific Application Rules
+
+### API Client Pattern
+
+Reference: [src/lib/defaultFetcher.ts](mdc:src/lib/defaultFetcher.ts)
+
+All API calls should be implemented based on Effect:
+
+```typescript
+const apiCall = <T, R>(request: ApiRequest<T>): Effect.Effect<R, ApiError> =>
+  pipe(
+    Effect.tryPromise({
+      try: () => fetch(request.url, buildRequestOptions(request)),
+      catch: (error) => new NetworkError({ cause: error })
+    }),
+    Effect.flatMap(handleHttpResponse),
+    Effect.retry(retryPolicy)
+  );
+```
+
+### Service Layer Pattern
+
+Reference: [src/services/messages/messageService.ts](mdc:src/services/messages/messageService.ts)
+
+All service methods should be composed with Effect chains:
+
+```typescript
+export class MessageService {
+  send(messages: MessageRequest[]): Promise<SendResponse> {
+    const effect = Effect.gen(function* (_) {
+      const validated = yield* _(validateMessages(messages));
+      const transformed = yield* _(transformMessages(validated));
+      const response = yield* _(sendToApi(transformed));
+      return yield* _(processResponse(response));
+    });
+
+    return runSafePromise(effect);
+  }
+}
+```
+
+### Error Transformation Layer
+
+For compatibility with existing Promise-based code:
+
+```typescript
+export const runSafePromise = <E, A>(
+  effect: Effect.Effect<A, E>
+): Promise<A> =>
+  Effect.runPromiseExit(effect).then(
+    Exit.match({
+      onFailure: (cause) => {
+        const formatted = formatErrorForProduction(cause);
+        return Promise.reject(new Error(formatted));
+      },
+      onSuccess: (value) => Promise.resolve(value)
+    })
+  );
+```
+
+## Testing Strategy
+
+### Effect-Based Testing
+
+Reference: [test/models/base/kakao/kakaoOption.test.ts](mdc:test/models/base/kakao/kakaoOption.test.ts)
+
+Execute Effect-based tests with `Effect.either`:
+
+```typescript
+it('should validate input correctly', async () => {
+  const result = await Effect.runPromise(
+    Effect.either(validateInput(invalidData))
+  );
+  
+  expect(result._tag).toBe('Left');
+  if (result._tag === 'Left') {
+    expect(result.left).toBeInstanceOf(ValidationError);
+  }
+});
+```
+
+### Mocking and Dependency Injection
+
+Test doubles using Effect Context:
+
+```typescript
+const TestDatabase = Context.GenericTag<Database>('TestDatabase');
+const MockDatabaseLive = Layer.succeed(TestDatabase, mockDatabase);
+
+const testEffect = myBusinessLogic.pipe(
+  Effect.provide(MockDatabaseLive)
+);
+```
+
+## Migration Strategy
+
+### Gradual Introduction
+
+1. **Start with Error Types**: Convert existing Error classes to Effect Data types
+2. **Convert Utility Functions**: Refactor pure functions to be Effect-based
+3. **Convert API Layer**: Convert external communication code to be Effect-based
+4. **Convert Business Logic**: Convert core logic to Effect.gen
+
+### Maintaining Compatibility
+
+For compatibility with existing Promise-based APIs:
+
+```typescript
+// Maintain existing API while using Effect internally
+public async legacyMethod(input: string): Promise<Result> {
+  const effect = modernEffectBasedLogic(input);
+  return runSafePromise(effect);
+}
+```
+
+## Build and Deployment Considerations
+
+### Environment-Specific Configuration
+
+Reference: [tsup.config.ts](mdc:tsup.config.ts)
+
+Optimize error formatting in production builds:
+
+```typescript
+define: {
+  'process.env.NODE_ENV': isProd ? '"production"' : '"development"',
+  'process.env.EFFECT_DEBUG': isDev ? 'true' : 'false'
+}
+```
+
+### Bundle Size Optimization
+
+Use ES module imports for Effect library tree-shaking:
+
+```typescript
+// Good pattern
+import { Effect, pipe } from 'effect';
+
+// Pattern to avoid
+import * as Effect from 'effect';
+```
+
+Follow this guide to maximize the powerful features of the Effect library and write type-safe, performance-optimized functional code.

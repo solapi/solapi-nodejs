@@ -1,5 +1,5 @@
+import {createHmac, randomBytes} from 'crypto';
 import {formatISO} from 'date-fns';
-import {createHmac, randomBytes} from 'node:crypto';
 import {ApiKeyError} from '../errors/defaultError';
 
 enum AuthenticateType {
@@ -7,8 +7,8 @@ enum AuthenticateType {
 }
 
 export type AuthenticationParameter = {
-  apiKey?: string;
-  apiSecret?: string;
+  apiKey: string;
+  apiSecret: string;
 };
 
 /**
@@ -46,7 +46,9 @@ export default function getAuthInfo(
       const date = formatISO(new Date());
       const hmacData = date + salt;
       if (!apiKey || !apiSecret || apiKey === '' || apiSecret === '') {
-        throw new ApiKeyError('Invalid API Key Error');
+        throw new ApiKeyError({
+          message: 'Invalid API Key Error',
+        });
       }
       const genHmac = createHmac('sha256', apiSecret);
       genHmac.update(hmacData);
