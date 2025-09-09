@@ -56,7 +56,7 @@ export default class KakaoChannelService extends DefaultService {
       httpMethod: 'GET',
       url: `kakao/v2/channels${parameter}`,
     });
-    const channelList = new Array<KakaoChannel>();
+    const channelList: KakaoChannel[] = [];
     for (const channel of response.channelList) {
       channelList.push(new KakaoChannel(channel));
     }
