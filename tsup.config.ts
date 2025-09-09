@@ -1,7 +1,7 @@
-import {defineConfig} from 'tsup';
+import { defineConfig } from 'tsup';
 
 // NODE_ENV 값에 따라 개발(build --watch) / 프로덕션(build) 옵션을 자동 전환합니다.
-export default defineConfig(({watch}) => {
+export default defineConfig(({ watch }) => {
   const isProd = !watch; // watch 모드가 아니면 프로덕션 빌드로 간주
   const enableDebug = process.env.DEBUG === 'true';
 
@@ -32,8 +32,10 @@ export default defineConfig(({watch}) => {
     // 빌드 전 dist 폴더 정리
     clean: true,
 
-    // node_modules 내부 의존성은 번들에서 제외 → SDK 배포 용량 최소화
-    skipNodeModulesBundle: true,
+    // 외부 실행 환경(Node 단독 실행)에서도 동작하도록 핵심 의존성은 번들에 포함
+    // - effect 및 하위 서브패스, date-fns 를 인라인 번들링
+    // - Node 내장 모듈(fs, url, crypto 등)은 외부로 유지
+    noExternal: [/^effect\//, 'effect', 'date-fns'],
 
     // ESM 포맷에서 코드 분할을 비활성화하여 단일 파일 생성 (라이브러리 배포에 유리)
     splitting: false,

@@ -1,5 +1,5 @@
-import { formatWithTransfer } from '@lib/stringDateTrasnfer';
-import { Schema } from 'effect';
+import {formatWithTransfer} from '@lib/stringDateTrasnfer';
+import {Schema} from 'effect';
 import pkg from '../../../../package.json';
 
 // SDK 및 OS 정보
