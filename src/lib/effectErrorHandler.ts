@@ -1,6 +1,6 @@
-import {Cause, Effect, Exit} from 'effect';
+import {Cause, Chunk, Effect, Exit} from 'effect';
+import {VariableValidationError} from '@/models/base/kakao/kakaoOption';
 import * as EffectError from '../errors/defaultError';
-import {VariableValidationError} from '../models/base/kakao/kakaoOption';
 
 // 에러 포맷팅을 위한 Effect 기반 유틸리티
 export const formatError = (error: unknown): string => {
@@ -115,9 +115,30 @@ export const runSafePromise = <E, A>(
   return Effect.runPromiseExit(effect).then(
     Exit.match({
       onFailure: cause => {
-        const formattedError = formatCauseForProduction(cause);
-        const failure = createApplicationFailure(formattedError);
-        return Promise.reject(failure);
+        // 1. 예측된 실패(Failure)인지 확인
+        const failure = Cause.failureOption(cause);
+        if (failure._tag === 'Some') {
+          return Promise.reject(toCompatibleError(failure.value));
+        }
+
+        // 2. 예측되지 않은 예외(Defect)인지 확인
+        const defects = Cause.defects(cause);
+        if (defects.length > 0) {
+          const firstDefect = Chunk.unsafeGet(defects, 0);
+          if (firstDefect instanceof Error) {
+            // 원본 Error 객체를 그대로 반환
+            return Promise.reject(firstDefect);
+          }
+          // Error 객체가 아니면 새로 생성
+          return Promise.reject(
+            new Error(`Uncaught defect: ${String(firstDefect)}`),
+          );
+        }
+
+        // 3. 그 외 (예: 중단)의 경우, Cause를 문자열로 변환하여 반환
+        return Promise.reject(
+          new Error(`Unhandled Exit: ${Cause.pretty(cause)}`),
+        );
       },
       onSuccess: value => Promise.resolve(value),
     }),
