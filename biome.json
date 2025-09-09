@@ -1,7 +1,18 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.3/schema.json",
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-  "files": { "ignoreUnknown": false, "includes": ["**", "!docs/**/*"] },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!docs/**/*",
+      "!**/.yarn/**",
+      "!**/.pnp.*",
+      "!.yarnrc.yml",
+      "!yarn.lock",
+      "!**/.next/**"
+    ]
+  },
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
@@ -67,7 +78,12 @@
       "!dist/**/*",
       "!examples/**/*",
       "!debug/**/*",
-      "!docs/**/*"
+      "!docs/**/*",
+      "!**/.yarn/**",
+      "!**/.pnp.*",
+      "!.yarnrc.yml",
+      "!yarn.lock",
+      "!**/.next/**"
     ]
   },
   "javascript": {

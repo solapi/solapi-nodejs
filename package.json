@@ -29,9 +29,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.mjs",
-  "files": [
-    "/dist"
-  ],
+  "files": ["/dist"],
   "scripts": {
     "build": "yarn lint && tsup",
     "docs": "typedoc --entryPointStrategy expand ./src",

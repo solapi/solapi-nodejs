@@ -1,11 +1,20 @@
-.vscode/
 node_modules/
 package-lock.json
+pnpm-lock.yaml
+npm-shrinkwrap.json
 .idea
 *.real.js
 dist
+# TypeScript
+*.tsbuildinfo
 .parcel-cache
-yarn-error.log
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 debug
 
 # publish config
@@ -18,7 +27,16 @@ debug
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+
+# Yarn PnP artifacts
 .pnp.*
+
+# Editor settings (keep workspace configs, ignore the rest)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
 
 # macOS
 .DS_Store
@@ -34,6 +52,17 @@ $RECYCLE.BIN/
 
 # env
 .env
+.env.*
+!.env.example
+
+# test coverage and caches
+coverage/
+.vitest/
+
+# Next.js example build outputs
+**/.next/
+**/out/
+.vercel/
 
 # Claude
 CLAUDE.md
