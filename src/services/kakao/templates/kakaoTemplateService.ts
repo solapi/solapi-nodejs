@@ -16,7 +16,7 @@ import {
   GetKakaoAlimtalkTemplatesResponseSchema,
 } from '@models/responses/kakao/getKakaoAlimtalkTemplatesResponse';
 import {GetKakaoTemplateResponse} from '@models/responses/kakao/getKakaoTemplateResponse';
-import {Effect, Schema, pipe} from 'effect';
+import {Effect, pipe, Schema} from 'effect';
 import DefaultService from '../../defaultService';
 
 export default class KakaoTemplateService extends DefaultService {

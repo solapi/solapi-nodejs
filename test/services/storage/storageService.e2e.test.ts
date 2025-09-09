@@ -1,6 +1,6 @@
-import StorageService from '@/services/storage/storageService';
 import path from 'path';
 import {beforeAll, describe, expect, it} from 'vitest';
+import StorageService from '@/services/storage/storageService';
 
 describe('StorageService E2E', () => {
   let storageService: StorageService;

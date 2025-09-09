@@ -13,12 +13,12 @@ import {
   sendRequestConfigSchema,
 } from '@models/requests/messages/requestConfig';
 import {
-  multipleMessageSendingRequestSchema,
   MultipleMessageSendingRequestSchema,
-  requestSendMessageSchema,
+  multipleMessageSendingRequestSchema,
   RequestSendMessagesSchema,
-  requestSendOneMessageSchema,
   RequestSendOneMessageSchema,
+  requestSendMessageSchema,
+  requestSendOneMessageSchema,
   SingleMessageSendingRequestSchema,
 } from '@models/requests/messages/sendMessage';
 import {

@@ -1,18 +1,18 @@
 'use client';
 
+import {useAtom} from 'jotai';
+import Form from 'next/form';
 import {MouseEvent, useEffect, useState} from 'react';
+import {type KakaoAlimtalkTemplate, type KakaoChannel} from 'solapi';
 import {
   getKakaoAlimtalkTemplate,
   getKakaoAlimtalkTemplates,
   getKakaoChannels,
   sendAlimtalk,
 } from '@/app/actions';
-import {type KakaoAlimtalkTemplate, type KakaoChannel} from 'solapi';
-import Form from 'next/form';
-import getKakaoTemplateVariables from '@/lib/getKakaoTemplateVariables';
-import ApiKeyForm from '@/components/ApiKeyForm';
-import {useAtom} from 'jotai';
 import {apiKeyAtom, apiSecretAtom} from '@/atoms/CommonAtom';
+import ApiKeyForm from '@/components/ApiKeyForm';
+import getKakaoTemplateVariables from '@/lib/getKakaoTemplateVariables';
 
 export default function AlimtalkForm() {
   const [channels, setChannels] = useState<Array<KakaoChannel>>([]);
@@ -74,7 +74,8 @@ export default function AlimtalkForm() {
     <Form
       action={sendAlimtalk}
       formMethod="POST"
-      className="flex flex-col gap-6 row-start-2 items-center sm:items-start min-w-dvh">
+      className="flex flex-col gap-6 row-start-2 items-center sm:items-start min-w-dvh"
+    >
       <p className="flex flex-auto justify-center w-full text-center">
         발신번호, 수신번호를 입력하고 테스트 할 알림톡 템플릿을 선택하여
         알림톡을 발송해보세요! <br />
@@ -120,7 +121,8 @@ export default function AlimtalkForm() {
       <div className="w-full">
         <label
           htmlFor="channelId"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+        >
           카카오 비즈니스 채널
         </label>
         <select
@@ -129,7 +131,8 @@ export default function AlimtalkForm() {
           name="channelId"
           required={true}
           onClick={e => handleGetKakaoChannels(e)}
-          onChange={e => setChannel(e.target.value)}>
+          onChange={e => setChannel(e.target.value)}
+        >
           <option value="">
             발송할 알림톡 템플릿의 카카오 비즈니스 채널을 선택해주세요!
           </option>
@@ -144,7 +147,8 @@ export default function AlimtalkForm() {
         <div className="w-full">
           <label
             htmlFor="templateId"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
             검수가 완료된 카카오 알림톡 템플릿
           </label>
           <select
@@ -152,7 +156,8 @@ export default function AlimtalkForm() {
             className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             name="templateId"
             onChange={e => setTemplateId(e.target.value)}
-            required={true}>
+            required={true}
+          >
             <option value="">
               발송할 알림톡 템플릿의 카카오 비즈니스 채널 템플릿을 선택해주세요!
             </option>
@@ -226,7 +231,8 @@ export default function AlimtalkForm() {
       <div className="flex flex-auto w-full gap-4 items-center justify-center flex-col sm:flex-row">
         <button
           type="submit"
-          className="w-40 rounded-full border cursor-pointer border-solid border-transparent transition-colors flex items-center justify-center bg-[#4541FF] hover:bg-[#0035ef] text-background gap-2 dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5">
+          className="w-40 rounded-full border cursor-pointer border-solid border-transparent transition-colors flex items-center justify-center bg-[#4541FF] hover:bg-[#0035ef] text-background gap-2 dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+        >
           발송하기
         </button>
       </div>

@@ -1,5 +1,5 @@
-import IamService from '@/services/iam/iamService';
 import {describe, expect, it} from 'vitest';
+import IamService from '@/services/iam/iamService';
 
 describe('IamService E2E', () => {
   let iamService: IamService;

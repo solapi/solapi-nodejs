@@ -1,16 +1,16 @@
 'use server';
 
 import '../../envConfig';
-import {SolapiMessageService} from 'solapi';
 import {redirect} from 'next/navigation';
+import {SolapiMessageService} from 'solapi';
+import {extractVariablesFields, formDataToObject} from '@/lib/formData';
 import {
-  alimtalkFormSchema,
   AlimtalkFormType,
   ApiKeysType,
-  messageFormSchema,
+  alimtalkFormSchema,
   MessageFormType,
+  messageFormSchema,
 } from '@/types/types';
-import {extractVariablesFields, formDataToObject} from '@/lib/formData';
 
 // 주의!! 실제 발송 연동시에는 오로지 서버에서 api key를 관리해서 MessageService를 호출 하도록 해주세요.
 // 본인의 부주의로 인해 Api Key가 유출되어 발생하는 피해는 오로지 개인에게 있습니다!

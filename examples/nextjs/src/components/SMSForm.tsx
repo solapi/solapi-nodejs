@@ -9,7 +9,8 @@ export default function SMSForm() {
     <Form
       action={sendMessage}
       formMethod="POST"
-      className="flex flex-col gap-6 row-start-2 items-center sm:items-start">
+      className="flex flex-col gap-6 row-start-2 items-center sm:items-start"
+    >
       <p className="flex flex-auto justify-center w-full">
         발신번호, 수신번호, 텍스트만 입력해서 문자 발송 테스트를 진행해보실 수
         있습니다!
@@ -73,7 +74,8 @@ export default function SMSForm() {
       <div className="flex flex-auto w-full gap-4 items-center justify-center flex-col sm:flex-row">
         <button
           type="submit"
-          className="w-40 rounded-full border cursor-pointer border-solid border-transparent transition-colors flex items-center justify-center bg-[#4541FF] hover:bg-[#0035ef] text-background gap-2 dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5">
+          className="w-40 rounded-full border cursor-pointer border-solid border-transparent transition-colors flex items-center justify-center bg-[#4541FF] hover:bg-[#0035ef] text-background gap-2 dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+        >
           발송하기
         </button>
       </div>

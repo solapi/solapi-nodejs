@@ -1,3 +1,5 @@
+import {Schema} from 'effect';
+import {describe, expect, it} from 'vitest';
 import {
   multipleMessageSendingRequestSchema,
   phoneNumberSchema,
@@ -5,8 +7,6 @@ import {
   requestSendOneMessageSchema,
   singleMessageSendingRequestSchema,
 } from '@/models/requests/messages/sendMessage';
-import {Schema} from 'effect';
-import {describe, expect, it} from 'vitest';
 
 describe('phoneNumberSchema', () => {
   it('should decode phone number by removing hyphens', () => {

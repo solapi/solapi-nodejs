@@ -1,6 +1,6 @@
-import GroupService from '@/services/messages/groupService';
 import {RequestSendOneMessageSchema} from '@models/requests/messages/sendMessage';
 import {beforeAll, describe, expect, it} from 'vitest';
+import GroupService from '@/services/messages/groupService';
 
 describe('GroupService E2E', () => {
   let groupService: GroupService;

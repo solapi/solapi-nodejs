@@ -1,5 +1,5 @@
-import CashService from '@/services/cash/cashService';
 import {describe, expect, it} from 'vitest';
+import CashService from '@/services/cash/cashService';
 
 describe('CashService E2E', () => {
   it('should return balance and point', async () => {

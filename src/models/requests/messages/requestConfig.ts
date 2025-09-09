@@ -4,7 +4,7 @@ import {Schema} from 'effect';
 // SDK 및 OS 정보
 export const osPlatform = `${process.platform} | ${process.version}`;
 // NOTE: 라이브러리 배포 시 반드시 업데이트해야 합니다.
-export const sdkVersion = 'nodejs/5.5.1';
+export const sdkVersion = 'nodejs/5.5.2';
 
 // Agent 정보 타입
 export type DefaultAgentType = {

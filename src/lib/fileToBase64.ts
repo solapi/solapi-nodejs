@@ -1,6 +1,6 @@
-import * as Effect from 'effect/Effect';
 import {promises as fs} from 'node:fs';
 import {URL} from 'node:url';
+import * as Effect from 'effect/Effect';
 
 // 내부 유틸: 주어진 문자열이 http(s) 스킴의 URL 인지 판별
 const isHttpUrl = (value: string): boolean => {

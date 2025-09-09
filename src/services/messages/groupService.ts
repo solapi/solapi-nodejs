@@ -1,7 +1,3 @@
-import {
-  requestSendMessageSchema,
-  RequestSendMessagesSchema,
-} from '@/models/requests/messages/sendMessage';
 import {GroupId} from '@internal-types/commonTypes';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
@@ -25,6 +21,10 @@ import {
 } from '@models/responses/messageResponses';
 import {formatISO} from 'date-fns';
 import {Schema} from 'effect';
+import {
+  RequestSendMessagesSchema,
+  requestSendMessageSchema,
+} from '@/models/requests/messages/sendMessage';
 import DefaultService from '../defaultService';
 
 /**
@@ -43,7 +43,7 @@ export default class GroupService extends DefaultService {
    * @param customFields 생성할 그룹에 사용자 정의 데이터를 Record 형태로 삽입할 수 있습니다.
    */
   async createGroup(
-    allowDuplicates: boolean = false,
+    allowDuplicates = false,
     appId?: string,
     customFields?: Record<string, string>,
   ): Promise<GroupId> {

@@ -1,5 +1,5 @@
-import {motion} from 'motion/react';
 import {useAtom} from 'jotai';
+import {motion} from 'motion/react';
 import {tabAtom} from '@/atoms/CommonAtom';
 
 let tabs = [
@@ -24,7 +24,8 @@ export default function Tabs() {
           style={{
             WebkitTapHighlightColor: 'transparent',
             mixBlendMode: 'exclusion',
-          }}>
+          }}
+        >
           {activeTab === tab.id && (
             <motion.span
               layoutId="bubble"
