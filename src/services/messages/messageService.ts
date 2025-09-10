@@ -89,7 +89,7 @@ export default class MessageService extends DefaultService {
       const messageSchema = yield* _(
         Effect.try({
           try: () =>
-            Schema.encodeUnknownSync(requestSendMessageSchema)(messages),
+            Schema.decodeUnknownSync(requestSendMessageSchema)(messages),
           catch: error =>
             new BadRequestError({
               message: error instanceof Error ? error.message : String(error),
@@ -117,7 +117,7 @@ export default class MessageService extends DefaultService {
       const decodedConfig = yield* _(
         Effect.try({
           try: () =>
-            Schema.encodeUnknownSync(sendRequestConfigSchema)(
+            Schema.decodeUnknownSync(sendRequestConfigSchema)(
               requestConfigParameter ?? {},
             ),
           catch: error =>

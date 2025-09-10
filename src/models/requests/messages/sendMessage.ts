@@ -2,10 +2,25 @@ import {messageSchema} from '@models/base/messages/message';
 import {Schema} from 'effect';
 import {defaultAgentTypeSchema} from './requestConfig';
 
+const removeHyphens = (s: string): string => s.replace(/-/g, '');
+
 export const phoneNumberSchema = Schema.String.pipe(
   Schema.transform(Schema.String, {
-    decode: s => s.replace(/-/g, ''),
+    decode: removeHyphens,
     encode: s => s,
+  }),
+  Schema.filter(s => s.trim().length > 0, {
+    message: () => '수신 번호는 빈 문자열일 수 없습니다.',
+  }),
+);
+
+export const fromPhoneNumberSchema = Schema.String.pipe(
+  Schema.transform(Schema.String, {
+    decode: removeHyphens,
+    encode: s => s,
+  }),
+  Schema.filter(s => s.trim().length > 0, {
+    message: () => '발신 번호는 빈 문자열일 수 없습니다.',
   }),
 );
 
@@ -34,7 +49,7 @@ export const requestSendOneMessageSchema = messageSchema.pipe(
   Schema.extend(
     Schema.Struct({
       to: Schema.Union(phoneNumberSchema, Schema.Array(phoneNumberSchema)),
-      from: Schema.optional(phoneNumberSchema),
+      from: Schema.optional(fromPhoneNumberSchema),
     }),
   ),
 );
