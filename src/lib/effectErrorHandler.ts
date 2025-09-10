@@ -49,58 +49,25 @@ export const formatCauseForProduction = (
   return 'Unknown error occurred';
 };
 
-// 프로그램을 깔끔하게 종료하는 커스텀 에러 (Error를 상속하지 않음)
-class ApplicationFailure {
-  readonly _tag = 'ApplicationFailure';
-  constructor(
-    public readonly message: string,
-    public readonly exitCode: number = 1,
-  ) {}
-
-  toString(): string {
-    return this.message;
-  }
-
-  [Symbol.for('nodejs.util.inspect.custom')](): string {
-    return this.message;
-  }
-}
-
-// 깔끔한 실패 객체 생성
-const createApplicationFailure = (message: string): ApplicationFailure => {
-  return new ApplicationFailure(message);
-};
-
-// uncaughtException 핸들러 설정 (한 번만 설정)
-let handlerRegistered = false;
-const setupCleanErrorHandler = () => {
-  if (!handlerRegistered) {
-    process.on('uncaughtException', error => {
-      if (error instanceof ApplicationFailure) {
-        // 깔끔한 에러 메시지만 출력하고 종료
-        console.error(error.message);
-        process.exit(error.exitCode);
-      } else {
-        // 다른 예상치 못한 에러는 기본 처리
-        console.error(error);
-        process.exit(1);
-      }
-    });
-    handlerRegistered = true;
-  }
-};
-
 // Effect 프로그램의 실행 결과를 안전하게 처리
 export const runSafeSync = <E, A>(effect: Effect.Effect<A, E>): A => {
-  setupCleanErrorHandler();
-
   const exit = Effect.runSyncExit(effect);
 
   return Exit.match(exit, {
     onFailure: cause => {
-      const formattedError = formatCauseForProduction(cause);
-      const failure = createApplicationFailure(formattedError);
-      throw failure;
+      const failure = Cause.failureOption(cause);
+      if (failure._tag === 'Some') {
+        throw toCompatibleError(failure.value);
+      }
+      const defects = Cause.defects(cause);
+      if (defects.length > 0) {
+        const firstDefect = Chunk.unsafeGet(defects, 0);
+        if (firstDefect instanceof Error) {
+          throw firstDefect;
+        }
+        throw new Error(`Uncaught defect: ${String(firstDefect)}`);
+      }
+      throw new Error(`Unhandled Exit: ${Cause.pretty(cause)}`);
     },
     onSuccess: value => value,
   });
@@ -110,8 +77,6 @@ export const runSafeSync = <E, A>(effect: Effect.Effect<A, E>): A => {
 export const runSafePromise = <E, A>(
   effect: Effect.Effect<A, E>,
 ): Promise<A> => {
-  setupCleanErrorHandler();
-
   return Effect.runPromiseExit(effect).then(
     Exit.match({
       onFailure: cause => {
@@ -155,6 +120,8 @@ interface MessageNotReceivedErrorCompat extends Error {
 
 // Effect 에러를 기존 Error로 변환 (하위 호환성)
 export const toCompatibleError = (effectError: unknown): Error => {
+  const isProduction = process.env.NODE_ENV === 'production';
+
   // MessageNotReceivedError의 경우 특별 처리하여 원본 프로퍼티 보존
   if (effectError instanceof EffectError.MessageNotReceivedError) {
     const error = new Error(
@@ -174,7 +141,141 @@ export const toCompatibleError = (effectError: unknown): Error => {
       enumerable: true,
       configurable: false,
     });
-    delete error.stack;
+    if (isProduction) {
+      delete error.stack;
+    }
+    return error;
+  }
+
+  // ApiError 보존
+  if (effectError instanceof EffectError.ApiError) {
+    const error = new Error(effectError.toString());
+    error.name = 'ApiError';
+    Object.defineProperties(error, {
+      errorCode: {
+        value: effectError.errorCode,
+        writable: false,
+        enumerable: true,
+      },
+      errorMessage: {
+        value: effectError.errorMessage,
+        writable: false,
+        enumerable: true,
+      },
+      httpStatus: {
+        value: effectError.httpStatus,
+        writable: false,
+        enumerable: true,
+      },
+      url: {value: effectError.url, writable: false, enumerable: true},
+    });
+    if (isProduction) {
+      delete (error as Error).stack;
+    }
+    return error;
+  }
+
+  // DefaultError 보존
+  if (effectError instanceof EffectError.DefaultError) {
+    const error = new Error(effectError.toString());
+    error.name = 'DefaultError';
+    Object.defineProperties(error, {
+      errorCode: {
+        value: effectError.errorCode,
+        writable: false,
+        enumerable: true,
+      },
+      errorMessage: {
+        value: effectError.errorMessage,
+        writable: false,
+        enumerable: true,
+      },
+      context: {value: effectError.context, writable: false, enumerable: true},
+    });
+    if (isProduction) {
+      delete (error as Error).stack;
+    }
+    return error;
+  }
+
+  // NetworkError 보존
+  if (effectError instanceof EffectError.NetworkError) {
+    const error = new Error(effectError.toString());
+    error.name = 'NetworkError';
+    Object.defineProperties(error, {
+      url: {value: effectError.url, writable: false, enumerable: true},
+      method: {value: effectError.method, writable: false, enumerable: true},
+      cause: {value: effectError.cause, writable: false, enumerable: true},
+      isRetryable: {
+        value: effectError.isRetryable ?? false,
+        writable: false,
+        enumerable: true,
+      },
+    });
+    if (isProduction) {
+      delete (error as Error).stack;
+    }
+    return error;
+  }
+
+  // BadRequestError 보존
+  if (effectError instanceof EffectError.BadRequestError) {
+    const error = new Error(effectError.message);
+    error.name = 'BadRequestError';
+    Object.defineProperties(error, {
+      validationErrors: {
+        value: effectError.validationErrors,
+        writable: false,
+        enumerable: true,
+      },
+    });
+    if (isProduction) {
+      delete (error as Error).stack;
+    }
+    return error;
+  }
+
+  // VariableValidationError 보존
+  if (effectError instanceof VariableValidationError) {
+    const error = new Error(effectError.toString());
+    error.name = 'VariableValidationError';
+    Object.defineProperties(error, {
+      invalidVariables: {
+        value: effectError.invalidVariables,
+        writable: false,
+        enumerable: true,
+      },
+    });
+    if (isProduction) {
+      delete (error as Error).stack;
+    }
+    return error;
+  }
+
+  // InvalidDateError
+  if (effectError instanceof EffectError.InvalidDateError) {
+    const error = new Error(effectError.toString());
+    error.name = 'InvalidDateError';
+    Object.defineProperties(error, {
+      originalValue: {
+        value: effectError.originalValue,
+        writable: false,
+        enumerable: true,
+      },
+    });
+    if (isProduction) {
+      delete (error as Error).stack;
+    }
+    return error;
+  }
+
+  // ApiKeyError
+  if (effectError instanceof EffectError.ApiKeyError) {
+    const error = new Error(effectError.toString());
+    error.name = 'ApiKeyError';
+    if (isProduction) {
+      delete (error as Error).stack;
+    }
     return error;
   }
 
@@ -182,6 +283,8 @@ export const toCompatibleError = (effectError: unknown): Error => {
   // 하위 호환성을 위해 여전히 Error 사용하지만 스택 제거
   const error = new Error(formatted);
   error.name = 'FromSolapiError';
-  delete error.stack;
+  if (isProduction) {
+    delete error.stack;
+  }
   return error;
 };
