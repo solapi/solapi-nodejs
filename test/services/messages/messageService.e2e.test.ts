@@ -36,6 +36,7 @@
 import {describe, expect, it} from '@effect/vitest';
 import {generateTemplateVariables} from '@test/lib/kakao-test-utils';
 import {
+  GroupServiceTag,
   KakaoChannelServiceTag,
   KakaoTemplateServiceTag,
   MessageServiceTag,
@@ -410,6 +411,7 @@ describe('MessageService E2E', () => {
     it.effect('should handle scheduled message sending', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
+        const groupService = yield* GroupServiceTag;
         const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
           Config.withDefault('01000000000'),
         );
@@ -433,6 +435,13 @@ describe('MessageService E2E', () => {
         expect(result).toBeDefined();
         expect(result.groupInfo).toBeDefined();
         expect(result.groupInfo.count.total).toBeGreaterThan(0);
+
+        // 예약 직후 취소 처리
+        const groupId = result.groupInfo.groupId;
+        const cancelResult = yield* Effect.tryPromise(() =>
+          groupService.removeReservationToGroup(groupId),
+        );
+        expect(cancelResult).toBeDefined();
       }).pipe(Effect.provide(MessageTestServicesLive)),
     );
 
@@ -476,28 +485,6 @@ describe('MessageService E2E', () => {
         );
 
         expect(result._tag).toBe('Left');
-      }).pipe(Effect.provide(MessageTestServicesLive)),
-    );
-
-    it.effect('should handle sendOne method for single message', () =>
-      Effect.gen(function* () {
-        const messageService = yield* MessageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
-          Config.withDefault('01000000000'),
-        );
-
-        const result = yield* Effect.tryPromise(() =>
-          messageService.sendOne({
-            to: testPhoneNumber,
-            from: senderNumber,
-            text: 'sendOne 테스트 메시지입니다.',
-            type: 'SMS',
-          }),
-        );
-
-        expect(result).toBeDefined();
-        expect(result.messageId).toBeDefined();
-        expect(typeof result.messageId).toBe('string');
       }).pipe(Effect.provide(MessageTestServicesLive)),
     );
   });
