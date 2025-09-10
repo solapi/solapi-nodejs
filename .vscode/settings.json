@@ -1,16 +1,24 @@
 {
+  "editor.defaultFormatter": "biomejs.biome",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.organizeImports": "explicit",
-    "quickfix.biome": "always",
-    "source.fixAll.biome": "always"
+    "source.fixAll": "always",
+    "source.organizeImports": "always",
+    "source.fixAll.biome": "always",
+    "source.organizeImports.biome": "always"
   },
-  "editor.defaultFormatter": "biomejs.biome",
-  "search.exclude": {
-    "**/.yarn": true,
-    "**/.pnp.*": true
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
   },
-  "typescript.tsdk": ".yarn/sdks/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "prettier.enable": false,
+  "biome.requireConfiguration": true
 }

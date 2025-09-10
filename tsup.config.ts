@@ -1,7 +1,7 @@
-import { defineConfig } from 'tsup';
+import {defineConfig} from 'tsup';
 
 // NODE_ENV 값에 따라 개발(build --watch) / 프로덕션(build) 옵션을 자동 전환합니다.
-export default defineConfig(({ watch }) => {
+export default defineConfig(({watch}) => {
   const isProd = !watch; // watch 모드가 아니면 프로덕션 빌드로 간주
   const enableDebug = process.env.DEBUG === 'true';
 
