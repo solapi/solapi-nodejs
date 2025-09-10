@@ -31,7 +31,7 @@
   "module": "dist/index.mjs",
   "files": ["/dist"],
   "scripts": {
-    "build": "yarn lint && tsup",
+    "build": "pnpm lint && tsup",
     "docs": "typedoc --entryPointStrategy expand ./src",
     "format": "biome format --write",
     "lint": "biome check --write",
@@ -54,7 +54,7 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
   },
-  "packageManager": "yarn@4.9.4",
+  "packageManager": "pnpm@10.15.1",
   "engines": {
     "node": ">=18"
   }

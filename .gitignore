@@ -1,6 +1,5 @@
 node_modules/
 package-lock.json
-pnpm-lock.yaml
 npm-shrinkwrap.json
 .idea
 *.real.js
@@ -22,11 +21,6 @@ debug
 
 # yarn config
 .yarn/*
-!.yarn/patches
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
 
 # Yarn PnP artifacts
 .pnp.*

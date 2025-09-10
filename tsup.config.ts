@@ -35,7 +35,7 @@ export default defineConfig(({ watch }) => {
     // 외부 실행 환경(Node 단독 실행)에서도 동작하도록 핵심 의존성은 번들에 포함
     // - effect 및 하위 서브패스, date-fns 를 인라인 번들링
     // - Node 내장 모듈(fs, url, crypto 등)은 외부로 유지
-    noExternal: [/^effect\//, 'effect', 'date-fns'],
+    // noExternal: [/^effect\//, 'effect', 'date-fns'],
 
     // ESM 포맷에서 코드 분할을 비활성화하여 단일 파일 생성 (라이브러리 배포에 유리)
     splitting: false,

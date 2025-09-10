@@ -9,7 +9,7 @@
       "!**/.yarn/**",
       "!**/.pnp.*",
       "!.yarnrc.yml",
-      "!yarn.lock",
+      "!pnpm-lock.yaml",
       "!**/.next/**"
     ]
   },
@@ -82,7 +82,7 @@
       "!**/.yarn/**",
       "!**/.pnp.*",
       "!.yarnrc.yml",
-      "!yarn.lock",
+      "!pnpm-lock.yaml",
       "!**/.next/**"
     ]
   },
