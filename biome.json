@@ -79,6 +79,7 @@
       "!examples/**/*",
       "!debug/**/*",
       "!docs/**/*",
+      "!**/.github/**",
       "!**/.yarn/**",
       "!**/.pnp.*",
       "!.yarnrc.yml",

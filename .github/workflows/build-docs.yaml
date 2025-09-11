@@ -1,24 +1,36 @@
 name: Build SDK API References Documents
 
-on:
-  push:
-    branches: [ master ]
+"on":
+  release:
+    types: [ published ]
+  workflow_dispatch:
 
 jobs:
   build-docs:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
-    - name: Build
-      run: |
-        pnpm install
-        pnpm run docs
-    - name: Commit and push docs
-      working-directory: ./
-      run: |
-        git config --global user.email "robot@solapi.com"
-        git config --global user.name "SOLAPI Robot"
-        git add ./docs
-        git commit -m "Update SDK API References"
-        git push
+      uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: pnpm-lock.yaml
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10.15.1
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+    - name: Build docs
+      run: pnpm run docs
+    - name: Upload docs artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: solapi-nodejs-docs-${{ github.run_number }}
+        path: docs
+        if-no-files-found: error
+        retention-days: 14
