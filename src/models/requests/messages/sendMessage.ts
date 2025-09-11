@@ -9,18 +9,14 @@ export const phoneNumberSchema = Schema.String.pipe(
     decode: removeHyphens,
     encode: s => s,
   }),
+  // 하이픈 제거 이후 값이 비어있지 않은지 확인 (예: "---" -> "")
   Schema.filter(s => s.trim().length > 0, {
-    message: () => '수신 번호는 빈 문자열일 수 없습니다.',
+    message: () => '전화번호는 빈 문자열일 수 없습니다.',
   }),
-);
-
-export const fromPhoneNumberSchema = Schema.String.pipe(
-  Schema.transform(Schema.String, {
-    decode: removeHyphens,
-    encode: s => s,
-  }),
-  Schema.filter(s => s.trim().length > 0, {
-    message: () => '발신 번호는 빈 문자열일 수 없습니다.',
+  // 숫자 및 하이픈만 허용하도록 강제. 하이픈 제거 후에는 숫자만 남아야 함
+  Schema.filter(s => /^[0-9]+$/.test(s), {
+    message: () =>
+      '전화번호는 숫자 및 특수문자 - 외 문자를 포함할 수 없습니다.',
   }),
 );
 
@@ -49,7 +45,7 @@ export const requestSendOneMessageSchema = messageSchema.pipe(
   Schema.extend(
     Schema.Struct({
       to: Schema.Union(phoneNumberSchema, Schema.Array(phoneNumberSchema)),
-      from: Schema.optional(fromPhoneNumberSchema),
+      from: Schema.optional(phoneNumberSchema),
     }),
   ),
 );
