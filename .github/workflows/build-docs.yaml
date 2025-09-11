@@ -34,3 +34,6 @@ jobs:
         path: docs
         if-no-files-found: error
         retention-days: 14
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
