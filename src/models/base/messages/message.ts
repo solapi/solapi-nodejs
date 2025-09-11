@@ -1,15 +1,15 @@
 import {
-  VoiceOptionSchema,
-  voiceOptionSchema,
-} from '@/models/requests/voice/voiceOption';
-import {
-  KakaoOption,
   baseKakaoOptionSchema,
+  KakaoOption,
 } from '@models/base/kakao/kakaoOption';
 import {naverOptionSchema} from '@models/base/naver/naverOption';
 import {RcsOption, rcsOptionSchema} from '@models/base/rcs/rcsOption';
 import {FileIds} from '@models/requests/messages/groupMessageRequest';
 import {Schema} from 'effect';
+import {
+  VoiceOptionSchema,
+  voiceOptionSchema,
+} from '@/models/requests/voice/voiceOption';
 
 /**
  * @name MessageType 메시지 유형(단문 문자, 장문 문자, 알림톡 등)

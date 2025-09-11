@@ -1,10 +1,11 @@
+import {Config, Context, Effect, Layer} from 'effect';
 import CashService from '@/services/cash/cashService';
 import IamService from '@/services/iam/iamService';
 import KakaoChannelService from '@/services/kakao/channels/kakaoChannelService';
 import KakaoTemplateService from '@/services/kakao/templates/kakaoTemplateService';
+import GroupService from '@/services/messages/groupService';
 import MessageService from '@/services/messages/messageService';
 import StorageService from '@/services/storage/storageService';
-import {Config, Context, Effect, Layer} from 'effect';
 
 // Service Tags
 export const MessageServiceTag =
@@ -19,6 +20,7 @@ export const StorageServiceTag =
   Context.GenericTag<StorageService>('StorageService');
 export const CashServiceTag = Context.GenericTag<CashService>('CashService');
 export const IamServiceTag = Context.GenericTag<IamService>('IamService');
+export const GroupServiceTag = Context.GenericTag<GroupService>('GroupService');
 
 // Helper to create a service layer
 const createServiceLayer = <S>(
@@ -53,6 +55,10 @@ export const StorageServiceLive = createServiceLayer(
 );
 export const CashServiceLive = createServiceLayer(CashServiceTag, CashService);
 export const IamServiceLive = createServiceLayer(IamServiceTag, IamService);
+export const GroupServiceLive = createServiceLayer(
+  GroupServiceTag,
+  GroupService,
+);
 
 // Combined Layer for Message Service Tests
 export const MessageTestServicesLive = Layer.mergeAll(
@@ -60,6 +66,7 @@ export const MessageTestServicesLive = Layer.mergeAll(
   KakaoChannelServiceLive,
   KakaoTemplateServiceLive,
   StorageServiceLive,
+  GroupServiceLive,
 );
 
 // Combined Layer for All Services

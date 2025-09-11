@@ -1,5 +1,5 @@
-import stringifyQuery from '@/lib/stringifyQuery';
 import {describe, expect, it} from '@effect/vitest';
+import stringifyQuery from '@/lib/stringifyQuery';
 
 describe('stringifyQuery', () => {
   it('should return empty string for null or undefined', () => {

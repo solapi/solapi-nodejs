@@ -1,5 +1,5 @@
-import KakaoChannelService from '@/services/kakao/channels/kakaoChannelService';
 import {beforeAll, describe, expect, it} from 'vitest';
+import KakaoChannelService from '@/services/kakao/channels/kakaoChannelService';
 
 describe('KakaoChannelService E2E', () => {
   let kakaoChannelService: KakaoChannelService;

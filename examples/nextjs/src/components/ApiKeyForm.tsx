@@ -12,7 +12,8 @@ export default function ApiKeyForm() {
       <div className="flex flex-auto w-full">
         <label
           className="block text-gray-700 text-sm mb-2 pr-2"
-          htmlFor="apiKey">
+          htmlFor="apiKey"
+        >
           API Key
         </label>
         <input
@@ -29,7 +30,8 @@ export default function ApiKeyForm() {
       <div className="flex flex-auto w-full">
         <label
           className="block text-gray-700 text-sm mb-2 pr-2"
-          htmlFor="apiSecret">
+          htmlFor="apiSecret"
+        >
           API Secret Key
         </label>
         <input

@@ -1,6 +1,6 @@
 {
   "name": "solapi",
-  "version": "5.5.1",
+  "version": "5.5.2",
   "description": "SOLAPI SDK for Node.js(Server Side Only)",
   "keywords": [
     "solapi",
@@ -29,43 +29,31 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.mjs",
-  "files": [
-    "/dist"
-  ],
+  "files": ["/dist"],
   "scripts": {
-    "build": "yarn lint && tsup",
+    "build": "pnpm lint && tsup",
     "docs": "typedoc --entryPointStrategy expand ./src",
-    "format": "prettier ./**/*.ts ./**/*.js ./**/*.mjs",
-    "lint": "eslint . --plugin file-progress --rule \"file-progress/activate: 1\"",
+    "lint": "biome check --write",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
     "date-fns": "^4.1.0",
-    "effect": "^3.16.11"
+    "effect": "^3.17.13"
   },
   "devDependencies": {
-    "@effect/vitest": "^0.23.11",
-    "@eslint/eslintrc": "^3",
-    "@eslint/js": "^9",
-    "@types/node": "^18",
-    "@typescript-eslint/eslint-plugin": "^8.35.1",
-    "@typescript-eslint/parser": "^8.35.1",
-    "dotenv": "^17.0.1",
-    "eslint": "^9",
-    "eslint-plugin-file-progress": "^3.0.2",
-    "eslint-plugin-tsdoc": "^0.4.0",
-    "eslint-plugin-unused-imports": "^4.1.4",
-    "globals": "^16.0.0",
-    "prettier": "^3.5.3",
+    "@biomejs/biome": "2.2.3",
+    "@effect/vitest": "^0.25.1",
+    "@types/node": "^24.3.1",
+    "dotenv": "^17.2.2",
     "tsup": "^8.5.0",
-    "typedoc": "^0.28.5",
-    "typescript": "^5.8.3",
+    "typedoc": "^0.28.12",
+    "typescript": "^5.9.2",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
   },
-  "packageManager": "yarn@4.9.2",
+  "packageManager": "pnpm@10.15.1",
   "engines": {
     "node": ">=18"
   }

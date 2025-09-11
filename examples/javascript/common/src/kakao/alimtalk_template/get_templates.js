@@ -8,9 +8,9 @@ const messageService = new SolapiMessageService(
 );
 
 messageService
-  .getKakaoAlimtalkTemplates
-  // 검색 조건이 있을 떄 추가
-  /*{
+  .getKakaoAlimtalkTemplates(
+    // 검색 조건이 있을 떄 추가
+    /*{
       limit: 5, // 한 번 요청당 조회할 건 수 입력, 기본값은 20
       startKey: '페이지네이션 조회 키',
       name: '템플릿 이름 입력(일부 키워드로 검색 가능)',
@@ -34,5 +34,5 @@ messageService
       startDate: '',
       endDate: '',
     },*/
-  ()
+  )
   .then(res => console.log(res));

@@ -1,3 +1,5 @@
+import {Schema} from 'effect';
+import {describe, expect, it} from 'vitest';
 import {
   multipleMessageSendingRequestSchema,
   phoneNumberSchema,
@@ -5,8 +7,6 @@ import {
   requestSendOneMessageSchema,
   singleMessageSendingRequestSchema,
 } from '@/models/requests/messages/sendMessage';
-import {Schema} from 'effect';
-import {describe, expect, it} from 'vitest';
 
 describe('phoneNumberSchema', () => {
   it('should decode phone number by removing hyphens', () => {
@@ -45,6 +45,22 @@ describe('phoneNumberSchema', () => {
     const result = Schema.encodeSync(phoneNumberSchema)(phoneNumber);
 
     expect(result).toBe('01012345678');
+  });
+
+  it('should fail when phone number contains letters', () => {
+    expect(() => {
+      Schema.decodeUnknownSync(phoneNumberSchema)('010-ABCD-5678');
+    }).toThrow();
+  });
+
+  it('should fail when phone number contains plus sign or spaces', () => {
+    expect(() => {
+      Schema.decodeUnknownSync(phoneNumberSchema)('+82-10-1234-5678');
+    }).toThrow();
+
+    expect(() => {
+      Schema.decodeUnknownSync(phoneNumberSchema)('010 1234 5678');
+    }).toThrow();
   });
 });
 

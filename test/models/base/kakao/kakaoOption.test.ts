@@ -1,8 +1,8 @@
 import {
   baseKakaoOptionSchema,
   transformVariables,
-  validateVariableNames,
   VariableValidationError,
+  validateVariableNames,
 } from '@models/base/kakao/kakaoOption';
 import {Effect, Schema} from 'effect';
 import {describe, expect, it} from 'vitest';

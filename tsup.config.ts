@@ -32,9 +32,6 @@ export default defineConfig(({watch}) => {
     // 빌드 전 dist 폴더 정리
     clean: true,
 
-    // node_modules 내부 의존성은 번들에서 제외 → SDK 배포 용량 최소화
-    skipNodeModulesBundle: true,
-
     // ESM 포맷에서 코드 분할을 비활성화하여 단일 파일 생성 (라이브러리 배포에 유리)
     splitting: false,
 

@@ -1,5 +1,5 @@
-import {formatWithTransfer} from '@lib/stringDateTrasnfer';
 import {GroupId} from '@internal-types/commonTypes';
+import {formatWithTransfer} from '@lib/stringDateTrasnfer';
 import {MessageType} from '../../base/messages/message';
 
 export type DateType = 'CREATED' | 'UPDATED';

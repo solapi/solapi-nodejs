@@ -13,7 +13,6 @@ const messageService = new SolapiMessageService(
 messageService
   .send({
     to: '수신번호',
-    from: '계정에서 등록한 발신번호 입력',
     kakaoOptions: {
       pfId: '연동한 비즈니스 채널의 pfId',
       templateId: '등록한 브랜드 메시지 템플릿의 ID',

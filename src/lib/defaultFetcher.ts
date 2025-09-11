@@ -1,4 +1,4 @@
-import {Data, Effect, Match, Schedule, pipe} from 'effect';
+import {Data, Effect, Match, pipe, Schedule} from 'effect';
 import {
   ApiError,
   DefaultError,
@@ -103,55 +103,68 @@ export default async function defaultFetcher<T, R>(
 ): Promise<R> {
   const authorizationHeaderData = getAuthInfo(authParameter);
 
-  const effect = pipe(
-    Effect.tryPromise({
-      try: () =>
-        fetch(request.url, {
-          headers: {
-            Authorization: authorizationHeaderData,
-            'Content-Type': 'application/json',
-          },
-          body: data ? JSON.stringify(data) : undefined,
-          method: request.method,
-        }),
-      catch: (error: unknown) => {
-        if (error instanceof Error) {
-          const cause = error.cause;
-          const causeCode =
-            cause && typeof cause === 'object' && 'code' in cause
-              ? String(cause.code)
-              : '';
-          const message = (error.message + ' ' + causeCode).toLowerCase();
+  const effect = Effect.gen(function* (_) {
+    const body = yield* _(
+      Effect.try({
+        try: () => (data ? JSON.stringify(data) : undefined),
+        catch: e =>
+          new DefaultError({
+            errorCode: 'JSONStringifyError',
+            errorMessage: (e as Error).message,
+            context: {
+              data,
+            },
+          }),
+      }),
+    );
 
-          // 재시도 가능한 네트워크 오류 판별
-          const isRetryable =
-            message.includes('aborted') ||
-            message.includes('refused') ||
-            message.includes('reset') ||
-            message.includes('econn');
-
-          if (isRetryable) {
-            return new RetryableError({error});
+    const response = yield* _(
+      Effect.tryPromise({
+        try: () =>
+          fetch(request.url, {
+            headers: {
+              Authorization: authorizationHeaderData,
+              'Content-Type': 'application/json',
+            },
+            body,
+            method: request.method,
+          }),
+        catch: (error: unknown) => {
+          if (error instanceof Error) {
+            const cause = error.cause;
+            const causeCode =
+              cause && typeof cause === 'object' && 'code' in cause
+                ? String(cause.code)
+                : '';
+            const message = (error.message + ' ' + causeCode).toLowerCase();
+            const isRetryable =
+              message.includes('aborted') ||
+              message.includes('refused') ||
+              message.includes('reset') ||
+              message.includes('econn');
+            if (isRetryable) {
+              return new RetryableError({error});
+            }
+            return new NetworkError({
+              url: request.url,
+              method: request.method,
+              cause: error.message,
+              isRetryable: false,
+            });
           }
-
           return new NetworkError({
             url: request.url,
             method: request.method,
-            cause: error.message,
+            cause: String(error),
             isRetryable: false,
           });
-        }
-        return new NetworkError({
-          url: request.url,
-          method: request.method,
-          cause: String(error),
-          isRetryable: false,
-        });
-      },
-    }),
-    Effect.flatMap(res =>
+        },
+      }),
+    );
+
+    return yield* _(
       pipe(
-        Match.value(res),
+        Match.value(response),
         Match.when(
           res => res.status === 503,
           () => Effect.fail(new RetryableError({error: 'Service Unavailable'})),
@@ -163,8 +176,8 @@ export default async function defaultFetcher<T, R>(
         Match.when(res => !res.ok, handleServerErrorResponse),
         Match.orElse(handleOkResponse<R>),
       ),
-    ),
-  );
+    );
+  });
 
   const retryCount = 3;
 

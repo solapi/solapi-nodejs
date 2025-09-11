@@ -7,7 +7,7 @@ type RequestConfig = {
 };
 
 type DefaultServiceParameter<T> = {
-  httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   url: string;
   body?: T;
 };
