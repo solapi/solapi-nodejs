@@ -1,6 +1,6 @@
 name: Build SDK API References Documents
 
-"on":
+on:
   release:
     types: [ published ]
   workflow_dispatch:
@@ -9,6 +9,10 @@ permissions:
   contents: read
   pages: write
   id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build-docs:
@@ -26,17 +30,16 @@ jobs:
         node-version: 18
         cache: pnpm
         cache-dependency-path: pnpm-lock.yaml
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
     - name: Build docs
       run: pnpm run docs
-    - name: Upload docs artifact
-      uses: actions/upload-artifact@v4
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v4
       with:
-        name: solapi-nodejs-docs-${{ github.run_number }}
         path: docs
-        if-no-files-found: error
-        retention-days: 14
 
   deploy:
     environment:
