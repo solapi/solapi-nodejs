@@ -78,6 +78,7 @@ export class GetKakaoAlimtalkTemplatesFinalizeRequest {
 
   constructor(parameter: GetKakaoAlimtalkTemplatesRequest) {
     this.channelId = parameter.channelId;
+    this.templateId = parameter.templateId;
     this.isHidden = parameter.isHidden;
     if (parameter.name != undefined) {
       if (typeof parameter.name == 'string') {
