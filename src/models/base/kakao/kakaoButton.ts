@@ -46,14 +46,14 @@ export const kakaoWebButtonSchema = Schema.Struct({
   buttonName: Schema.String,
   buttonType: Schema.Literal('WL'),
   linkMo: Schema.String,
-  linkPc: Schema.optional(Schema.String),
+  linkPc: Schema.optional(Schema.NullOr(Schema.String)),
 });
 
 export const kakaoAppButtonSchema = Schema.Struct({
   buttonName: Schema.String,
   buttonType: Schema.Literal('AL'),
-  linkAnd: Schema.String,
-  linkIos: Schema.String,
+  linkAnd: Schema.optional(Schema.NullOr(Schema.String)),
+  linkIos: Schema.optional(Schema.NullOr(Schema.String)),
 });
 
 export const kakaoDefaultButtonSchema = Schema.Struct({
