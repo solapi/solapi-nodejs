@@ -157,7 +157,7 @@ export const kakaoAlimtalkTemplateSchema = Schema.Struct({
   ),
   item: Schema.optional(Schema.NullOr(kakaoAlimtalkTemplateItemTypeSchema)),
   templateId: Schema.String,
-  code: Schema.optional(Schema.String),
+  code: Schema.optional(Schema.NullOr(Schema.String)),
   status: kakaoAlimtalkTemplateStatusSchema,
   variables: Schema.optional(
     Schema.Array(
