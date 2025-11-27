@@ -17,7 +17,7 @@ export type KakaoWebButton = {
   buttonName: string;
   buttonType: Extract<KakaoButtonType, 'WL'>;
   linkMo: string;
-  linkPc?: string;
+  linkPc?: string | null;
   linkAnd?: never;
   linkIos?: never;
 };
