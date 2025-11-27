@@ -52,8 +52,8 @@ export const kakaoWebButtonSchema = Schema.Struct({
 export const kakaoAppButtonSchema = Schema.Struct({
   buttonName: Schema.String,
   buttonType: Schema.Literal('AL'),
-  linkAnd: Schema.optional(Schema.NullOr(Schema.String)),
-  linkIos: Schema.optional(Schema.NullOr(Schema.String)),
+  linkAnd: Schema.String,
+  linkIos: Schema.String,
 });
 
 export const kakaoDefaultButtonSchema = Schema.Struct({

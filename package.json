@@ -1,6 +1,6 @@
 {
   "name": "solapi",
-  "version": "5.5.2",
+  "version": "5.5.3",
   "description": "SOLAPI SDK for Node.js(Server Side Only)",
   "keywords": [
     "solapi",
