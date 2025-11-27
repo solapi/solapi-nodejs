@@ -1,7 +1,7 @@
 import {RequestSendOneMessageSchema} from '@models/requests/messages/sendMessage';
 import {beforeAll, describe, expect, it} from 'vitest';
 import GroupService from '@/services/messages/groupService';
-import {retryWithBackoff} from '../../lib/retry-utils';
+import {retryUntil, retryWithBackoff} from '../../lib/retry-utils';
 
 describe('GroupService E2E', () => {
   let groupService: GroupService;
@@ -55,10 +55,11 @@ describe('GroupService E2E', () => {
     // 4. Delete the group
     await groupService.removeGroup(groupId);
 
-    // 5. Verify the group is deleted (retry to handle eventual consistency)
-    const removedGroupInfo = await retryWithBackoff(
+    // 5. Verify the group is deleted (retry until status becomes DELETED)
+    const removedGroupInfo = await retryUntil(
       () => groupService.getGroup(groupId),
-      {maxRetries: 5, initialDelayMs: 200},
+      info => info.status === 'DELETED',
+      {maxRetries: 10, initialDelayMs: 200},
     );
     expect(removedGroupInfo.status).toBe('DELETED');
   });
