@@ -157,7 +157,7 @@ export const kakaoAlimtalkTemplateSchema = Schema.Struct({
   ),
   item: Schema.optional(Schema.NullOr(kakaoAlimtalkTemplateItemTypeSchema)),
   templateId: Schema.String,
-  code: Schema.optional(Schema.String),
+  code: Schema.optional(Schema.NullOr(Schema.String)),
   status: kakaoAlimtalkTemplateStatusSchema,
   variables: Schema.optional(
     Schema.Array(
@@ -292,7 +292,7 @@ export interface KakaoAlimtalkTemplateInterface {
   /**
    * @description 긴급 검수를 위한 알림토 딜러사 측 템플릿 코드, commentable이 false일 때만 해당 코드가 표시됩니다.
    */
-  code?: string;
+  code?: string | null;
 
   /**
    * @description 카카오 알림톡 템플릿 상태<br><br>
@@ -332,7 +332,7 @@ export class KakaoAlimtalkTemplate implements KakaoAlimtalkTemplateInterface {
   templateId: string;
   commentable?: boolean;
   comments?: Array<KakaoAlimtalkTemplateCommentType>;
-  code?: string;
+  code?: string | null;
   status: KakaoAlimtalkTemplateStatus;
 
   /**
