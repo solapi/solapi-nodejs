@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@next/env": "^15.3.5",
+    "@next/env": "15.4.8",
     "jotai": "^2.12.5",
     "motion": "^12.23.3",
     "next": "15.4.8",
