@@ -9,10 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@next/env": "15.4.8",
+    "@next/env": "15.4.10",
     "jotai": "^2.12.5",
     "motion": "^12.23.3",
-    "next": "15.4.9",
+    "next": "15.4.10",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "solapi": "latest",
