@@ -12,7 +12,7 @@
     "@next/env": "15.4.8",
     "jotai": "^2.12.5",
     "motion": "^12.23.3",
-    "next": "15.4.8",
+    "next": "15.4.9",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "solapi": "latest",
