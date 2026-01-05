@@ -57,6 +57,3 @@ coverage/
 **/.next/
 **/out/
 .vercel/
-
-# Claude
-CLAUDE.md
