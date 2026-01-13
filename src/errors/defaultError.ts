@@ -82,13 +82,41 @@ export class NetworkError extends Data.TaggedError('NetworkError')<{
   }
 }
 
-export class ApiError extends Data.TaggedError('ApiError')<{
+// 4xx 클라이언트 에러용
+export class ClientError extends Data.TaggedError('ClientError')<{
   readonly errorCode: string;
   readonly errorMessage: string;
   readonly httpStatus: number;
   readonly url?: string;
 }> {
   toString(): string {
-    return `${this.errorCode}: ${this.errorMessage}`;
+    if (process.env.NODE_ENV === 'production') {
+      return `${this.errorCode}: ${this.errorMessage}`;
+    }
+    return `ClientError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}\nURL: ${this.url}`;
+  }
+}
+
+/** @deprecated Use ClientError instead */
+export const ApiError = ClientError;
+/** @deprecated Use ClientError instead */
+export type ApiError = ClientError;
+
+// 5xx 서버 에러용
+export class ServerError extends Data.TaggedError('ServerError')<{
+  readonly errorCode: string;
+  readonly errorMessage: string;
+  readonly httpStatus: number;
+  readonly url?: string;
+  readonly responseBody?: string;
+}> {
+  toString(): string {
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (isProduction) {
+      return `ServerError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}`;
+    }
+    return `ServerError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}
+URL: ${this.url}
+Response: ${this.responseBody?.substring(0, 500) ?? '(empty)'}`;
   }
 }

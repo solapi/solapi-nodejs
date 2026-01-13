@@ -61,23 +61,46 @@ describe('BMS Button Schema', () => {
       expect(result._tag).toBe('Right');
     });
 
-    it('should reject app button without linkAndroid', () => {
-      const invalidButton = {
+    it('should accept app button with only linkAndroid', () => {
+      const validButton = {
+        name: '앱버튼',
+        linkType: 'AL',
+        linkAndroid: 'intent://example',
+      };
+
+      const result =
+        Schema.decodeUnknownEither(bmsAppButtonSchema)(validButton);
+      expect(result._tag).toBe('Right');
+    });
+
+    it('should accept app button with only linkIos', () => {
+      const validButton = {
         name: '앱버튼',
         linkType: 'AL',
         linkIos: 'example://app',
       };
 
       const result =
-        Schema.decodeUnknownEither(bmsAppButtonSchema)(invalidButton);
-      expect(result._tag).toBe('Left');
+        Schema.decodeUnknownEither(bmsAppButtonSchema)(validButton);
+      expect(result._tag).toBe('Right');
     });
 
-    it('should reject app button without linkIos', () => {
+    it('should accept app button with only linkMobile', () => {
+      const validButton = {
+        name: '앱버튼',
+        linkType: 'AL',
+        linkMobile: 'https://m.example.com',
+      };
+
+      const result =
+        Schema.decodeUnknownEither(bmsAppButtonSchema)(validButton);
+      expect(result._tag).toBe('Right');
+    });
+
+    it('should reject app button without any link', () => {
       const invalidButton = {
         name: '앱버튼',
         linkType: 'AL',
-        linkAndroid: 'intent://example',
       };
 
       const result =

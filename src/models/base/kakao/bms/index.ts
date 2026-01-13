@@ -1,15 +1,26 @@
 export {
   type BmsAppButton,
+  type BmsBotKeywordButton,
+  type BmsBotTransferButton,
+  type BmsBusinessFormButton,
   type BmsButton,
   type BmsButtonLinkType,
   type BmsButtonSchema,
   type BmsChannelAddButton,
+  type BmsConsultButton,
   type BmsLinkButtonSchema,
+  type BmsMessageDeliveryButton,
   type BmsWebButton,
   bmsAppButtonSchema,
+  bmsBotKeywordButtonSchema,
+  bmsBotTransferButtonSchema,
+  bmsBusinessFormButtonSchema,
+  bmsButtonLinkTypeSchema,
   bmsButtonSchema,
   bmsChannelAddButtonSchema,
+  bmsConsultButtonSchema,
   bmsLinkButtonSchema,
+  bmsMessageDeliveryButtonSchema,
   bmsWebButtonSchema,
 } from './bmsButton';
 export {
@@ -19,10 +30,16 @@ export {
   type BmsCarouselFeedItem,
   type BmsCarouselFeedItemSchema,
   type BmsCarouselFeedSchema,
+  type BmsCarouselHeadSchema,
+  type BmsCarouselTailSchema,
+  bmsCarouselCommerceHeadSchema,
   bmsCarouselCommerceItemSchema,
   bmsCarouselCommerceSchema,
+  bmsCarouselCommerceTailSchema,
   bmsCarouselFeedItemSchema,
   bmsCarouselFeedSchema,
+  bmsCarouselHeadSchema,
+  bmsCarouselTailSchema,
 } from './bmsCarousel';
 
 export {
@@ -43,7 +60,13 @@ export {
   bmsVideoSchema,
 } from './bmsVideo';
 export {
+  type BmsMainWideItem,
+  type BmsMainWideItemSchema,
+  type BmsSubWideItem,
+  type BmsSubWideItemSchema,
   type BmsWideItem,
   type BmsWideItemSchema,
+  bmsMainWideItemSchema,
+  bmsSubWideItemSchema,
   bmsWideItemSchema,
 } from './bmsWideItem';

@@ -101,10 +101,24 @@ describe('BMS Option Schema in KakaoOption', () => {
         bms: {
           targeting: 'M',
           chatBubbleType: 'WIDE_ITEM_LIST',
+          header: '헤더 제목',
           mainWideItem: {
             title: '메인 아이템',
+            imageId: 'img-main',
+            linkMobile: 'https://example.com/main',
           },
-          subWideItemList: [{title: '서브 아이템 1'}, {title: '서브 아이템 2'}],
+          subWideItemList: [
+            {
+              title: '서브 아이템 1',
+              imageId: 'img-sub-1',
+              linkMobile: 'https://example.com/sub1',
+            },
+            {
+              title: '서브 아이템 2',
+              imageId: 'img-sub-2',
+              linkMobile: 'https://example.com/sub2',
+            },
+          ],
         },
       };
 
@@ -120,7 +134,14 @@ describe('BMS Option Schema in KakaoOption', () => {
         bms: {
           targeting: 'M',
           chatBubbleType: 'WIDE_ITEM_LIST',
-          subWideItemList: [{title: '서브 아이템'}],
+          header: '헤더 제목',
+          subWideItemList: [
+            {
+              title: '서브 아이템',
+              imageId: 'img-sub',
+              linkMobile: 'https://example.com/sub',
+            },
+          ],
         },
       };
 
@@ -135,6 +156,7 @@ describe('BMS Option Schema in KakaoOption', () => {
         bms: {
           targeting: 'I',
           chatBubbleType: 'COMMERCE',
+          imageId: 'img-commerce',
           commerce: {
             title: '상품명',
             regularPrice: 10000,
@@ -300,8 +322,8 @@ describe('BMS Option Schema in KakaoOption', () => {
           targeting: 'I',
           chatBubbleType: 'PREMIUM_VIDEO',
           video: {
-            videoId: 'video-123',
-            thumbImageId: 'thumb-123',
+            videoUrl: 'https://tv.kakao.com/v/123456789',
+            imageId: 'thumb-123',
           },
         },
       };
@@ -392,13 +414,25 @@ describe('BMS Option Schema in KakaoOption', () => {
         case 'WIDE_ITEM_LIST':
           bms = {
             ...bms,
-            mainWideItem: {title: '메인'},
-            subWideItemList: [{title: '서브'}],
+            header: '헤더 제목',
+            mainWideItem: {
+              title: '메인',
+              imageId: 'img-main',
+              linkMobile: 'https://example.com/main',
+            },
+            subWideItemList: [
+              {
+                title: '서브',
+                imageId: 'img-sub',
+                linkMobile: 'https://example.com/sub',
+              },
+            ],
           };
           break;
         case 'COMMERCE':
           bms = {
             ...bms,
+            imageId: 'img-commerce',
             commerce: {title: '상품', regularPrice: 10000},
             buttons: [
               {name: '구매', linkType: 'WL', linkMobile: 'https://example.com'},
@@ -449,7 +483,10 @@ describe('BMS Option Schema in KakaoOption', () => {
         case 'PREMIUM_VIDEO':
           bms = {
             ...bms,
-            video: {videoId: 'video-123', thumbImageId: 'thumb-123'},
+            video: {
+              videoUrl: 'https://tv.kakao.com/v/123456789',
+              imageId: 'thumb-123',
+            },
           };
           break;
       }
@@ -505,7 +542,7 @@ describe('BMS Option Schema in KakaoOption', () => {
           targeting: 'I',
           chatBubbleType: 'TEXT',
           coupon: {
-            title: '할인 쿠폰',
+            title: '10000원 할인 쿠폰',
             description: '10% 할인',
           },
         },

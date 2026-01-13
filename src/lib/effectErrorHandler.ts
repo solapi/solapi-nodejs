@@ -23,7 +23,10 @@ export const formatError = (error: unknown): string => {
   if (error instanceof EffectError.NetworkError) {
     return error.toString();
   }
-  if (error instanceof EffectError.ApiError) {
+  if (error instanceof EffectError.ClientError) {
+    return error.toString();
+  }
+  if (error instanceof EffectError.ServerError) {
     return error.toString();
   }
   if (error instanceof VariableValidationError) {
@@ -65,7 +68,11 @@ export const runSafeSync = <E, A>(effect: Effect.Effect<A, E>): A => {
         if (firstDefect instanceof Error) {
           throw firstDefect;
         }
-        throw new Error(`Uncaught defect: ${String(firstDefect)}`);
+        const isProduction = process.env.NODE_ENV === 'production';
+        const message = isProduction
+          ? `Unexpected error: ${String(firstDefect)}`
+          : `Unexpected error: ${String(firstDefect)}\nCause: ${Cause.pretty(cause)}`;
+        throw new Error(message);
       }
       throw new Error(`Unhandled Exit: ${Cause.pretty(cause)}`);
     },
@@ -94,10 +101,12 @@ export const runSafePromise = <E, A>(
             // 원본 Error 객체를 그대로 반환
             return Promise.reject(firstDefect);
           }
-          // Error 객체가 아니면 새로 생성
-          return Promise.reject(
-            new Error(`Uncaught defect: ${String(firstDefect)}`),
-          );
+          // Error 객체가 아니면 환경에 따라 상세 정보 포함
+          const isProduction = process.env.NODE_ENV === 'production';
+          const message = isProduction
+            ? `Unexpected error: ${String(firstDefect)}`
+            : `Unexpected error: ${String(firstDefect)}\nCause: ${Cause.pretty(cause)}`;
+          return Promise.reject(new Error(message));
         }
 
         // 3. 그 외 (예: 중단)의 경우, Cause를 문자열로 변환하여 반환
@@ -147,10 +156,10 @@ export const toCompatibleError = (effectError: unknown): Error => {
     return error;
   }
 
-  // ApiError 보존
-  if (effectError instanceof EffectError.ApiError) {
+  // ClientError 보존 (하위 호환성을 위해 error.name은 'ApiError' 유지)
+  if (effectError instanceof EffectError.ClientError) {
     const error = new Error(effectError.toString());
-    error.name = 'ApiError';
+    error.name = 'ApiError'; // 하위 호환성
     Object.defineProperties(error, {
       errorCode: {
         value: effectError.errorCode,
@@ -169,6 +178,43 @@ export const toCompatibleError = (effectError: unknown): Error => {
       },
       url: {value: effectError.url, writable: false, enumerable: true},
     });
+    if (isProduction) {
+      delete (error as Error).stack;
+    }
+    return error;
+  }
+
+  // ServerError 보존
+  if (effectError instanceof EffectError.ServerError) {
+    const error = new Error(effectError.toString());
+    error.name = 'ServerError';
+    const props: PropertyDescriptorMap = {
+      errorCode: {
+        value: effectError.errorCode,
+        writable: false,
+        enumerable: true,
+      },
+      errorMessage: {
+        value: effectError.errorMessage,
+        writable: false,
+        enumerable: true,
+      },
+      httpStatus: {
+        value: effectError.httpStatus,
+        writable: false,
+        enumerable: true,
+      },
+      url: {value: effectError.url, writable: false, enumerable: true},
+    };
+    // 개발환경에서만 responseBody 포함
+    if (!isProduction && effectError.responseBody) {
+      props.responseBody = {
+        value: effectError.responseBody,
+        writable: false,
+        enumerable: true,
+      };
+    }
+    Object.defineProperties(error, props);
     if (isProduction) {
       delete (error as Error).stack;
     }

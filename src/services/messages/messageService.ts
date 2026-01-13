@@ -27,7 +27,7 @@ import {
   SingleMessageSentResponse,
 } from '@models/responses/messageResponses';
 import {DetailGroupMessageResponse} from '@models/responses/sendManyDetailResponse';
-import {Cause, Exit, Schema} from 'effect';
+import {Cause, Chunk, Exit, Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import {
   BadRequestError,
@@ -197,7 +197,20 @@ export default class MessageService extends DefaultService {
         if (failure._tag === 'Some') {
           throw toCompatibleError(failure.value);
         }
-        throw new Error('Unknown error occurred');
+        // Defect 처리
+        const defects = Cause.defects(cause);
+        if (defects.length > 0) {
+          const firstDefect = Chunk.unsafeGet(defects, 0);
+          if (firstDefect instanceof Error) {
+            throw firstDefect;
+          }
+          const isProduction = process.env.NODE_ENV === 'production';
+          const message = isProduction
+            ? `Unexpected error: ${String(firstDefect)}`
+            : `Unexpected error: ${String(firstDefect)}\nCause: ${Cause.pretty(cause)}`;
+          throw new Error(message);
+        }
+        throw new Error(`Unhandled Exit: ${Cause.pretty(cause)}`);
       },
       onSuccess: value => value,
     });

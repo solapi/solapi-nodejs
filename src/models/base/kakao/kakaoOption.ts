@@ -7,8 +7,9 @@ import {
   bmsCarouselFeedSchema,
   bmsCommerceSchema,
   bmsCouponSchema,
+  bmsMainWideItemSchema,
+  bmsSubWideItemSchema,
   bmsVideoSchema,
-  bmsWideItemSchema,
 } from './bms';
 import {KakaoButton, kakaoButtonSchema} from './kakaoButton';
 
@@ -45,17 +46,28 @@ export type BmsChatBubbleType = Schema.Schema.Type<
 
 /**
  * chatBubbleType별 필수 필드 정의
+ * - TEXT: content는 메시지의 text 필드에서 가져옴
+ * - WIDE_ITEM_LIST: header, mainWideItem, subWideItemList 필수
+ * - COMMERCE: imageId, commerce, buttons 필수
  */
 const BMS_REQUIRED_FIELDS: Record<BmsChatBubbleType, ReadonlyArray<string>> = {
   TEXT: [],
   IMAGE: ['imageId'],
   WIDE: ['imageId'],
-  WIDE_ITEM_LIST: ['mainWideItem', 'subWideItemList'],
-  COMMERCE: ['commerce', 'buttons'],
+  WIDE_ITEM_LIST: ['header', 'mainWideItem', 'subWideItemList'],
+  COMMERCE: ['imageId', 'commerce', 'buttons'],
   CAROUSEL_FEED: ['carousel'],
   CAROUSEL_COMMERCE: ['carousel'],
   PREMIUM_VIDEO: ['video'],
 };
+
+/**
+ * BMS 캐러셀 통합 스키마 (CAROUSEL_FEED | CAROUSEL_COMMERCE)
+ */
+const bmsCarouselSchema = Schema.Union(
+  bmsCarouselFeedSchema,
+  bmsCarouselCommerceSchema,
+);
 
 /**
  * BMS 옵션 기본 스키마 (검증 전)
@@ -71,13 +83,12 @@ const baseBmsSchema = Schema.Struct({
   imageId: Schema.optional(Schema.String),
   imageLink: Schema.optional(Schema.String),
   additionalContent: Schema.optional(Schema.String),
+  content: Schema.optional(Schema.String),
 
   // 복합 타입 필드
-  carousel: Schema.optional(
-    Schema.Union(bmsCarouselFeedSchema, bmsCarouselCommerceSchema),
-  ),
-  mainWideItem: Schema.optional(bmsWideItemSchema),
-  subWideItemList: Schema.optional(Schema.Array(bmsWideItemSchema)),
+  carousel: Schema.optional(bmsCarouselSchema),
+  mainWideItem: Schema.optional(bmsMainWideItemSchema),
+  subWideItemList: Schema.optional(Schema.Array(bmsSubWideItemSchema)),
   buttons: Schema.optional(Schema.Array(bmsButtonSchema)),
   coupon: Schema.optional(bmsCouponSchema),
   commerce: Schema.optional(bmsCommerceSchema),

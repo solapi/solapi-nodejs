@@ -52,7 +52,8 @@ export type MessageType =
   | 'BMS_CAROUSEL_FEED'
   | 'BMS_PREMIUM_VIDEO'
   | 'BMS_COMMERCE'
-  | 'BMS_CAROUSEL_COMMERCE';
+  | 'BMS_CAROUSEL_COMMERCE'
+  | 'BMS_FREE';
 
 /**
  * 	메시지 타입
@@ -104,6 +105,7 @@ export const messageTypeSchema = Schema.Literal(
   'BMS_PREMIUM_VIDEO',
   'BMS_COMMERCE',
   'BMS_CAROUSEL_COMMERCE',
+  'BMS_FREE',
 );
 
 export const messageSchema = Schema.Struct({
