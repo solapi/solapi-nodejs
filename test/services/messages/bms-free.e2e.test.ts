@@ -30,6 +30,7 @@ import {
   createMainWideItem,
   createSubWideItem,
   getTestImagePath,
+  getTestImagePath1to1,
   getTestImagePath2to1,
   uploadBmsImage,
   uploadBmsImageForType,
@@ -346,7 +347,7 @@ describe('BMS Free Message E2E', () => {
     );
   });
 
-  describe.skip('WIDE_ITEM_LIST 타입', () => {
+  describe('WIDE_ITEM_LIST 타입', () => {
     it.effect('최소 구조 (header, mainWideItem, subWideItemList 1개)', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
@@ -378,7 +379,7 @@ describe('BMS Free Message E2E', () => {
         const subImageId = yield* Effect.tryPromise(() =>
           uploadBmsImageForType.wideSubItem(
             storageService,
-            getTestImagePath2to1(__dirname),
+            getTestImagePath1to1(__dirname),
           ),
         );
 
@@ -439,7 +440,7 @@ describe('BMS Free Message E2E', () => {
           const subImageId = yield* Effect.tryPromise(() =>
             uploadBmsImageForType.wideSubItem(
               storageService,
-              getTestImagePath2to1(__dirname),
+              getTestImagePath1to1(__dirname),
             ),
           );
 
