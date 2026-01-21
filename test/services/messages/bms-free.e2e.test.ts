@@ -348,7 +348,7 @@ describe('BMS Free Message E2E', () => {
   });
 
   describe('WIDE_ITEM_LIST 타입', () => {
-    it.effect('최소 구조 (header, mainWideItem, subWideItemList 1개)', () =>
+    it.effect('최소 구조 (header, mainWideItem, subWideItemList 3개)', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
@@ -395,6 +395,8 @@ describe('BMS Free Message E2E', () => {
                 mainWideItem: createMainWideItem(mainImageId),
                 subWideItemList: [
                   createSubWideItem(subImageId, '서브 아이템 1'),
+                  createSubWideItem(subImageId, '서브 아이템 2'),
+                  createSubWideItem(subImageId, '서브 아이템 3'),
                 ],
               }),
             },
@@ -573,7 +575,6 @@ describe('BMS Free Message E2E', () => {
                     regularPrice: 50000,
                     discountPrice: 35000,
                     discountRate: 30,
-                    discountFixed: 15000,
                   }),
                   buttons: [createBmsButton('WL'), createBmsButton('AL')],
                   coupon: createBmsCoupon('up'),
@@ -765,12 +766,16 @@ describe('BMS Free Message E2E', () => {
                     createCarouselCommerceItem(imageId, {
                       commerce: createBmsCommerce({
                         title: '상품 1',
+                        regularPrice: 10000,
+                        discountPrice: 9000,
                         discountRate: 10,
                       }),
                     }),
                     createCarouselCommerceItem(imageId, {
                       commerce: createBmsCommerce({
                         title: '상품 2',
+                        regularPrice: 10000,
+                        discountPrice: 8000,
                         discountFixed: 2000,
                       }),
                     }),

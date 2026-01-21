@@ -95,8 +95,78 @@ describe('BMS Option Schema in KakaoOption', () => {
       }).toThrow('BMS WIDE 타입에 필수 필드가 누락되었습니다: imageId');
     });
 
-    it('should accept valid BMS_WIDE_ITEM_LIST message', () => {
+    it('should accept valid BMS_WIDE_ITEM_LIST message with 3 sub items (minimum)', () => {
       const validBmsWideItemList = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'M',
+          chatBubbleType: 'WIDE_ITEM_LIST',
+          header: '헤더 제목',
+          mainWideItem: {
+            title: '메인 아이템',
+            imageId: 'img-main',
+            linkMobile: 'https://example.com/main',
+          },
+          subWideItemList: [
+            {
+              title: '서브 아이템 1',
+              imageId: 'img-sub-1',
+              linkMobile: 'https://example.com/sub1',
+            },
+            {
+              title: '서브 아이템 2',
+              imageId: 'img-sub-2',
+              linkMobile: 'https://example.com/sub2',
+            },
+            {
+              title: '서브 아이템 3',
+              imageId: 'img-sub-3',
+              linkMobile: 'https://example.com/sub3',
+            },
+          ],
+        },
+      };
+
+      const result = Schema.decodeUnknownEither(baseKakaoOptionSchema)(
+        validBmsWideItemList,
+      );
+      expect(result._tag).toBe('Right');
+    });
+
+    it('should reject BMS_WIDE_ITEM_LIST without mainWideItem', () => {
+      const invalidBmsWideItemList = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'M',
+          chatBubbleType: 'WIDE_ITEM_LIST',
+          header: '헤더 제목',
+          subWideItemList: [
+            {
+              title: '서브 아이템 1',
+              imageId: 'img-sub-1',
+              linkMobile: 'https://example.com/sub1',
+            },
+            {
+              title: '서브 아이템 2',
+              imageId: 'img-sub-2',
+              linkMobile: 'https://example.com/sub2',
+            },
+            {
+              title: '서브 아이템 3',
+              imageId: 'img-sub-3',
+              linkMobile: 'https://example.com/sub3',
+            },
+          ],
+        },
+      };
+
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(invalidBmsWideItemList);
+      }).toThrow('BMS WIDE_ITEM_LIST 타입에 필수 필드가 누락되었습니다');
+    });
+
+    it('should reject BMS_WIDE_ITEM_LIST with less than 3 sub items', () => {
+      const invalidBmsWideItemList = {
         pfId: 'test-pf-id',
         bms: {
           targeting: 'M',
@@ -122,32 +192,11 @@ describe('BMS Option Schema in KakaoOption', () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(baseKakaoOptionSchema)(
-        validBmsWideItemList,
-      );
-      expect(result._tag).toBe('Right');
-    });
-
-    it('should reject BMS_WIDE_ITEM_LIST without mainWideItem', () => {
-      const invalidBmsWideItemList = {
-        pfId: 'test-pf-id',
-        bms: {
-          targeting: 'M',
-          chatBubbleType: 'WIDE_ITEM_LIST',
-          header: '헤더 제목',
-          subWideItemList: [
-            {
-              title: '서브 아이템',
-              imageId: 'img-sub',
-              linkMobile: 'https://example.com/sub',
-            },
-          ],
-        },
-      };
-
       expect(() => {
         Schema.decodeUnknownSync(baseKakaoOptionSchema)(invalidBmsWideItemList);
-      }).toThrow('BMS WIDE_ITEM_LIST 타입에 필수 필드가 누락되었습니다');
+      }).toThrow(
+        'WIDE_ITEM_LIST 타입의 subWideItemList는 최소 3개 이상이어야 합니다',
+      );
     });
 
     it('should accept valid BMS_COMMERCE message', () => {
@@ -161,6 +210,7 @@ describe('BMS Option Schema in KakaoOption', () => {
             title: '상품명',
             regularPrice: 10000,
             discountPrice: 8000,
+            discountRate: 20,
           },
           buttons: [
             {
@@ -422,9 +472,19 @@ describe('BMS Option Schema in KakaoOption', () => {
             },
             subWideItemList: [
               {
-                title: '서브',
-                imageId: 'img-sub',
-                linkMobile: 'https://example.com/sub',
+                title: '서브 1',
+                imageId: 'img-sub-1',
+                linkMobile: 'https://example.com/sub1',
+              },
+              {
+                title: '서브 2',
+                imageId: 'img-sub-2',
+                linkMobile: 'https://example.com/sub2',
+              },
+              {
+                title: '서브 3',
+                imageId: 'img-sub-3',
+                linkMobile: 'https://example.com/sub3',
               },
             ],
           };

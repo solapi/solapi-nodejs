@@ -97,11 +97,8 @@ const baseBmsSchema = Schema.Struct({
 
 type BaseBmsSchemaType = Schema.Schema.Type<typeof baseBmsSchema>;
 
-/**
- * chatBubbleType별 필수 필드 검증 및 에러 메시지 반환
- * - 검증 통과 시: true 반환
- * - 검증 실패 시: 에러 메시지 문자열 반환
- */
+const WIDE_ITEM_LIST_MIN_SUB_ITEMS = 3;
+
 const validateBmsRequiredFields = (
   bms: BaseBmsSchemaType,
 ): boolean | string => {
@@ -114,6 +111,16 @@ const validateBmsRequiredFields = (
 
   if (missingFields.length > 0) {
     return `BMS ${chatBubbleType} 타입에 필수 필드가 누락되었습니다: ${missingFields.join(', ')}`;
+  }
+
+  if (chatBubbleType === 'WIDE_ITEM_LIST') {
+    const subWideItemList = bms.subWideItemList;
+    if (
+      !subWideItemList ||
+      subWideItemList.length < WIDE_ITEM_LIST_MIN_SUB_ITEMS
+    ) {
+      return `WIDE_ITEM_LIST 타입의 subWideItemList는 최소 ${WIDE_ITEM_LIST_MIN_SUB_ITEMS}개 이상이어야 합니다. 현재: ${subWideItemList?.length ?? 0}개`;
+    }
   }
 
   return true;
