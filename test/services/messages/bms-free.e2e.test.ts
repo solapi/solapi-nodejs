@@ -763,10 +763,16 @@ describe('BMS Free Message E2E', () => {
                 carousel: {
                   list: [
                     createCarouselCommerceItem(imageId, {
-                      commerce: createBmsCommerce({title: '상품 1'}),
+                      commerce: createBmsCommerce({
+                        title: '상품 1',
+                        discountRate: 10,
+                      }),
                     }),
                     createCarouselCommerceItem(imageId, {
-                      commerce: createBmsCommerce({title: '상품 2'}),
+                      commerce: createBmsCommerce({
+                        title: '상품 2',
+                        discountFixed: 2000,
+                      }),
                     }),
                   ],
                 },
@@ -833,6 +839,7 @@ describe('BMS Free Message E2E', () => {
                           title: '프리미엄 상품 1',
                           regularPrice: 30000,
                           discountPrice: 25000,
+                          discountRate: 17,
                         }),
                         additionalContent: '추가 정보',
                         imageLink: 'https://example.com/product1',
@@ -840,13 +847,16 @@ describe('BMS Free Message E2E', () => {
                           createBmsLinkButton('WL'),
                           createBmsLinkButton('AL'),
                         ],
-                        coupon: createBmsCoupon('won'),
+                        coupon: {
+                          ...createBmsCoupon('won'),
+                        },
                       }),
                       createCarouselCommerceItem(imageId, {
                         commerce: createBmsCommerce({
                           title: '프리미엄 상품 2',
                           regularPrice: 40000,
                           discountPrice: 35000,
+                          discountFixed: 5000,
                         }),
                         buttons: [createBmsLinkButton('WL')],
                       }),
@@ -899,7 +909,8 @@ describe('BMS Free Message E2E', () => {
               pfId: channel.channelId,
               bms: createBmsOption('PREMIUM_VIDEO', {
                 video: {
-                  videoUrl: 'https://tv.kakao.com/v/123456789',
+                  // NOTE: 발송 간 유효하지 않은 동영상 URL을 기입하면 발송 상태가 그룹 정보를 찾을 수 없음 오류로 표시됩니다.
+                  videoUrl: 'https://tv.kakao.com/v/460734285',
                 },
               }),
             },
@@ -954,7 +965,8 @@ describe('BMS Free Message E2E', () => {
                   header: '비디오 헤더',
                   content: '비디오 내용입니다.',
                   video: {
-                    videoUrl: 'https://tv.kakao.com/v/123456789',
+                    // NOTE: 발송 간 유효하지 않은 동영상 URL을 기입하면 발송 상태가 그룹 정보를 찾을 수 없음 오류로 표시됩니다.
+                    videoUrl: 'https://tv.kakao.com/v/460734285',
                     imageId,
                     imageLink: 'https://example.com/video',
                   },
