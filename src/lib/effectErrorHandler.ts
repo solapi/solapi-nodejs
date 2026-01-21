@@ -23,7 +23,10 @@ export const formatError = (error: unknown): string => {
   if (error instanceof EffectError.NetworkError) {
     return error.toString();
   }
-  if (error instanceof EffectError.ApiError) {
+  if (error instanceof EffectError.ClientError) {
+    return error.toString();
+  }
+  if (error instanceof EffectError.ServerError) {
     return error.toString();
   }
   if (error instanceof VariableValidationError) {
@@ -38,6 +41,42 @@ export const formatError = (error: unknown): string => {
   return String(error);
 };
 
+/**
+ * Defect(예측되지 않은 에러)에서 정보 추출
+ */
+const extractDefectInfo = (
+  defect: unknown,
+): {summary: string; details: string} => {
+  // Effect Tagged Error인 경우
+  if (defect && typeof defect === 'object' && '_tag' in defect) {
+    const tag = (defect as {_tag: string})._tag;
+    const message =
+      'message' in defect ? String((defect as {message: unknown}).message) : '';
+    return {
+      summary: `${tag}${message ? `: ${message}` : ''}`,
+      details: `Tagged Error [${tag}]: ${JSON.stringify(defect, null, 2)}`,
+    };
+  }
+
+  // 일반 객체인 경우
+  if (defect !== null && typeof defect === 'object') {
+    const keys = Object.keys(defect);
+    const summary =
+      keys.length > 0
+        ? `Object with keys: ${keys.slice(0, 3).join(', ')}${keys.length > 3 ? '...' : ''}`
+        : 'Empty object';
+    return {
+      summary,
+      details: JSON.stringify(defect, null, 2),
+    };
+  }
+
+  return {
+    summary: String(defect),
+    details: `Value (${typeof defect}): ${String(defect)}`,
+  };
+};
+
 // Effect Cause를 프로덕션용으로 포맷팅
 export const formatCauseForProduction = (
   cause: Cause.Cause<unknown>,
@@ -46,7 +85,16 @@ export const formatCauseForProduction = (
   if (failure._tag === 'Some') {
     return formatError(failure.value);
   }
-  return 'Unknown error occurred';
+
+  // Defect 정보도 포함
+  const defects = Cause.defects(cause);
+  if (defects.length > 0) {
+    const firstDefect = Chunk.unsafeGet(defects, 0);
+    const info = extractDefectInfo(firstDefect);
+    return `Unexpected error: ${info.summary}`;
+  }
+
+  return 'Effect execution failed';
 };
 
 // Effect 프로그램의 실행 결과를 안전하게 처리
@@ -59,15 +107,30 @@ export const runSafeSync = <E, A>(effect: Effect.Effect<A, E>): A => {
       if (failure._tag === 'Some') {
         throw toCompatibleError(failure.value);
       }
+      // 예측되지 않은 예외(Defect)인지 확인
       const defects = Cause.defects(cause);
       if (defects.length > 0) {
         const firstDefect = Chunk.unsafeGet(defects, 0);
         if (firstDefect instanceof Error) {
           throw firstDefect;
         }
-        throw new Error(`Uncaught defect: ${String(firstDefect)}`);
+        const isProduction = process.env.NODE_ENV === 'production';
+        const defectInfo = extractDefectInfo(firstDefect);
+        const message = isProduction
+          ? `Unexpected error: ${defectInfo.summary}`
+          : `Unexpected error: ${defectInfo.details}\nCause: ${Cause.pretty(cause)}`;
+        const error = new Error(message);
+        error.name = 'UnexpectedDefectError';
+        throw error;
       }
-      throw new Error(`Unhandled Exit: ${Cause.pretty(cause)}`);
+      // 그 외 (예: 중단)의 경우
+      const isProduction = process.env.NODE_ENV === 'production';
+      const message = isProduction
+        ? 'Effect execution failed unexpectedly'
+        : `Unhandled Effect Exit:\n${Cause.pretty(cause)}`;
+      const error = new Error(message);
+      error.name = 'UnhandledExitError';
+      throw error;
     },
     onSuccess: value => value,
   });
@@ -91,19 +154,26 @@ export const runSafePromise = <E, A>(
         if (defects.length > 0) {
           const firstDefect = Chunk.unsafeGet(defects, 0);
           if (firstDefect instanceof Error) {
-            // 원본 Error 객체를 그대로 반환
             return Promise.reject(firstDefect);
           }
-          // Error 객체가 아니면 새로 생성
-          return Promise.reject(
-            new Error(`Uncaught defect: ${String(firstDefect)}`),
-          );
+          const isProduction = process.env.NODE_ENV === 'production';
+          const defectInfo = extractDefectInfo(firstDefect);
+          const message = isProduction
+            ? `Unexpected error: ${defectInfo.summary}`
+            : `Unexpected error: ${defectInfo.details}\nCause: ${Cause.pretty(cause)}`;
+          const error = new Error(message);
+          error.name = 'UnexpectedDefectError';
+          return Promise.reject(error);
         }
 
-        // 3. 그 외 (예: 중단)의 경우, Cause를 문자열로 변환하여 반환
-        return Promise.reject(
-          new Error(`Unhandled Exit: ${Cause.pretty(cause)}`),
-        );
+        // 3. 그 외 (예: 중단)의 경우
+        const isProduction = process.env.NODE_ENV === 'production';
+        const message = isProduction
+          ? 'Effect execution failed unexpectedly'
+          : `Unhandled Effect Exit:\n${Cause.pretty(cause)}`;
+        const error = new Error(message);
+        error.name = 'UnhandledExitError';
+        return Promise.reject(error);
       },
       onSuccess: value => Promise.resolve(value),
     }),
@@ -147,10 +217,10 @@ export const toCompatibleError = (effectError: unknown): Error => {
     return error;
   }
 
-  // ApiError 보존
-  if (effectError instanceof EffectError.ApiError) {
+  // ClientError 보존 (하위 호환성을 위해 error.name은 'ApiError' 유지)
+  if (effectError instanceof EffectError.ClientError) {
     const error = new Error(effectError.toString());
-    error.name = 'ApiError';
+    error.name = 'ApiError'; // 하위 호환성
     Object.defineProperties(error, {
       errorCode: {
         value: effectError.errorCode,
@@ -169,6 +239,43 @@ export const toCompatibleError = (effectError: unknown): Error => {
       },
       url: {value: effectError.url, writable: false, enumerable: true},
     });
+    if (isProduction) {
+      delete (error as Error).stack;
+    }
+    return error;
+  }
+
+  // ServerError 보존
+  if (effectError instanceof EffectError.ServerError) {
+    const error = new Error(effectError.toString());
+    error.name = 'ServerError';
+    const props: PropertyDescriptorMap = {
+      errorCode: {
+        value: effectError.errorCode,
+        writable: false,
+        enumerable: true,
+      },
+      errorMessage: {
+        value: effectError.errorMessage,
+        writable: false,
+        enumerable: true,
+      },
+      httpStatus: {
+        value: effectError.httpStatus,
+        writable: false,
+        enumerable: true,
+      },
+      url: {value: effectError.url, writable: false, enumerable: true},
+    };
+    // 개발환경에서만 responseBody 포함
+    if (!isProduction && effectError.responseBody) {
+      props.responseBody = {
+        value: effectError.responseBody,
+        writable: false,
+        enumerable: true,
+      };
+    }
+    Object.defineProperties(error, props);
     if (isProduction) {
       delete (error as Error).stack;
     }
@@ -279,10 +386,36 @@ export const toCompatibleError = (effectError: unknown): Error => {
     return error;
   }
 
+  // Unknown 에러 타입에 대한 개선된 처리
+  // Tagged Error 확인 (_tag 속성 존재 여부)
+  if (effectError && typeof effectError === 'object' && '_tag' in effectError) {
+    const taggedError = effectError as {_tag: string};
+    const formatted = formatError(effectError);
+    const error = new Error(formatted);
+    error.name = `UnknownTaggedError_${taggedError._tag}`;
+    if (!isProduction) {
+      Object.defineProperty(error, 'originalError', {
+        value: effectError,
+        writable: false,
+        enumerable: true,
+      });
+    }
+    if (isProduction) {
+      delete error.stack;
+    }
+    return error;
+  }
+
   const formatted = formatError(effectError);
-  // 하위 호환성을 위해 여전히 Error 사용하지만 스택 제거
   const error = new Error(formatted);
-  error.name = 'FromSolapiError';
+  error.name = 'UnknownSolapiError';
+  if (!isProduction) {
+    Object.defineProperty(error, 'originalError', {
+      value: effectError,
+      writable: false,
+      enumerable: true,
+    });
+  }
   if (isProduction) {
     delete error.stack;
   }

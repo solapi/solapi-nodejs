@@ -1,9 +1,10 @@
 import {Data, Effect, Match, pipe, Schedule} from 'effect';
 import {
-  ApiError,
+  ClientError,
   DefaultError,
   ErrorResponse,
   NetworkError,
+  ServerError,
 } from '../errors/defaultError';
 import getAuthInfo, {AuthenticationParameter} from './authenticator';
 import {runSafePromise} from './effectErrorHandler';
@@ -51,7 +52,7 @@ const handleClientErrorResponse = (res: Response) =>
     }),
     Effect.flatMap(error =>
       Effect.fail(
-        new ApiError({
+        new ClientError({
           errorCode: error.errorCode,
           errorMessage: error.errorMessage,
           httpStatus: res.status,
@@ -75,18 +76,38 @@ const handleServerErrorResponse = (res: Response) =>
           },
         }),
     }),
-    Effect.flatMap(text =>
-      Effect.fail(
-        new DefaultError({
-          errorCode: 'UnknownError',
-          errorMessage: text,
-          context: {
-            responseStatus: res.status,
-            responseUrl: res.url,
-          },
+    Effect.flatMap(text => {
+      const isProduction = process.env.NODE_ENV === 'production';
+
+      // JSON 파싱 시도
+      try {
+        const json = JSON.parse(text) as Partial<ErrorResponse>;
+        if (json.errorCode && json.errorMessage) {
+          return Effect.fail(
+            new ServerError({
+              errorCode: json.errorCode,
+              errorMessage: json.errorMessage,
+              httpStatus: res.status,
+              url: res.url,
+              responseBody: isProduction ? undefined : text,
+            }),
+          );
+        }
+      } catch {
+        // JSON 파싱 실패 시 무시하고 fallback
+      }
+
+      // JSON이 아니거나 필드가 없는 경우
+      return Effect.fail(
+        new ServerError({
+          errorCode: `HTTP_${res.status}`,
+          errorMessage: text.substring(0, 200) || 'Server error occurred',
+          httpStatus: res.status,
+          url: res.url,
+          responseBody: isProduction ? undefined : text,
         }),
-      ),
-    ),
+      );
+    }),
   );
 
 /**
