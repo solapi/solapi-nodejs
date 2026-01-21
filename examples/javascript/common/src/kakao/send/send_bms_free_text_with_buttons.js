@@ -1,6 +1,7 @@
 /**
  * 버튼을 포함한 카카오 BMS 자유형 TEXT 타입 발송 예제
  * BMS 자유형 버튼 타입: WL(웹링크), AL(앱링크), AC(채널추가), BK(봇키워드), MD(상담요청), BC(상담톡전환), BT(챗봇전환), BF(비즈니스폼)
+ * 쿠폰 제목 형식: "N원 할인 쿠폰", "N% 할인 쿠폰", "배송비 할인 쿠폰", "OOO 무료 쿠폰", "OOO UP 쿠폰"
  * targeting 타입 중 M, N의 경우는 카카오 측에서 인허가된 채널만 사용하실 수 있습니다.
  * 그 외의 모든 채널은 I 타입만 사용 가능합니다.
  * 발신번호, 수신번호에 반드시 -, * 등 특수문자를 제거하여 기입하시기 바랍니다. 예) 01012345678
@@ -11,74 +12,60 @@ const messageService = new SolapiMessageService(
   'ENTER_YOUR_API_SECRET',
 );
 
-// 단일 발송 예제
+// 전체 필드 단건 발송 예제 (adult, buttons, coupon 포함)
 messageService
-  .sendOne({
+  .send({
     to: '수신번호',
     from: '계정에서 등록한 발신번호 입력',
-    text: '2,000byte 이내의 메시지 입력',
+    text: '🛍️ 홍길동님을 위한 맞춤 추천!\n\n이번 주 베스트 상품을 확인해보세요.\n지금 구매 시 10% 추가 할인!',
     type: 'BMS_FREE',
     kakaoOptions: {
       pfId: '연동한 비즈니스 채널의 pfId',
       bms: {
-        targeting: 'I', // I: 전체, M/N: 인허가 채널만
+        targeting: 'I',
         chatBubbleType: 'TEXT',
+        adult: false,
         buttons: [
           {
-            linkType: 'WL', // 웹링크
-            name: '버튼 이름',
-            linkMobile: 'https://m.example.com',
-            linkPc: 'https://example.com', // 생략 가능
+            linkType: 'WL',
+            name: '베스트 상품 보기',
+            linkMobile: 'https://example.com',
+            linkPc: 'https://example.com',
           },
           {
-            linkType: 'AL', // 앱링크
-            name: '앱 실행',
-            linkAndroid: 'examplescheme://',
-            linkIos: 'examplescheme://',
+            linkType: 'AL',
+            name: '앱에서 열기',
+            linkMobile: 'https://example.com',
+            linkAndroid: 'examplescheme://path',
+            linkIos: 'examplescheme://path',
           },
           {
-            linkType: 'BK', // 봇키워드 (챗봇에게 키워드를 전달합니다)
-            name: '봇키워드',
-            chatExtra: '추가 데이터', // 선택
+            linkType: 'AC',
+            name: '채널 추가',
           },
           {
-            linkType: 'MD', // 상담요청하기
-            name: '상담요청하기',
-            chatExtra: '추가 데이터', // 선택
+            linkType: 'BK',
+            name: '1:1 문의하기',
+            chatExtra: 'inquiry',
           },
-          {
-            linkType: 'BT', // 챗봇 문의로 전환
-            name: '챗봇 문의',
-            chatExtra: '추가 데이터', // 선택
-          },
-          /*
-          {
-            linkType: 'AC', // 채널 추가
-          },
-          {
-            linkType: 'BC', // 상담톡 전환 (상담톡 서비스 사용 시 가능)
-            name: '상담톡 전환',
-            chatExtra: '추가 데이터', // 선택
-          },
-          {
-            linkType: 'BF', // 비즈니스폼
-            name: '비즈니스폼',
-          },
-          */
         ],
+        coupon: {
+          title: '10% 할인 쿠폰',
+          description: '이번 주 한정 특별 할인 쿠폰입니다.',
+          linkMobile: 'https://example.com/coupon',
+        },
       },
     },
   })
   .then(res => console.log(res));
 
-// 단일 예약 발송 예제
-// 예약발송 시 현재 시간보다 과거의 시간을 입력할 경우 즉시 발송됩니다.
+// 단건 예약 발송 예제
 messageService
-  .sendOneFuture(
+  .send(
     {
       to: '수신번호',
       from: '계정에서 등록한 발신번호 입력',
-      text: '2,000byte 이내의 메시지 입력',
+      text: '⏰ 장바구니에 담은 상품이 기다리고 있어요!\n\n지금 결제하시면 무료 배송 혜택을 드려요.',
       type: 'BMS_FREE',
       kakaoOptions: {
         pfId: '연동한 비즈니스 채널의 pfId',
@@ -88,24 +75,24 @@ messageService
           buttons: [
             {
               linkType: 'WL',
-              name: '버튼 이름',
-              linkMobile: 'https://m.example.com',
+              name: '장바구니 확인',
+              linkMobile: 'https://m.example.com/cart',
             },
           ],
         },
       },
     },
-    '2025-12-08 00:00:00',
+    {scheduledDate: '2025-12-08 00:00:00'},
   )
   .then(res => console.log(res));
 
-// 여러 메시지 발송 예제, 한 번 호출 당 최대 10,000건 까지 발송 가능
+// 다건 발송 예제
 messageService
   .send([
     {
       to: '수신번호',
       from: '계정에서 등록한 발신번호 입력',
-      text: '2,000byte 이내의 메시지 입력',
+      text: '💳 결제가 완료되었습니다!\n\n주문번호: ORD-2025-001234\n결제금액: 45,000원',
       type: 'BMS_FREE',
       kakaoOptions: {
         pfId: '연동한 비즈니스 채널의 pfId',
@@ -115,8 +102,8 @@ messageService
           buttons: [
             {
               linkType: 'WL',
-              name: '버튼 이름',
-              linkMobile: 'https://m.example.com',
+              name: '주문 상세 보기',
+              linkMobile: 'https://m.example.com/order',
             },
           ],
         },
@@ -125,7 +112,7 @@ messageService
     {
       to: '수신번호',
       from: '계정에서 등록한 발신번호 입력',
-      text: '2,000byte 이내의 메시지 입력',
+      text: '🏃 오늘의 운동 리포트가 도착했어요!\n\n총 걸음수: 8,542걸음\n소모 칼로리: 320kcal',
       type: 'BMS_FREE',
       kakaoOptions: {
         pfId: '연동한 비즈니스 채널의 pfId',
@@ -135,13 +122,12 @@ messageService
           buttons: [
             {
               linkType: 'WL',
-              name: '버튼 이름',
-              linkMobile: 'https://m.example.com',
+              name: '상세 리포트 보기',
+              linkMobile: 'https://m.example.com/report',
             },
           ],
         },
       },
     },
-    // 2번째 파라미터 내 항목인 allowDuplicates 옵션을 true로 설정할 경우 중복 수신번호를 허용합니다.
   ])
   .then(res => console.log(res));
