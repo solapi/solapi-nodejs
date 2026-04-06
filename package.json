@@ -34,8 +34,10 @@
     "build": "pnpm lint && tsup",
     "docs": "typedoc --entryPointStrategy expand ./src",
     "lint": "biome check --write",
+    "lint:ci": "biome check",
     "dev": "tsup --watch",
     "test": "vitest run",
+    "test:ci": "vitest run --exclude '**/*.e2e.test.ts'",
     "test:watch": "vitest"
   },
   "dependencies": {
@@ -52,6 +54,10 @@
     "typescript": "^5.9.3",
     "vite-tsconfig-paths": "^6.0.4",
     "vitest": "^4.0.17"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "packageManager": "pnpm@10.15.1",
   "engines": {
