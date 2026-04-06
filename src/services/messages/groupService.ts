@@ -1,8 +1,9 @@
 import {GroupId} from '@internal-types/commonTypes';
+import {runSafePromise} from '@lib/effectErrorHandler';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
-  GetGroupsFinalizeRequest,
-  GetGroupsRequest,
+  finalizeGetGroupsRequest,
+  type GetGroupsRequest,
 } from '@models/requests/messages/getGroupsRequest';
 import {
   CreateGroupRequest,
@@ -21,10 +22,12 @@ import {
 } from '@models/responses/messageResponses';
 import {formatISO} from 'date-fns';
 import {Schema} from 'effect';
+import * as Effect from 'effect/Effect';
 import {
   RequestSendMessagesSchema,
   requestSendMessageSchema,
 } from '@/models/requests/messages/sendMessage';
+import {BadRequestError} from '../../errors/defaultError';
 import DefaultService from '../defaultService';
 
 /**
@@ -47,17 +50,26 @@ export default class GroupService extends DefaultService {
     appId?: string,
     customFields?: Record<string, string>,
   ): Promise<GroupId> {
-    return this.request<CreateGroupRequest, GroupMessageResponse>({
-      httpMethod: 'POST',
-      url: 'messages/v4/groups',
-      body: {
-        sdkVersion,
-        osPlatform,
-        allowDuplicates,
-        appId,
-        customFields,
-      },
-    }).then(res => res.groupId);
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const response = yield* reqEffect<
+          CreateGroupRequest,
+          GroupMessageResponse
+        >({
+          httpMethod: 'POST',
+          url: 'messages/v4/groups',
+          body: {
+            sdkVersion,
+            osPlatform,
+            allowDuplicates,
+            appId,
+            customFields,
+          },
+        });
+        return response.groupId;
+      }),
+    );
   }
 
   /**
@@ -71,22 +83,31 @@ export default class GroupService extends DefaultService {
     groupId: GroupId,
     messages: RequestSendMessagesSchema,
   ): Promise<AddMessageResponse> {
-    const validatedMessages = Schema.decodeUnknownSync(
-      requestSendMessageSchema,
-    )(messages);
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const validatedMessages = yield* Effect.try({
+          try: () =>
+            Schema.decodeUnknownSync(requestSendMessageSchema)(messages),
+          catch: error =>
+            new BadRequestError({
+              message: error instanceof Error ? error.message : String(error),
+            }),
+        });
 
-    // GroupMessageAddRequest 타입에 맞게 데이터 변환
-    const requestBody: GroupMessageAddRequest = {
-      messages: Array.isArray(validatedMessages)
-        ? validatedMessages
-        : [validatedMessages],
-    };
+        const requestBody: GroupMessageAddRequest = {
+          messages: Array.isArray(validatedMessages)
+            ? validatedMessages
+            : [validatedMessages],
+        };
 
-    return this.request<GroupMessageAddRequest, AddMessageResponse>({
-      httpMethod: 'PUT',
-      url: `messages/v4/groups/${groupId}/messages`,
-      body: requestBody,
-    });
+        return yield* reqEffect<GroupMessageAddRequest, AddMessageResponse>({
+          httpMethod: 'PUT',
+          url: `messages/v4/groups/${groupId}/messages`,
+          body: requestBody,
+        });
+      }),
+    );
   }
 
   /**
@@ -94,10 +115,15 @@ export default class GroupService extends DefaultService {
    * @param groupId 생성 된 Group ID
    */
   async sendGroup(groupId: GroupId): Promise<GroupMessageResponse> {
-    return this.request<never, GroupMessageResponse>({
-      httpMethod: 'POST',
-      url: `messages/v4/groups/${groupId}/send`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<never, GroupMessageResponse>({
+          httpMethod: 'POST',
+          url: `messages/v4/groups/${groupId}/send`,
+        });
+      }),
+    );
   }
 
   /**
@@ -106,14 +132,22 @@ export default class GroupService extends DefaultService {
    * @param scheduledDate 예약발송 할 날짜
    */
   async reserveGroup(groupId: GroupId, scheduledDate: Date | string) {
-    const formattedScheduledDate = formatISO(scheduledDate);
-    return this.request<ScheduledDateSendingRequest, GroupMessageResponse>({
-      httpMethod: 'POST',
-      url: `messages/v4/groups/${groupId}/schedule`,
-      body: {
-        scheduledDate: formattedScheduledDate,
-      },
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const formattedScheduledDate = formatISO(scheduledDate);
+        return yield* reqEffect<
+          ScheduledDateSendingRequest,
+          GroupMessageResponse
+        >({
+          httpMethod: 'POST',
+          url: `messages/v4/groups/${groupId}/schedule`,
+          body: {
+            scheduledDate: formattedScheduledDate,
+          },
+        });
+      }),
+    );
   }
 
   /**
@@ -123,10 +157,15 @@ export default class GroupService extends DefaultService {
   async removeReservationToGroup(
     groupId: GroupId,
   ): Promise<GroupMessageResponse> {
-    return this.request<never, GroupMessageResponse>({
-      httpMethod: 'DELETE',
-      url: `messages/v4/groups/${groupId}/schedule`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<never, GroupMessageResponse>({
+          httpMethod: 'DELETE',
+          url: `messages/v4/groups/${groupId}/schedule`,
+        });
+      }),
+    );
   }
 
   /**
@@ -134,18 +173,20 @@ export default class GroupService extends DefaultService {
    * @param data 그룹 정보 상세 조회용 request 데이터
    */
   async getGroups(data?: GetGroupsRequest): Promise<GetGroupsResponse> {
-    let payload: GetGroupsFinalizeRequest = {};
-    if (data) {
-      payload = new GetGroupsFinalizeRequest(data);
-    }
-    const parameter = stringifyQuery(payload, {
-      indices: false,
-      addQueryPrefix: true,
-    });
-    return this.request<never, GetGroupsResponse>({
-      httpMethod: 'GET',
-      url: `messages/v4/groups${parameter}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const payload = finalizeGetGroupsRequest(data);
+        const parameter = stringifyQuery(payload, {
+          indices: false,
+          addQueryPrefix: true,
+        });
+        return yield* reqEffect<never, GetGroupsResponse>({
+          httpMethod: 'GET',
+          url: `messages/v4/groups${parameter}`,
+        });
+      }),
+    );
   }
 
   /**
@@ -153,10 +194,15 @@ export default class GroupService extends DefaultService {
    * @param groupId 그룹 ID
    */
   async getGroup(groupId: GroupId): Promise<GroupMessageResponse> {
-    return this.request<never, GroupMessageResponse>({
-      httpMethod: 'GET',
-      url: `messages/v4/groups/${groupId}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<never, GroupMessageResponse>({
+          httpMethod: 'GET',
+          url: `messages/v4/groups/${groupId}`,
+        });
+      }),
+    );
   }
 
   /**
@@ -168,14 +214,19 @@ export default class GroupService extends DefaultService {
     groupId: GroupId,
     data?: GetGroupMessagesRequest,
   ): Promise<GetMessagesResponse> {
-    const parameter = stringifyQuery(data, {
-      indices: false,
-      addQueryPrefix: true,
-    });
-    return this.request<never, GetMessagesResponse>({
-      httpMethod: 'GET',
-      url: `messages/v4/groups/${groupId}/messages${parameter}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const parameter = stringifyQuery(data, {
+          indices: false,
+          addQueryPrefix: true,
+        });
+        return yield* reqEffect<never, GetMessagesResponse>({
+          httpMethod: 'GET',
+          url: `messages/v4/groups/${groupId}/messages${parameter}`,
+        });
+      }),
+    );
   }
 
   /**
@@ -187,14 +238,19 @@ export default class GroupService extends DefaultService {
     groupId: GroupId,
     messageIds: Array<string>,
   ): Promise<RemoveGroupMessagesResponse> {
-    return this.request<
-      RemoveMessageIdsToGroupRequest,
-      RemoveGroupMessagesResponse
-    >({
-      httpMethod: 'DELETE',
-      url: `messages/v4/groups/${groupId}/messages`,
-      body: {messageIds},
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<
+          RemoveMessageIdsToGroupRequest,
+          RemoveGroupMessagesResponse
+        >({
+          httpMethod: 'DELETE',
+          url: `messages/v4/groups/${groupId}/messages`,
+          body: {messageIds},
+        });
+      }),
+    );
   }
 
   /**
@@ -202,9 +258,14 @@ export default class GroupService extends DefaultService {
    * @param groupId
    */
   async removeGroup(groupId: GroupId): Promise<GroupMessageResponse> {
-    return this.request<never, GroupMessageResponse>({
-      httpMethod: 'DELETE',
-      url: `messages/v4/groups/${groupId}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<never, GroupMessageResponse>({
+          httpMethod: 'DELETE',
+          url: `messages/v4/groups/${groupId}`,
+        });
+      }),
+    );
   }
 }

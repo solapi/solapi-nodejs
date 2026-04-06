@@ -1,9 +1,11 @@
+import {runSafePromise} from '@lib/effectErrorHandler';
 import fileToBase64 from '@lib/fileToBase64';
 import {
   FileType,
   FileUploadRequest,
 } from '@models/requests/messages/groupMessageRequest';
 import {FileUploadResponse} from '@models/responses/messageResponses';
+import * as Effect from 'effect/Effect';
 import DefaultService from '../defaultService';
 
 export default class StorageService extends DefaultService {
@@ -25,17 +27,26 @@ export default class StorageService extends DefaultService {
     name?: string,
     link?: string,
   ): Promise<FileUploadResponse> {
-    const encodedFile = await fileToBase64(filePath);
-    const parameter: FileUploadRequest = {
-      file: encodedFile,
-      type: fileType,
-      name,
-      link,
-    };
-    return this.request<FileUploadRequest, FileUploadResponse>({
-      httpMethod: 'POST',
-      url: 'storage/v1/files',
-      body: parameter,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const encodedFile = yield* Effect.tryPromise({
+          try: () => fileToBase64(filePath),
+          catch: error =>
+            error instanceof Error ? error : new Error(String(error)),
+        });
+        const parameter: FileUploadRequest = {
+          file: encodedFile,
+          type: fileType,
+          name,
+          link,
+        };
+        return yield* reqEffect<FileUploadRequest, FileUploadResponse>({
+          httpMethod: 'POST',
+          url: 'storage/v1/files',
+          body: parameter,
+        });
+      }),
+    );
   }
 }

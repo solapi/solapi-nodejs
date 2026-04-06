@@ -1,76 +1,69 @@
-import {GroupId} from '@internal-types/commonTypes';
 import {formatWithTransfer} from '@lib/stringDateTrasnfer';
-import {MessageType} from '../../base/messages/message';
+import {Schema} from 'effect';
+import {messageTypeSchema} from '../../base/messages/message';
 
-export type DateType = 'CREATED' | 'UPDATED';
+export const dateTypeSchema = Schema.Literal('CREATED', 'UPDATED');
+export type DateType = Schema.Schema.Type<typeof dateTypeSchema>;
 
-type BaseGetMessagesRequest = {
+const baseGetMessagesRequestSchema = Schema.Struct({
+  startKey: Schema.optional(Schema.String),
+  limit: Schema.optional(Schema.Number),
+  messageId: Schema.optional(Schema.String),
+  messageIds: Schema.optional(Schema.Array(Schema.String)),
+  groupId: Schema.optional(Schema.String),
+  to: Schema.optional(Schema.String),
+  from: Schema.optional(Schema.String),
+  type: Schema.optional(messageTypeSchema),
+  statusCode: Schema.optional(Schema.String),
+  dateType: Schema.optional(dateTypeSchema),
+  startDate: Schema.optional(Schema.Union(Schema.String, Schema.DateFromSelf)),
+  endDate: Schema.optional(Schema.Union(Schema.String, Schema.DateFromSelf)),
+});
+
+export const getMessagesRequestSchema = baseGetMessagesRequestSchema;
+export type GetMessagesRequest = Schema.Schema.Type<
+  typeof getMessagesRequestSchema
+>;
+
+export type GetMessagesFinalizedPayload = {
   startKey?: string;
   limit?: number;
+  dateType?: DateType;
   messageId?: string;
-  messageIds?: Array<string>;
-  groupId?: GroupId;
+  messageIds?: ReadonlyArray<string>;
+  groupId?: string;
   to?: string;
   from?: string;
-  type?: MessageType;
-  statusCode?: string;
-};
-
-type GetMessagesRequestWithoutDate = BaseGetMessagesRequest & {
-  dateType?: never;
-  startDate?: never;
-  endDate?: never;
-};
-
-type GetMessagesRequestWithStartDate = BaseGetMessagesRequest & {
-  dateType?: DateType;
-  startDate: string | Date;
-  endDate?: string | Date;
-};
-
-type GetMessagesRequestWithEndDate = BaseGetMessagesRequest & {
-  dateType?: DateType;
-  startDate?: string | Date;
-  endDate: string | Date;
-};
-
-export type GetMessagesRequest =
-  | GetMessagesRequestWithoutDate
-  | GetMessagesRequestWithStartDate
-  | GetMessagesRequestWithEndDate;
-
-export class GetMessagesFinalizeRequest {
-  startKey?: string;
-  limit?: number;
-  dateType?: DateType = 'CREATED';
-  messageId?: string;
-  messageIds?: Array<string>;
-  groupId?: GroupId;
-  to?: string;
-  from?: string;
-  type?: MessageType;
+  type?: string;
   statusCode?: string;
   startDate?: string;
   endDate?: string;
+};
 
-  constructor(parameter: GetMessagesRequest) {
-    this.startKey = parameter.startKey;
-    this.limit = parameter.limit;
-    if (parameter.dateType) {
-      this.dateType = parameter.dateType;
-    }
-    if (parameter.startDate) {
-      this.startDate = formatWithTransfer(parameter.startDate);
-    }
-    if (parameter.endDate) {
-      this.endDate = formatWithTransfer(parameter.endDate);
-    }
-    this.messageId = parameter.messageId;
-    this.messageIds = parameter.messageIds;
-    this.groupId = parameter.groupId;
-    this.to = parameter.to;
-    this.from = parameter.from;
-    this.type = parameter.type;
-    this.statusCode = parameter.statusCode;
+export function finalizeGetMessagesRequest(
+  data?: GetMessagesRequest,
+): GetMessagesFinalizedPayload {
+  if (!data) return {};
+
+  const payload: GetMessagesFinalizedPayload = {
+    startKey: data.startKey,
+    limit: data.limit,
+    dateType: data.dateType ?? 'CREATED',
+    messageId: data.messageId,
+    messageIds: data.messageIds,
+    groupId: data.groupId,
+    to: data.to,
+    from: data.from,
+    type: data.type,
+    statusCode: data.statusCode,
+  };
+
+  if (data.startDate != null) {
+    payload.startDate = formatWithTransfer(data.startDate);
   }
+  if (data.endDate != null) {
+    payload.endDate = formatWithTransfer(data.endDate);
+  }
+
+  return payload;
 }

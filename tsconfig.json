@@ -1,6 +1,8 @@
 {
   "include": ["src/**/*", "test/**/*"],
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+
     /* Language and Environment */
     "target": "ES2022",
     "lib": ["ES2022"],

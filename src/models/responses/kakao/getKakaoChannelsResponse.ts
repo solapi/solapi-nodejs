@@ -1,13 +1,13 @@
 import {
-  KakaoChannel,
-  KakaoChannelInterface,
+  type KakaoChannel,
+  type KakaoChannelSchema,
 } from '../../base/kakao/kakaoChannel';
 
 export type GetKakaoChannelsResponse = {
   limit: number;
   startKey: string;
   nextKey: string | null;
-  channelList: Array<KakaoChannelInterface>;
+  channelList: Array<KakaoChannelSchema>;
 };
 
 export type GetKakaoChannelsFinalizeResponse = {

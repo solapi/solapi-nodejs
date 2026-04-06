@@ -5,6 +5,7 @@
     "ignoreUnknown": false,
     "includes": [
       "**",
+      "!dist/**",
       "!docs/**/*",
       "!**/.yarn/**",
       "!**/.pnp.*",

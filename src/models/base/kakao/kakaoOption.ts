@@ -1,6 +1,6 @@
 import {runSafeSync} from '@lib/effectErrorHandler';
 import {Data, Effect, Array as EffectArray, pipe, Schema} from 'effect';
-import {kakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
+import {type KakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
 import {
   bmsButtonSchema,
   bmsCarouselCommerceSchema,
@@ -212,7 +212,7 @@ export class KakaoOption {
   buttons?: ReadonlyArray<KakaoButton>;
   imageId?: string;
 
-  constructor(parameter: kakaoOptionRequest) {
+  constructor(parameter: KakaoOptionRequest) {
     this.pfId = parameter.pfId;
     this.templateId = parameter.templateId;
     this.variables = parameter.variables;

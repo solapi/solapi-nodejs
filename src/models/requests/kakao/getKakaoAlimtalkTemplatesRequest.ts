@@ -1,107 +1,75 @@
 import {formatWithTransfer} from '@lib/stringDateTrasnfer';
-import {KakaoAlimtalkTemplateStatus} from '../../base/kakao/kakaoAlimtalkTemplate';
-import {DatePayloadType} from '../common/datePayload';
+import {
+  type KakaoAlimtalkTemplateStatus,
+  kakaoAlimtalkTemplateStatusSchema,
+} from '@models/base/kakao/kakaoAlimtalkTemplate';
+import {Schema} from 'effect';
+import {type DatePayloadType} from '../common/datePayload';
 
-type GetKakaoAlimtalkTemplatesNameType =
-  | {
-      eq?: string;
-      ne?: string;
-      like?: never;
-    }
-  | {
-      eq?: never;
-      ne?: never;
-      like: string;
-    };
+const alimtalkTemplatesNameTypeSchema = Schema.Union(
+  Schema.String,
+  Schema.Struct({
+    eq: Schema.optional(Schema.String),
+    ne: Schema.optional(Schema.String),
+    like: Schema.optional(Schema.String),
+  }),
+);
 
-/**
- * @name GetKakaoAlimtalkTemplatesRequest
- * @description 카카오 알림톡 조회를 위한 요청 타입
- */
-export interface GetKakaoAlimtalkTemplatesRequest {
-  /**
-   * @description 알림톡 템플릿 제목
-   * 주의! like 프로퍼티가 들어가는 경우 eq와 ne는 무시됩니다.
-   */
-  name?: GetKakaoAlimtalkTemplatesNameType | string;
+export const getKakaoAlimtalkTemplatesRequestSchema = Schema.Struct({
+  name: Schema.optional(alimtalkTemplatesNameTypeSchema),
+  channelId: Schema.optional(Schema.String),
+  templateId: Schema.optional(Schema.String),
+  isHidden: Schema.optional(Schema.Boolean),
+  status: Schema.optional(kakaoAlimtalkTemplateStatusSchema),
+  startKey: Schema.optional(Schema.String),
+  limit: Schema.optional(Schema.Number),
+  startDate: Schema.optional(Schema.Union(Schema.String, Schema.DateFromSelf)),
+  endDate: Schema.optional(Schema.Union(Schema.String, Schema.DateFromSelf)),
+});
+export type GetKakaoAlimtalkTemplatesRequest = Schema.Schema.Type<
+  typeof getKakaoAlimtalkTemplatesRequestSchema
+>;
 
-  /**
-   * @description 카카오 비즈니스 채널 ID
-   */
-  channelId?: string;
-
-  /**
-   * @description 카카오 알림톡 템플릿 ID
-   */
-  templateId?: string;
-
-  /**
-   * @description 숨긴 템플릿 여부 확인
-   */
-  isHidden?: boolean;
-
-  /**
-   * @description 알림톡 템플릿 상태
-   */
-  status?: KakaoAlimtalkTemplateStatus;
-
-  /**
-   * @description 페이지네이션 조회 키
-   */
-  startKey?: string;
-
-  /**
-   * @description 조회 시 제한할 건 수 (기본: 20, 최대: 500)
-   */
-  limit?: number;
-
-  /**
-   * @description 조회할 시작 날짜
-   */
-  startDate?: string | Date;
-
-  /**
-   * @description 조회할 종료 날짜
-   */
-  endDate?: string | Date;
-}
-
-export class GetKakaoAlimtalkTemplatesFinalizeRequest {
+export type GetKakaoAlimtalkTemplatesFinalizedPayload = {
   channelId?: string;
   isHidden?: boolean;
   limit?: number;
-  name?: GetKakaoAlimtalkTemplatesNameType | string;
+  name?: {eq?: string; ne?: string; like?: string} | string;
   startKey?: string;
   status?: KakaoAlimtalkTemplateStatus;
   templateId?: string;
   dateCreated?: DatePayloadType;
+};
 
-  constructor(parameter: GetKakaoAlimtalkTemplatesRequest) {
-    this.channelId = parameter.channelId;
-    this.isHidden = parameter.isHidden;
-    this.templateId = parameter.templateId;
-    if (parameter.name != undefined) {
-      if (typeof parameter.name == 'string') {
-        this.name = {
-          like: parameter.name,
-        };
-      } else if (typeof parameter.name == 'object') {
-        this.name = parameter.name;
-      }
-    }
-    this.startKey = parameter.startKey;
-    this.status = parameter.status;
-    this.limit = parameter.limit;
+export function finalizeGetKakaoAlimtalkTemplatesRequest(
+  data?: GetKakaoAlimtalkTemplatesRequest,
+): GetKakaoAlimtalkTemplatesFinalizedPayload {
+  if (!data) return {};
 
-    if (parameter.startDate != undefined) {
-      this.dateCreated = Object.assign(this.dateCreated ?? {}, {
-        gte: formatWithTransfer(parameter.startDate),
-      });
-    }
-    if (parameter.endDate != undefined) {
-      this.dateCreated = Object.assign(this.dateCreated ?? {}, {
-        lte: formatWithTransfer(parameter.endDate),
-      });
-    }
+  const payload: GetKakaoAlimtalkTemplatesFinalizedPayload = {
+    channelId: data.channelId,
+    isHidden: data.isHidden,
+    templateId: data.templateId,
+    startKey: data.startKey,
+    status: data.status,
+    limit: data.limit,
+  };
+
+  if (data.name != null) {
+    payload.name =
+      typeof data.name === 'string' ? {like: data.name} : data.name;
   }
+
+  if (data.startDate != null) {
+    payload.dateCreated = Object.assign(payload.dateCreated ?? {}, {
+      gte: formatWithTransfer(data.startDate),
+    });
+  }
+  if (data.endDate != null) {
+    payload.dateCreated = Object.assign(payload.dateCreated ?? {}, {
+      lte: formatWithTransfer(data.endDate),
+    });
+  }
+
+  return payload;
 }

@@ -1,19 +1,21 @@
+import {runSafePromise} from '@lib/effectErrorHandler';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
-  GetBlacksFinalizeRequest,
-  GetBlacksRequest,
+  finalizeGetBlacksRequest,
+  type GetBlacksRequest,
 } from '@models/requests/iam/getBlacksRequest';
 import {
-  GetBlockGroupsFinalizeRequest,
-  GetBlockGroupsRequest,
+  finalizeGetBlockGroupsRequest,
+  type GetBlockGroupsRequest,
 } from '@models/requests/iam/getBlockGroupsRequest';
 import {
-  GetBlockNumbersFinalizeRequest,
-  GetBlockNumbersRequest,
+  finalizeGetBlockNumbersRequest,
+  type GetBlockNumbersRequest,
 } from '@models/requests/iam/getBlockNumbersRequest';
 import {GetBlacksResponse} from '@models/responses/iam/getBlacksResponse';
 import {GetBlockGroupsResponse} from '@models/responses/iam/getBlockGroupsResponse';
 import {GetBlockNumbersResponse} from '@models/responses/iam/getBlockNumbersResponse';
+import * as Effect from 'effect/Effect';
 import DefaultService from '../defaultService';
 
 export default class IamService extends DefaultService {
@@ -27,18 +29,20 @@ export default class IamService extends DefaultService {
    * @returns GetBlacksResponse
    */
   async getBlacks(data?: GetBlacksRequest): Promise<GetBlacksResponse> {
-    let payload: GetBlacksFinalizeRequest = {type: 'DENIAL'};
-    if (data) {
-      payload = new GetBlacksFinalizeRequest(data);
-    }
-    const parameter = stringifyQuery(payload, {
-      indices: false,
-      addQueryPrefix: true,
-    });
-    return this.request<never, GetBlacksResponse>({
-      httpMethod: 'GET',
-      url: `iam/v1/black${parameter}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const payload = finalizeGetBlacksRequest(data);
+        const parameter = stringifyQuery(payload, {
+          indices: false,
+          addQueryPrefix: true,
+        });
+        return yield* reqEffect<never, GetBlacksResponse>({
+          httpMethod: 'GET',
+          url: `iam/v1/black${parameter}`,
+        });
+      }),
+    );
   }
 
   /**
@@ -49,18 +53,20 @@ export default class IamService extends DefaultService {
   async getBlockGroups(
     data?: GetBlockGroupsRequest,
   ): Promise<GetBlockGroupsResponse> {
-    let payload: GetBlockGroupsFinalizeRequest = {};
-    if (data) {
-      payload = new GetBlockGroupsFinalizeRequest(data);
-    }
-    const parameter = stringifyQuery(payload, {
-      indices: false,
-      addQueryPrefix: true,
-    });
-    return this.request<never, GetBlockGroupsResponse>({
-      httpMethod: 'GET',
-      url: `iam/v1/block/groups${parameter}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const payload = finalizeGetBlockGroupsRequest(data);
+        const parameter = stringifyQuery(payload, {
+          indices: false,
+          addQueryPrefix: true,
+        });
+        return yield* reqEffect<never, GetBlockGroupsResponse>({
+          httpMethod: 'GET',
+          url: `iam/v1/block/groups${parameter}`,
+        });
+      }),
+    );
   }
 
   /**
@@ -71,17 +77,19 @@ export default class IamService extends DefaultService {
   async getBlockNumbers(
     data?: GetBlockNumbersRequest,
   ): Promise<GetBlockNumbersResponse> {
-    let payload: GetBlockNumbersFinalizeRequest = {};
-    if (data) {
-      payload = new GetBlockNumbersFinalizeRequest(data);
-    }
-    const parameter = stringifyQuery(payload, {
-      indices: false,
-      addQueryPrefix: true,
-    });
-    return this.request<never, GetBlockNumbersResponse>({
-      httpMethod: 'GET',
-      url: `iam/v1/block/numbers${parameter}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const payload = finalizeGetBlockNumbersRequest(data);
+        const parameter = stringifyQuery(payload, {
+          indices: false,
+          addQueryPrefix: true,
+        });
+        return yield* reqEffect<never, GetBlockNumbersResponse>({
+          httpMethod: 'GET',
+          url: `iam/v1/block/numbers${parameter}`,
+        });
+      }),
+    );
   }
 }
