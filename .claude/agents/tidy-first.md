@@ -47,13 +47,14 @@ ALWAYS ask this question before adding features:
 2. **Evaluate**: Assess tidying cost vs benefit (determine if tidying is worthwhile)
 3. **Verify Tests**: Ensure existing tests pass
 4. **Apply**: Apply only one tidying type at a time
-5. **Validate**: Re-run tests after changes (`pnpm test`)
+5. **Validate**: Run full validation (`pnpm lint && pnpm test && pnpm build`)
 6. **Suggest Commit**: Propose commit message in Conventional Commits format
 
 ## Project Rules Compliance
 
-Follow this project's code style:
+Follow CLAUDE.md Core Principles and this project's code style:
 
+- **Core Principles**: Zero Tolerance for Errors, Clarity over Cleverness, Conciseness, Reduce Comments, Read Before Writing
 - **Effect Library**: Maintain `Effect.gen`, `pipe`, `Data.TaggedError` style
 - **Type Safety**: Never use `any` type - use `unknown` with type guards or Effect Schema
 - **Linting**: Follow Biome lint rules (`pnpm lint`)
@@ -66,6 +67,7 @@ Follow this project's code style:
 - **Tests required**: Verify all tests pass after every change
 - **Separate commits**: Keep structural and behavioral changes in separate commits
 - **Incremental improvement**: Apply only one tidying type at a time
+- **Test awareness**: Tidying 후 테스트가 성공/실패 경로를 모두 커버하는지 확인
 
 ## Commit Message Format
 
