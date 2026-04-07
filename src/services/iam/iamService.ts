@@ -1,44 +1,53 @@
+import {runSafePromise} from '@lib/effectErrorHandler';
+import {decodeWithBadRequest, safeFinalize} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
-  GetBlacksFinalizeRequest,
-  GetBlacksRequest,
+  finalizeGetBlacksRequest,
+  type GetBlacksRequest,
+  getBlacksRequestSchema,
 } from '@models/requests/iam/getBlacksRequest';
 import {
-  GetBlockGroupsFinalizeRequest,
-  GetBlockGroupsRequest,
+  finalizeGetBlockGroupsRequest,
+  type GetBlockGroupsRequest,
+  getBlockGroupsRequestSchema,
 } from '@models/requests/iam/getBlockGroupsRequest';
 import {
-  GetBlockNumbersFinalizeRequest,
-  GetBlockNumbersRequest,
+  finalizeGetBlockNumbersRequest,
+  type GetBlockNumbersRequest,
+  getBlockNumbersRequestSchema,
 } from '@models/requests/iam/getBlockNumbersRequest';
 import {GetBlacksResponse} from '@models/responses/iam/getBlacksResponse';
 import {GetBlockGroupsResponse} from '@models/responses/iam/getBlockGroupsResponse';
 import {GetBlockNumbersResponse} from '@models/responses/iam/getBlockNumbersResponse';
+import * as Effect from 'effect/Effect';
 import DefaultService from '../defaultService';
 
 export default class IamService extends DefaultService {
-  constructor(apiKey: string, apiSecret: string) {
-    super(apiKey, apiSecret);
-  }
-
   /**
    * 080 수신 거부 조회
    * @param data 080 수신 거부 상세 조회용 request 데이터
    * @returns GetBlacksResponse
    */
   async getBlacks(data?: GetBlacksRequest): Promise<GetBlacksResponse> {
-    let payload: GetBlacksFinalizeRequest = {type: 'DENIAL'};
-    if (data) {
-      payload = new GetBlacksFinalizeRequest(data);
-    }
-    const parameter = stringifyQuery(payload, {
-      indices: false,
-      addQueryPrefix: true,
-    });
-    return this.request<never, GetBlacksResponse>({
-      httpMethod: 'GET',
-      url: `iam/v1/black${parameter}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const validated = data
+          ? yield* decodeWithBadRequest(getBlacksRequestSchema, data)
+          : undefined;
+        const payload = yield* safeFinalize(() =>
+          finalizeGetBlacksRequest(validated),
+        );
+        const parameter = stringifyQuery(payload, {
+          indices: false,
+          addQueryPrefix: true,
+        });
+        return yield* reqEffect<never, GetBlacksResponse>({
+          httpMethod: 'GET',
+          url: `iam/v1/black${parameter}`,
+        });
+      }),
+    );
   }
 
   /**
@@ -49,18 +58,25 @@ export default class IamService extends DefaultService {
   async getBlockGroups(
     data?: GetBlockGroupsRequest,
   ): Promise<GetBlockGroupsResponse> {
-    let payload: GetBlockGroupsFinalizeRequest = {};
-    if (data) {
-      payload = new GetBlockGroupsFinalizeRequest(data);
-    }
-    const parameter = stringifyQuery(payload, {
-      indices: false,
-      addQueryPrefix: true,
-    });
-    return this.request<never, GetBlockGroupsResponse>({
-      httpMethod: 'GET',
-      url: `iam/v1/block/groups${parameter}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const validated = data
+          ? yield* decodeWithBadRequest(getBlockGroupsRequestSchema, data)
+          : undefined;
+        const payload = yield* safeFinalize(() =>
+          finalizeGetBlockGroupsRequest(validated),
+        );
+        const parameter = stringifyQuery(payload, {
+          indices: false,
+          addQueryPrefix: true,
+        });
+        return yield* reqEffect<never, GetBlockGroupsResponse>({
+          httpMethod: 'GET',
+          url: `iam/v1/block/groups${parameter}`,
+        });
+      }),
+    );
   }
 
   /**
@@ -71,17 +87,24 @@ export default class IamService extends DefaultService {
   async getBlockNumbers(
     data?: GetBlockNumbersRequest,
   ): Promise<GetBlockNumbersResponse> {
-    let payload: GetBlockNumbersFinalizeRequest = {};
-    if (data) {
-      payload = new GetBlockNumbersFinalizeRequest(data);
-    }
-    const parameter = stringifyQuery(payload, {
-      indices: false,
-      addQueryPrefix: true,
-    });
-    return this.request<never, GetBlockNumbersResponse>({
-      httpMethod: 'GET',
-      url: `iam/v1/block/numbers${parameter}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const validated = data
+          ? yield* decodeWithBadRequest(getBlockNumbersRequestSchema, data)
+          : undefined;
+        const payload = yield* safeFinalize(() =>
+          finalizeGetBlockNumbersRequest(validated),
+        );
+        const parameter = stringifyQuery(payload, {
+          indices: false,
+          addQueryPrefix: true,
+        });
+        return yield* reqEffect<never, GetBlockNumbersResponse>({
+          httpMethod: 'GET',
+          url: `iam/v1/block/numbers${parameter}`,
+        });
+      }),
+    );
   }
 }

@@ -17,12 +17,13 @@ export function formatWithTransfer(value: string | Date): string {
  */
 export default function stringDateTransfer(value: string | Date): Date {
   if (typeof value === 'string') {
-    value = parseISO(value);
+    const originalString = value;
+    value = parseISO(originalString);
     const invalidDateText = 'Invalid Date';
     if (value.toString() === invalidDateText) {
       throw new InvalidDateError({
         message: invalidDateText,
-        originalValue: typeof value === 'string' ? value : undefined,
+        originalValue: originalString,
       });
     }
   }

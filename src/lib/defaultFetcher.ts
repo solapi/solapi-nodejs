@@ -1,5 +1,6 @@
 import {Data, Effect, Match, pipe, Schedule} from 'effect';
 import {
+  ApiKeyError,
   ClientError,
   DefaultError,
   ErrorResponse,
@@ -23,12 +24,18 @@ const handleOkResponse = <R>(res: Response) =>
   Effect.tryPromise({
     try: async (): Promise<R> => {
       const responseText = await res.text();
-      return responseText ? JSON.parse(responseText) : ({} as R);
+      if (!responseText) {
+        if (res.status === 204) {
+          return {} as R;
+        }
+        throw new Error('API returned empty response body');
+      }
+      return JSON.parse(responseText) as R;
     },
     catch: e =>
       new DefaultError({
         errorCode: 'ParseError',
-        errorMessage: (e as Error).message,
+        errorMessage: e instanceof Error ? e.message : String(e),
         context: {
           responseStatus: res.status,
           responseUrl: res.url,
@@ -43,7 +50,7 @@ const handleClientErrorResponse = (res: Response) =>
       catch: e =>
         new DefaultError({
           errorCode: 'ParseError',
-          errorMessage: (e as Error).message,
+          errorMessage: e instanceof Error ? e.message : String(e),
           context: {
             responseStatus: res.status,
             responseUrl: res.url,
@@ -69,7 +76,7 @@ const handleServerErrorResponse = (res: Response) =>
       catch: e =>
         new DefaultError({
           errorCode: 'ResponseReadError',
-          errorMessage: (e as Error).message,
+          errorMessage: e instanceof Error ? e.message : String(e),
           context: {
             responseStatus: res.status,
             responseUrl: res.url,
@@ -93,8 +100,22 @@ const handleServerErrorResponse = (res: Response) =>
             }),
           );
         }
-      } catch {
-        // JSON 파싱 실패 시 무시하고 fallback
+      } catch (parseError) {
+        // SyntaxError(JSON 파싱 실패)는 fallback으로 진행, 그 외 예외는 즉시 반환
+        if (!(parseError instanceof SyntaxError)) {
+          return Effect.fail(
+            new ServerError({
+              errorCode: 'ResponseParseError',
+              errorMessage:
+                parseError instanceof Error
+                  ? parseError.message
+                  : String(parseError),
+              httpStatus: res.status,
+              url: res.url,
+              responseBody: isProduction ? undefined : text,
+            }),
+          );
+        }
       }
 
       // JSON이 아니거나 필드가 없는 경우
@@ -111,92 +132,94 @@ const handleServerErrorResponse = (res: Response) =>
   );
 
 /**
- * 공용 API 클라이언트 함수
- * @throws DefaultError 발송 실패 등 API 상의 다양한 오류를 표시합니다.
- * @param authParameter API 인증을 위한 파라미터
- * @param request API URI, HTTP method 정의
- * @param data API에 요청할 request body 데이터
+ * raw Effect를 반환하는 API 클라이언트 함수 (서비스 레이어에서 Effect 합성용)
  */
-export default async function defaultFetcher<T, R>(
+export function defaultFetcherEffect<T, R>(
   authParameter: AuthenticationParameter,
   request: DefaultRequest,
   data?: T,
-): Promise<R> {
-  const authorizationHeaderData = getAuthInfo(authParameter);
+): Effect.Effect<
+  R,
+  ApiKeyError | ClientError | ServerError | NetworkError | DefaultError
+> {
+  const effect = Effect.gen(function* () {
+    const authorizationHeaderData = yield* Effect.try({
+      try: () => getAuthInfo(authParameter),
+      catch: e =>
+        e instanceof ApiKeyError
+          ? e
+          : new DefaultError({
+              errorCode: 'AuthError',
+              errorMessage: e instanceof Error ? e.message : String(e),
+            }),
+    });
 
-  const effect = Effect.gen(function* (_) {
-    const body = yield* _(
-      Effect.try({
-        try: () => (data ? JSON.stringify(data) : undefined),
-        catch: e =>
-          new DefaultError({
-            errorCode: 'JSONStringifyError',
-            errorMessage: (e as Error).message,
-            context: {
-              data,
-            },
-          }),
-      }),
-    );
+    const body = yield* Effect.try({
+      try: () => (data ? JSON.stringify(data) : undefined),
+      catch: e =>
+        new DefaultError({
+          errorCode: 'JSONStringifyError',
+          errorMessage: e instanceof Error ? e.message : String(e),
+          context: {
+            data,
+          },
+        }),
+    });
 
-    const response = yield* _(
-      Effect.tryPromise({
-        try: () =>
-          fetch(request.url, {
-            headers: {
-              Authorization: authorizationHeaderData,
-              'Content-Type': 'application/json',
-            },
-            body,
-            method: request.method,
-          }),
-        catch: (error: unknown) => {
-          if (error instanceof Error) {
-            const cause = error.cause;
-            const causeCode =
-              cause && typeof cause === 'object' && 'code' in cause
-                ? String(cause.code)
-                : '';
-            const message = (error.message + ' ' + causeCode).toLowerCase();
-            const isRetryable =
-              message.includes('aborted') ||
-              message.includes('refused') ||
-              message.includes('reset') ||
-              message.includes('econn');
-            if (isRetryable) {
-              return new RetryableError({error});
-            }
-            return new NetworkError({
-              url: request.url,
-              method: request.method,
-              cause: error.message,
-              isRetryable: false,
-            });
+    const response = yield* Effect.tryPromise({
+      try: () =>
+        fetch(request.url, {
+          headers: {
+            Authorization: authorizationHeaderData,
+            'Content-Type': 'application/json',
+          },
+          body,
+          method: request.method,
+        }),
+      catch: (error: unknown) => {
+        if (error instanceof Error) {
+          const cause = error.cause;
+          const causeCode =
+            cause && typeof cause === 'object' && 'code' in cause
+              ? String(cause.code)
+              : '';
+          const message = (error.message + ' ' + causeCode).toLowerCase();
+          const isRetryable =
+            message.includes('aborted') ||
+            message.includes('refused') ||
+            message.includes('reset') ||
+            message.includes('econn');
+          if (isRetryable) {
+            return new RetryableError({error});
           }
           return new NetworkError({
             url: request.url,
             method: request.method,
-            cause: String(error),
+            cause: error.message,
             isRetryable: false,
           });
-        },
-      }),
-    );
+        }
+        return new NetworkError({
+          url: request.url,
+          method: request.method,
+          cause: String(error),
+          isRetryable: false,
+        });
+      },
+    });
 
-    return yield* _(
-      pipe(
-        Match.value(response),
-        Match.when(
-          res => res.status === 503,
-          () => Effect.fail(new RetryableError({error: 'Service Unavailable'})),
-        ),
-        Match.when(
-          res => res.status >= 400 && res.status < 500,
-          handleClientErrorResponse,
-        ),
-        Match.when(res => !res.ok, handleServerErrorResponse),
-        Match.orElse(handleOkResponse<R>),
+    return yield* pipe(
+      Match.value(response),
+      Match.when(
+        res => res.status === 503,
+        () => Effect.fail(new RetryableError({error: 'Service Unavailable'})),
       ),
+      Match.when(
+        res => res.status >= 400 && res.status < 500,
+        handleClientErrorResponse,
+      ),
+      Match.when(res => !res.ok, handleServerErrorResponse),
+      Match.orElse(handleOkResponse<R>),
     );
   });
 
@@ -209,7 +232,7 @@ export default async function defaultFetcher<T, R>(
     ),
   );
 
-  const program = pipe(
+  return pipe(
     effect,
     Effect.retry(policy),
     Effect.catchTag('RetryableError', () =>
@@ -226,7 +249,21 @@ export default async function defaultFetcher<T, R>(
       ),
     ),
   );
+}
 
-  // runSafePromise를 사용하여 에러 포맷팅 적용
-  return runSafePromise(program);
+/**
+ * 공용 API 클라이언트 함수 (Promise 반환)
+ * @throws DefaultError 발송 실패 등 API 상의 다양한 오류를 표시합니다.
+ * @param authParameter API 인증을 위한 파라미터
+ * @param request API URI, HTTP method 정의
+ * @param data API에 요청할 request body 데이터
+ */
+export default async function defaultFetcher<T, R>(
+  authParameter: AuthenticationParameter,
+  request: DefaultRequest,
+  data?: T,
+): Promise<R> {
+  return runSafePromise(
+    defaultFetcherEffect<T, R>(authParameter, request, data),
+  );
 }

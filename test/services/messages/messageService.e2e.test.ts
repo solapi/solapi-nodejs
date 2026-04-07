@@ -3,15 +3,15 @@
  *
  * ## 환경변수 설정
  * 실제 테스트 실행을 위해서는 다음 환경 변수가 필요합니다:
- * - API_KEY: SOLAPI API 키
- * - API_SECRET: SOLAPI API 시크릿
- * - SENDER_NUMBER: SOLAPI에 등록된 발신번호 (fallback: 01000000000)
+ * - SOLAPI_API_KEY: SOLAPI API 키
+ * - SOLAPI_API_SECRET: SOLAPI API 시크릿
+ * - SOLAPI_SENDER: SOLAPI에 등록된 발신번호 (fallback: 01000000000)
  *
  * ## .env 파일 예시
  * ```
- * API_KEY=your_solapi_api_key_here
- * API_SECRET=your_solapi_api_secret_here
- * SENDER_NUMBER=01012345678
+ * SOLAPI_API_KEY=your_solapi_api_key_here
+ * SOLAPI_API_SECRET=your_solapi_api_secret_here
+ * SOLAPI_SENDER=01012345678
  * ```
  *
  * ## 테스트 특징
@@ -77,7 +77,7 @@ describe('MessageService E2E', () => {
     it.effect('should send SMS message', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -99,7 +99,7 @@ describe('MessageService E2E', () => {
     it.effect('should send LMS message', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
         const longText =
@@ -125,7 +125,7 @@ describe('MessageService E2E', () => {
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -162,7 +162,7 @@ describe('MessageService E2E', () => {
           const messageService = yield* MessageServiceTag;
           const kakaoChannelService = yield* KakaoChannelServiceTag;
           const kakaoTemplateService = yield* KakaoTemplateServiceTag;
-          const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+          const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
             Config.withDefault('01000000000'),
           );
 
@@ -220,7 +220,7 @@ describe('MessageService E2E', () => {
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -275,7 +275,7 @@ describe('MessageService E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -332,7 +332,7 @@ describe('MessageService E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const kakaoTemplateService = yield* KakaoTemplateServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -412,7 +412,7 @@ describe('MessageService E2E', () => {
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const groupService = yield* GroupServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
         const futureDate = new Date();
@@ -466,7 +466,7 @@ describe('MessageService E2E', () => {
     it.effect('should handle message validation errors', () =>
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 

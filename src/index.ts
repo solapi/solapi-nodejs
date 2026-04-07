@@ -9,7 +9,12 @@ import StorageService from '@services/storage/storageService';
 
 type Writable<T> = {-readonly [P in keyof T]: T[P]};
 
+// Errors
 export * from './errors/defaultError';
+// Models (base types, request types, response types, schemas)
+export * from './models/index';
+// Common Types & Schemas
+export * from './types/index';
 
 /**
  * SOLAPI 메시지 서비스
