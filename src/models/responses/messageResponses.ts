@@ -9,7 +9,7 @@ import {
   messageTypeRecordSchema,
 } from '@internal-types/commonTypes';
 import {Schema} from 'effect';
-import {messageTypeSchema} from '../base/messages/message';
+import {messageSchema, messageTypeSchema} from '../base/messages/message';
 
 export const singleMessageSentResponseSchema = Schema.Struct({
   groupId: Schema.String,
@@ -80,7 +80,7 @@ export const getMessagesResponseSchema = Schema.Struct({
   startKey: Schema.NullOr(Schema.String),
   nextKey: Schema.NullOr(Schema.String),
   limit: Schema.Number,
-  messageList: Schema.Record({key: Schema.String, value: Schema.Unknown}),
+  messageList: Schema.Record({key: Schema.String, value: messageSchema}),
 });
 export type GetMessagesResponse = Schema.Schema.Type<
   typeof getMessagesResponseSchema

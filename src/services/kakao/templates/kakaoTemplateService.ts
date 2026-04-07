@@ -6,6 +6,7 @@ import {
   type KakaoAlimtalkTemplate,
   type KakaoAlimtalkTemplateCategory,
   type KakaoAlimtalkTemplateSchema,
+  kakaoAlimtalkTemplateSchema,
 } from '@models/base/kakao/kakaoAlimtalkTemplate';
 import {type CreateKakaoAlimtalkTemplateRequest} from '@models/requests/kakao/createKakaoAlimtalkTemplateRequest';
 import {
@@ -89,7 +90,12 @@ export default class KakaoTemplateService extends DefaultService {
         });
 
         const templateList = yield* Effect.all(
-          response.templateList.map(decodeKakaoAlimtalkTemplate),
+          response.templateList.map(item =>
+            Effect.flatMap(
+              decodeWithBadRequest(kakaoAlimtalkTemplateSchema, item),
+              decodeKakaoAlimtalkTemplate,
+            ),
+          ),
         );
 
         return {

@@ -31,7 +31,36 @@ export const getMessagesRequestSchema = baseGetMessagesRequestSchema.pipe(
     return true;
   }),
 );
-export type GetMessagesRequest = Schema.Schema.Type<
+type BaseGetMessagesFields = Omit<
+  Schema.Schema.Type<typeof baseGetMessagesRequestSchema>,
+  'dateType' | 'startDate' | 'endDate'
+>;
+
+type GetMessagesRequestWithoutDate = BaseGetMessagesFields & {
+  dateType?: never;
+  startDate?: never;
+  endDate?: never;
+};
+
+type GetMessagesRequestWithStartDate = BaseGetMessagesFields & {
+  dateType?: DateType;
+  startDate: string | Date;
+  endDate?: string | Date;
+};
+
+type GetMessagesRequestWithEndDate = BaseGetMessagesFields & {
+  dateType?: DateType;
+  startDate?: string | Date;
+  endDate: string | Date;
+};
+
+export type GetMessagesRequest =
+  | GetMessagesRequestWithoutDate
+  | GetMessagesRequestWithStartDate
+  | GetMessagesRequestWithEndDate;
+
+// 스키마 디코딩 결과 타입 (런타임 검증 후 내부에서 사용)
+type GetMessagesRequestDecoded = Schema.Schema.Type<
   typeof getMessagesRequestSchema
 >;
 
@@ -51,7 +80,7 @@ export type GetMessagesFinalizedPayload = {
 };
 
 export function finalizeGetMessagesRequest(
-  data?: GetMessagesRequest,
+  data?: GetMessagesRequest | GetMessagesRequestDecoded,
 ): GetMessagesFinalizedPayload {
   if (!data) return {};
 
