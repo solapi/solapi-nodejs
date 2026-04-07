@@ -1,5 +1,5 @@
 import {runSafePromise} from '@lib/effectErrorHandler';
-import {decodeWithBadRequest} from '@lib/schemaUtils';
+import {decodeWithBadRequest, safeFinalize} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   finalizeGetMessagesRequest,
@@ -170,7 +170,9 @@ export default class MessageService extends DefaultService {
         const validated = data
           ? yield* decodeWithBadRequest(getMessagesRequestSchema, data)
           : undefined;
-        const payload = finalizeGetMessagesRequest(validated);
+        const payload = yield* safeFinalize(() =>
+          finalizeGetMessagesRequest(validated),
+        );
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,
@@ -197,7 +199,9 @@ export default class MessageService extends DefaultService {
         const validated = data
           ? yield* decodeWithBadRequest(getStatisticsRequestSchema, data)
           : undefined;
-        const payload = finalizeGetStatisticsRequest(validated);
+        const payload = yield* safeFinalize(() =>
+          finalizeGetStatisticsRequest(validated),
+        );
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,

@@ -1,4 +1,5 @@
 import {runSafePromise} from '@lib/effectErrorHandler';
+import {decodeWithBadRequest, safeFinalize} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   decodeKakaoAlimtalkTemplate,
@@ -10,6 +11,7 @@ import {type CreateKakaoAlimtalkTemplateRequest} from '@models/requests/kakao/cr
 import {
   finalizeGetKakaoAlimtalkTemplatesRequest,
   type GetKakaoAlimtalkTemplatesRequest,
+  getKakaoAlimtalkTemplatesRequestSchema,
 } from '@models/requests/kakao/getKakaoAlimtalkTemplatesRequest';
 import {type UpdateKakaoAlimtalkTemplateRequest} from '@models/requests/kakao/updateKakaoAlimtalkTemplateRequest';
 import {
@@ -73,7 +75,15 @@ export default class KakaoTemplateService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const payload = finalizeGetKakaoAlimtalkTemplatesRequest(data);
+        const validated = data
+          ? yield* decodeWithBadRequest(
+              getKakaoAlimtalkTemplatesRequestSchema,
+              data,
+            )
+          : undefined;
+        const payload = yield* safeFinalize(() =>
+          finalizeGetKakaoAlimtalkTemplatesRequest(validated),
+        );
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,

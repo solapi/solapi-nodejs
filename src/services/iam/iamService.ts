@@ -1,5 +1,5 @@
 import {runSafePromise} from '@lib/effectErrorHandler';
-import {decodeWithBadRequest} from '@lib/schemaUtils';
+import {decodeWithBadRequest, safeFinalize} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   finalizeGetBlacksRequest,
@@ -39,7 +39,9 @@ export default class IamService extends DefaultService {
         const validated = data
           ? yield* decodeWithBadRequest(getBlacksRequestSchema, data)
           : undefined;
-        const payload = finalizeGetBlacksRequest(validated);
+        const payload = yield* safeFinalize(() =>
+          finalizeGetBlacksRequest(validated),
+        );
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,
@@ -66,7 +68,9 @@ export default class IamService extends DefaultService {
         const validated = data
           ? yield* decodeWithBadRequest(getBlockGroupsRequestSchema, data)
           : undefined;
-        const payload = finalizeGetBlockGroupsRequest(validated);
+        const payload = yield* safeFinalize(() =>
+          finalizeGetBlockGroupsRequest(validated),
+        );
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,
@@ -93,7 +97,9 @@ export default class IamService extends DefaultService {
         const validated = data
           ? yield* decodeWithBadRequest(getBlockNumbersRequestSchema, data)
           : undefined;
-        const payload = finalizeGetBlockNumbersRequest(validated);
+        const payload = yield* safeFinalize(() =>
+          finalizeGetBlockNumbersRequest(validated),
+        );
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,

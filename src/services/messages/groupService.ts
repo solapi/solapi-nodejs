@@ -1,6 +1,6 @@
 import {GroupId} from '@internal-types/commonTypes';
 import {runSafePromise} from '@lib/effectErrorHandler';
-import {decodeWithBadRequest} from '@lib/schemaUtils';
+import {decodeWithBadRequest, safeFinalize} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   finalizeGetGroupsRequest,
@@ -175,7 +175,9 @@ export default class GroupService extends DefaultService {
         const validated = data
           ? yield* decodeWithBadRequest(getGroupsRequestSchema, data)
           : undefined;
-        const payload = finalizeGetGroupsRequest(validated);
+        const payload = yield* safeFinalize(() =>
+          finalizeGetGroupsRequest(validated),
+        );
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,

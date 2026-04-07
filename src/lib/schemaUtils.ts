@@ -1,7 +1,7 @@
 import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import {BadRequestError, InvalidDateError} from '../errors/defaultError';
-import stringDateTransfer from './stringDateTrasnfer';
+import stringDateTransfer, {formatWithTransfer} from './stringDateTrasnfer';
 
 /**
  * Schema 디코딩 + BadRequestError 변환을 결합한 Effect 헬퍼.
@@ -36,3 +36,33 @@ export const safeDateTransfer = (
               }),
       })
     : Effect.succeed(undefined);
+
+/**
+ * formatWithTransfer를 Effect로 감싸 InvalidDateError가 Defect가 되지 않도록 합니다.
+ */
+export const safeFormatWithTransfer = (
+  value: string | Date,
+): Effect.Effect<string, InvalidDateError> =>
+  Effect.try({
+    try: () => formatWithTransfer(value),
+    catch: error =>
+      error instanceof InvalidDateError
+        ? error
+        : new InvalidDateError({
+            message: error instanceof Error ? error.message : String(error),
+          }),
+  });
+
+/**
+ * finalize 함수 호출을 Effect로 감싸 InvalidDateError가 Defect가 되지 않도록 합니다.
+ */
+export const safeFinalize = <T>(
+  fn: () => T,
+): Effect.Effect<T, BadRequestError> =>
+  Effect.try({
+    try: fn,
+    catch: error =>
+      new BadRequestError({
+        message: error instanceof Error ? error.message : String(error),
+      }),
+  });

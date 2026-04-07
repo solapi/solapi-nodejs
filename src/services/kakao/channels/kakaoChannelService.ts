@@ -1,4 +1,5 @@
 import {runSafePromise} from '@lib/effectErrorHandler';
+import {decodeWithBadRequest, safeFinalize} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   decodeKakaoChannel,
@@ -13,6 +14,7 @@ import {
 import {
   finalizeGetKakaoChannelsRequest,
   type GetKakaoChannelsRequest,
+  getKakaoChannelsRequestSchema,
 } from '@models/requests/kakao/getKakaoChannelsRequest';
 import {
   type GetKakaoChannelsFinalizeResponse,
@@ -48,7 +50,12 @@ export default class KakaoChannelService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const payload = finalizeGetKakaoChannelsRequest(data);
+        const validated = data
+          ? yield* decodeWithBadRequest(getKakaoChannelsRequestSchema, data)
+          : undefined;
+        const payload = yield* safeFinalize(() =>
+          finalizeGetKakaoChannelsRequest(validated),
+        );
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,
