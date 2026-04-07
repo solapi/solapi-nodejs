@@ -61,7 +61,9 @@ export default class KakaoChannelService extends DefaultService {
           limit: response.limit,
           nextKey: response.nextKey,
           startKey: response.startKey,
-          channelList: response.channelList.map(decodeKakaoChannel),
+          channelList: yield* Effect.all(
+            response.channelList.map(decodeKakaoChannel),
+          ),
         };
       }),
     );
@@ -75,7 +77,7 @@ export default class KakaoChannelService extends DefaultService {
           httpMethod: 'GET',
           url: `kakao/v2/channels/${channelId}`,
         });
-        return decodeKakaoChannel(response);
+        return yield* decodeKakaoChannel(response);
       }),
     );
   }
@@ -124,7 +126,7 @@ export default class KakaoChannelService extends DefaultService {
           httpMethod: 'DELETE',
           url: `kakao/v2/channels/${channelId}`,
         });
-        return decodeKakaoChannel(response);
+        return yield* decodeKakaoChannel(response);
       }),
     );
   }

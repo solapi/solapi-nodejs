@@ -1,5 +1,6 @@
 import {Data, Effect, Match, pipe, Schedule} from 'effect';
 import {
+  ApiKeyError,
   ClientError,
   DefaultError,
   ErrorResponse,
@@ -117,10 +118,24 @@ export function defaultFetcherEffect<T, R>(
   authParameter: AuthenticationParameter,
   request: DefaultRequest,
   data?: T,
-): Effect.Effect<R, ClientError | ServerError | NetworkError | DefaultError> {
-  const authorizationHeaderData = getAuthInfo(authParameter);
-
+): Effect.Effect<
+  R,
+  ApiKeyError | ClientError | ServerError | NetworkError | DefaultError
+> {
   const effect = Effect.gen(function* (_) {
+    const authorizationHeaderData = yield* _(
+      Effect.try({
+        try: () => getAuthInfo(authParameter),
+        catch: e =>
+          e instanceof ApiKeyError
+            ? e
+            : new DefaultError({
+                errorCode: 'AuthError',
+                errorMessage: e instanceof Error ? e.message : String(e),
+              }),
+      }),
+    );
+
     const body = yield* _(
       Effect.try({
         try: () => (data ? JSON.stringify(data) : undefined),

@@ -3,6 +3,7 @@ import {defaultFetcherEffect} from '@lib/defaultFetcher';
 import {runSafePromise} from '@lib/effectErrorHandler';
 import * as Effect from 'effect/Effect';
 import type {
+  ApiKeyError,
   ClientError,
   DefaultError,
   NetworkError,
@@ -33,7 +34,10 @@ export default class DefaultService {
 
   protected requestEffect<T, R>(
     parameter: DefaultServiceParameter<T>,
-  ): Effect.Effect<R, ClientError | ServerError | NetworkError | DefaultError> {
+  ): Effect.Effect<
+    R,
+    ApiKeyError | ClientError | ServerError | NetworkError | DefaultError
+  > {
     const {httpMethod, url, body} = parameter;
     const requestConfig: RequestConfig = {
       method: httpMethod,

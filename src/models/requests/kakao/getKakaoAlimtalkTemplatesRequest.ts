@@ -6,12 +6,13 @@ import {
 import {Schema} from 'effect';
 import {type DatePayloadType} from '../common/datePayload';
 
+// eq/ne와 like는 상호 배타적
 const alimtalkTemplatesNameTypeSchema = Schema.Union(
   Schema.String,
+  Schema.Struct({like: Schema.String}),
   Schema.Struct({
     eq: Schema.optional(Schema.String),
     ne: Schema.optional(Schema.String),
-    like: Schema.optional(Schema.String),
   }),
 );
 

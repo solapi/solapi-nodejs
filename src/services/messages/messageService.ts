@@ -9,6 +9,7 @@ import {
 import {
   finalizeGetStatisticsRequest,
   type GetStatisticsRequest,
+  getStatisticsRequestSchema,
 } from '@models/requests/messages/getStatisticsRequest';
 import {
   SendRequestConfigSchema,
@@ -193,7 +194,10 @@ export default class MessageService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const payload = finalizeGetStatisticsRequest(data);
+        const validated = data
+          ? yield* decodeWithBadRequest(getStatisticsRequestSchema, data)
+          : undefined;
+        const payload = finalizeGetStatisticsRequest(validated);
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,

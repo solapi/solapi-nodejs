@@ -5,6 +5,7 @@ import stringifyQuery from '@lib/stringifyQuery';
 import {
   finalizeGetGroupsRequest,
   type GetGroupsRequest,
+  getGroupsRequestSchema,
 } from '@models/requests/messages/getGroupsRequest';
 import {
   CreateGroupRequest,
@@ -171,7 +172,10 @@ export default class GroupService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const payload = finalizeGetGroupsRequest(data);
+        const validated = data
+          ? yield* decodeWithBadRequest(getGroupsRequestSchema, data)
+          : undefined;
+        const payload = finalizeGetGroupsRequest(validated);
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,

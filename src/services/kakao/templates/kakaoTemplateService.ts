@@ -5,7 +5,6 @@ import {
   type KakaoAlimtalkTemplate,
   type KakaoAlimtalkTemplateCategory,
   type KakaoAlimtalkTemplateSchema,
-  kakaoAlimtalkTemplateSchema,
 } from '@models/base/kakao/kakaoAlimtalkTemplate';
 import {type CreateKakaoAlimtalkTemplateRequest} from '@models/requests/kakao/createKakaoAlimtalkTemplateRequest';
 import {
@@ -18,7 +17,6 @@ import {
   type GetKakaoAlimtalkTemplatesResponseSchema,
 } from '@models/responses/kakao/getKakaoAlimtalkTemplatesResponse';
 import {type GetKakaoTemplateResponse} from '@models/responses/kakao/getKakaoTemplateResponse';
-import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import DefaultService from '../../defaultService';
 
@@ -61,7 +59,7 @@ export default class KakaoTemplateService extends DefaultService {
           url: 'kakao/v2/templates',
           body: data,
         });
-        return decodeKakaoAlimtalkTemplate(response);
+        return yield* decodeKakaoAlimtalkTemplate(response);
       }),
     );
   }
@@ -88,18 +86,15 @@ export default class KakaoTemplateService extends DefaultService {
           url: `kakao/v2/templates${parameter}`,
         });
 
-        const processTemplate = (template: unknown) =>
-          Schema.decodeUnknown(kakaoAlimtalkTemplateSchema)(template);
-
-        const decodedTemplates = yield* Effect.all(
-          response.templateList.map(processTemplate),
+        const templateList = yield* Effect.all(
+          response.templateList.map(decodeKakaoAlimtalkTemplate),
         );
 
         return {
           limit: response.limit,
           nextKey: response.nextKey,
           startKey: response.startKey,
-          templateList: decodedTemplates.map(decodeKakaoAlimtalkTemplate),
+          templateList,
         };
       }),
     );
@@ -118,7 +113,7 @@ export default class KakaoTemplateService extends DefaultService {
           httpMethod: 'GET',
           url: `kakao/v2/templates/${templateId}`,
         });
-        return decodeKakaoAlimtalkTemplate(response);
+        return yield* decodeKakaoAlimtalkTemplate(response);
       }),
     );
   }
@@ -136,7 +131,7 @@ export default class KakaoTemplateService extends DefaultService {
           httpMethod: 'PUT',
           url: `kakao/v2/templates/${templateId}/inspection/cancel`,
         });
-        return decodeKakaoAlimtalkTemplate(response);
+        return yield* decodeKakaoAlimtalkTemplate(response);
       }),
     );
   }
@@ -159,7 +154,7 @@ export default class KakaoTemplateService extends DefaultService {
           url: `kakao/v2/templates/${templateId}`,
           body: data,
         });
-        return decodeKakaoAlimtalkTemplate(response);
+        return yield* decodeKakaoAlimtalkTemplate(response);
       }),
     );
   }
@@ -182,7 +177,7 @@ export default class KakaoTemplateService extends DefaultService {
           url: `kakao/v2/templates/${templateId}/name`,
           body: {name},
         });
-        return decodeKakaoAlimtalkTemplate(response);
+        return yield* decodeKakaoAlimtalkTemplate(response);
       }),
     );
   }
@@ -200,7 +195,7 @@ export default class KakaoTemplateService extends DefaultService {
           httpMethod: 'DELETE',
           url: `kakao/v2/templates/${templateId}`,
         });
-        return decodeKakaoAlimtalkTemplate(response);
+        return yield* decodeKakaoAlimtalkTemplate(response);
       }),
     );
   }

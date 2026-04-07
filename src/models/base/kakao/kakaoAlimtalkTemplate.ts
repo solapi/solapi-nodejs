@@ -1,5 +1,7 @@
-import stringDateTransfer from '@lib/stringDateTrasnfer';
+import {safeDateTransfer} from '@lib/schemaUtils';
 import {Schema} from 'effect';
+import * as Effect from 'effect/Effect';
+import {type InvalidDateError} from '@/errors/defaultError';
 import {kakaoAlimtalkTemplateQuickReplySchema} from './kakaoAlimtalkTemplateQuickReply';
 import {kakaoButtonSchema} from './kakaoButton';
 import {type KakaoChannelCategory} from './kakaoChannel';
@@ -149,20 +151,18 @@ export type KakaoAlimtalkTemplate = Omit<
 };
 
 /**
- * API 응답 데이터를 KakaoAlimtalkTemplate 타입으로 변환
+ * API 응답 데이터를 KakaoAlimtalkTemplate 타입으로 변환 (Effect 반환)
  */
 export function decodeKakaoAlimtalkTemplate(
   data: KakaoAlimtalkTemplateSchema,
-): KakaoAlimtalkTemplate {
-  return {
-    ...data,
-    dateCreated:
-      data.dateCreated != null
-        ? stringDateTransfer(data.dateCreated)
-        : undefined,
-    dateUpdated:
-      data.dateUpdated != null
-        ? stringDateTransfer(data.dateUpdated)
-        : undefined,
-  };
+): Effect.Effect<KakaoAlimtalkTemplate, InvalidDateError> {
+  return Effect.gen(function* () {
+    const dateCreated = yield* safeDateTransfer(data.dateCreated);
+    const dateUpdated = yield* safeDateTransfer(data.dateUpdated);
+    return {
+      ...data,
+      dateCreated,
+      dateUpdated,
+    };
+  });
 }

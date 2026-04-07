@@ -1,16 +1,20 @@
 import {runSafePromise} from '@lib/effectErrorHandler';
+import {decodeWithBadRequest} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   finalizeGetBlacksRequest,
   type GetBlacksRequest,
+  getBlacksRequestSchema,
 } from '@models/requests/iam/getBlacksRequest';
 import {
   finalizeGetBlockGroupsRequest,
   type GetBlockGroupsRequest,
+  getBlockGroupsRequestSchema,
 } from '@models/requests/iam/getBlockGroupsRequest';
 import {
   finalizeGetBlockNumbersRequest,
   type GetBlockNumbersRequest,
+  getBlockNumbersRequestSchema,
 } from '@models/requests/iam/getBlockNumbersRequest';
 import {GetBlacksResponse} from '@models/responses/iam/getBlacksResponse';
 import {GetBlockGroupsResponse} from '@models/responses/iam/getBlockGroupsResponse';
@@ -32,7 +36,10 @@ export default class IamService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const payload = finalizeGetBlacksRequest(data);
+        const validated = data
+          ? yield* decodeWithBadRequest(getBlacksRequestSchema, data)
+          : undefined;
+        const payload = finalizeGetBlacksRequest(validated);
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,
@@ -56,7 +63,10 @@ export default class IamService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const payload = finalizeGetBlockGroupsRequest(data);
+        const validated = data
+          ? yield* decodeWithBadRequest(getBlockGroupsRequestSchema, data)
+          : undefined;
+        const payload = finalizeGetBlockGroupsRequest(validated);
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,
@@ -80,7 +90,10 @@ export default class IamService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const payload = finalizeGetBlockNumbersRequest(data);
+        const validated = data
+          ? yield* decodeWithBadRequest(getBlockNumbersRequestSchema, data)
+          : undefined;
+        const payload = finalizeGetBlockNumbersRequest(validated);
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,

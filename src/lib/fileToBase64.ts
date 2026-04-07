@@ -1,6 +1,7 @@
 import {promises as fs} from 'node:fs';
 import {URL} from 'node:url';
 import * as Effect from 'effect/Effect';
+import {runSafePromise} from './effectErrorHandler';
 
 // 내부 유틸: 주어진 문자열이 http(s) 스킴의 URL 인지 판별
 const isHttpUrl = (value: string): boolean => {
@@ -56,5 +57,5 @@ const fromPath = (path: string) =>
  */
 export default async function fileToBase64(path: string): Promise<string> {
   const program = isHttpUrl(path) ? fromUrl(path) : fromPath(path);
-  return Effect.runPromise(program);
+  return runSafePromise(program);
 }

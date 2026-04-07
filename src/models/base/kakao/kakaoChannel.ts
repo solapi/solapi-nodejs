@@ -1,5 +1,7 @@
-import stringDateTransfer from '@lib/stringDateTrasnfer';
+import {safeDateTransfer} from '@lib/schemaUtils';
 import {Schema} from 'effect';
+import * as Effect from 'effect/Effect';
+import {type InvalidDateError} from '@/errors/defaultError';
 
 /**
  * @description 카카오 채널 카테고리 타입
@@ -50,22 +52,22 @@ export type KakaoChannel = {
 };
 
 /**
- * API 응답 데이터를 KakaoChannel 타입으로 변환
+ * API 응답 데이터를 KakaoChannel 타입으로 변환 (Effect 반환)
  */
-export function decodeKakaoChannel(data: KakaoChannelSchema): KakaoChannel {
-  return {
-    channelId: data.channelId,
-    searchId: data.searchId,
-    accountId: data.accountId,
-    phoneNumber: data.phoneNumber,
-    sharedAccountIds: data.sharedAccountIds,
-    dateCreated:
-      data.dateCreated != null
-        ? stringDateTransfer(data.dateCreated)
-        : undefined,
-    dateUpdated:
-      data.dateUpdated != null
-        ? stringDateTransfer(data.dateUpdated)
-        : undefined,
-  };
+export function decodeKakaoChannel(
+  data: KakaoChannelSchema,
+): Effect.Effect<KakaoChannel, InvalidDateError> {
+  return Effect.gen(function* () {
+    const dateCreated = yield* safeDateTransfer(data.dateCreated);
+    const dateUpdated = yield* safeDateTransfer(data.dateUpdated);
+    return {
+      channelId: data.channelId,
+      searchId: data.searchId,
+      accountId: data.accountId,
+      phoneNumber: data.phoneNumber,
+      sharedAccountIds: data.sharedAccountIds,
+      dateCreated,
+      dateUpdated,
+    };
+  });
 }
