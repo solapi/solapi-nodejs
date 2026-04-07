@@ -123,10 +123,10 @@ export const kakaoAlimtalkTemplateSchema = Schema.Struct({
     ),
   ),
   dateCreated: Schema.optional(
-    Schema.Union(Schema.DateFromString, Schema.Date, Schema.DateFromSelf),
+    Schema.Union(Schema.String, Schema.DateFromSelf),
   ),
   dateUpdated: Schema.optional(
-    Schema.Union(Schema.DateFromString, Schema.Date, Schema.DateFromSelf),
+    Schema.Union(Schema.String, Schema.DateFromSelf),
   ),
 });
 

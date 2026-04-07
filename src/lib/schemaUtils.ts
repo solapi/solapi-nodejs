@@ -58,11 +58,13 @@ export const safeFormatWithTransfer = (
  */
 export const safeFinalize = <T>(
   fn: () => T,
-): Effect.Effect<T, BadRequestError> =>
+): Effect.Effect<T, BadRequestError | InvalidDateError> =>
   Effect.try({
     try: fn,
     catch: error =>
-      new BadRequestError({
-        message: error instanceof Error ? error.message : String(error),
-      }),
+      error instanceof InvalidDateError
+        ? error
+        : new BadRequestError({
+            message: error instanceof Error ? error.message : String(error),
+          }),
   });

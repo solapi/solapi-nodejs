@@ -28,18 +28,11 @@ import * as Effect from 'effect/Effect';
 import DefaultService from '../../defaultService';
 
 export default class KakaoChannelService extends DefaultService {
-  constructor(apiKey: string, apiSecret: string) {
-    super(apiKey, apiSecret);
-  }
-
   async getKakaoChannelCategories(): Promise<Array<KakaoChannelCategory>> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        return yield* reqEffect<never, Array<KakaoChannelCategory>>({
-          httpMethod: 'GET',
-          url: 'kakao/v2/channels/categories',
-        });
+      this.requestEffect<never, Array<KakaoChannelCategory>>({
+        httpMethod: 'GET',
+        url: 'kakao/v2/channels/categories',
       }),
     );
   }
@@ -77,32 +70,28 @@ export default class KakaoChannelService extends DefaultService {
   }
 
   async getKakaoChannel(channelId: string): Promise<KakaoChannel> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const response = yield* reqEffect<never, KakaoChannelSchema>({
+      Effect.flatMap(
+        this.requestEffect<never, KakaoChannelSchema>({
           httpMethod: 'GET',
           url: `kakao/v2/channels/${channelId}`,
-        });
-        return yield* decodeKakaoChannel(response);
-      }),
+        }),
+        decodeKakaoChannel,
+      ),
     );
   }
 
   async requestKakaoChannelToken(
     data: CreateKakaoChannelTokenRequest,
   ): Promise<RequestKakaoChannelTokenResponse> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        return yield* reqEffect<
-          CreateKakaoChannelTokenRequest,
-          RequestKakaoChannelTokenResponse
-        >({
-          httpMethod: 'POST',
-          url: 'kakao/v2/channels/token',
-          body: data,
-        });
+      this.requestEffect<
+        CreateKakaoChannelTokenRequest,
+        RequestKakaoChannelTokenResponse
+      >({
+        httpMethod: 'POST',
+        url: 'kakao/v2/channels/token',
+        body: data,
       }),
     );
   }
@@ -110,31 +99,26 @@ export default class KakaoChannelService extends DefaultService {
   async createKakaoChannel(
     data: CreateKakaoChannelRequest,
   ): Promise<CreateKakaoChannelResponse> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        return yield* reqEffect<
-          CreateKakaoChannelRequest,
-          CreateKakaoChannelResponse
-        >({
+      this.requestEffect<CreateKakaoChannelRequest, CreateKakaoChannelResponse>(
+        {
           httpMethod: 'POST',
           url: 'kakao/v2/channels',
           body: data,
-        });
-      }),
+        },
+      ),
     );
   }
 
   async removeKakaoChannel(channelId: string): Promise<KakaoChannel> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const response = yield* reqEffect<never, KakaoChannelSchema>({
+      Effect.flatMap(
+        this.requestEffect<never, KakaoChannelSchema>({
           httpMethod: 'DELETE',
           url: `kakao/v2/channels/${channelId}`,
-        });
-        return yield* decodeKakaoChannel(response);
-      }),
+        }),
+        decodeKakaoChannel,
+      ),
     );
   }
 }

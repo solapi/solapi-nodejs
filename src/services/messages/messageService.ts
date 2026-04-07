@@ -38,10 +38,6 @@ import {
 import DefaultService from '../defaultService';
 
 export default class MessageService extends DefaultService {
-  constructor(apiKey: string, apiSecret: string) {
-    super(apiKey, apiSecret);
-  }
-
   /**
    * 단일 메시지 발송 기능
    * @param message 메시지(문자, 알림톡 등)
@@ -51,26 +47,22 @@ export default class MessageService extends DefaultService {
     message: RequestSendOneMessageSchema,
     appId?: string,
   ): Promise<SingleMessageSentResponse> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const parameter = yield* decodeWithBadRequest(
-          singleMessageSendingRequestSchema,
-          {
-            message,
-            ...(appId ? {agent: {appId}} : {}),
-          },
-        );
-
-        return yield* reqEffect<
-          SingleMessageSendingRequestSchema,
-          SingleMessageSentResponse
-        >({
-          httpMethod: 'POST',
-          url: 'messages/v4/send',
-          body: parameter,
-        });
-      }),
+      Effect.flatMap(
+        decodeWithBadRequest(singleMessageSendingRequestSchema, {
+          message,
+          ...(appId ? {agent: {appId}} : {}),
+        }),
+        parameter =>
+          this.requestEffect<
+            SingleMessageSendingRequestSchema,
+            SingleMessageSentResponse
+          >({
+            httpMethod: 'POST',
+            url: 'messages/v4/send',
+            body: parameter,
+          }),
+      ),
     );
   }
 

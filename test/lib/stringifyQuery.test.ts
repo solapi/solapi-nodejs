@@ -11,6 +11,10 @@ describe('stringifyQuery', () => {
     expect(stringifyQuery({})).toBe('');
   });
 
+  it('should return empty string for empty object even with addQueryPrefix: true', () => {
+    expect(stringifyQuery({}, {addQueryPrefix: true})).toBe('');
+  });
+
   it('should return query string with ? prefix by default', () => {
     const result = stringifyQuery({limit: 1, status: 'active'});
     expect(result).toBe('?limit=1&status=active');
@@ -63,5 +67,25 @@ describe('stringifyQuery', () => {
       status: 'active',
     });
     expect(result).toBe('?limit=1&status=active');
+  });
+
+  it('should handle nested objects with bracket notation', () => {
+    const result = stringifyQuery({
+      dateCreated: {gte: '2024-01-01', lte: '2024-12-31'},
+    });
+    expect(result).toBe(
+      '?dateCreated%5Bgte%5D=2024-01-01&dateCreated%5Blte%5D=2024-12-31',
+    );
+  });
+
+  it('should handle mixed flat and nested values', () => {
+    const result = stringifyQuery({
+      type: 'DENIAL',
+      limit: 10,
+      dateCreated: {gte: '2024-01-01'},
+    });
+    expect(result).toContain('type=DENIAL');
+    expect(result).toContain('limit=10');
+    expect(result).toContain('dateCreated%5Bgte%5D=2024-01-01');
   });
 });

@@ -23,23 +23,16 @@ import * as Effect from 'effect/Effect';
 import DefaultService from '../../defaultService';
 
 export default class KakaoTemplateService extends DefaultService {
-  constructor(apiKey: string, apiSecret: string) {
-    super(apiKey, apiSecret);
-  }
-
   /**
    * 카카오 템플릿 카테고리 조회
    */
   async getKakaoAlimtalkTemplateCategories(): Promise<
     Array<KakaoAlimtalkTemplateCategory>
   > {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        return yield* reqEffect<never, Array<KakaoAlimtalkTemplateCategory>>({
-          httpMethod: 'GET',
-          url: 'kakao/v2/templates/categories',
-        });
+      this.requestEffect<never, Array<KakaoAlimtalkTemplateCategory>>({
+        httpMethod: 'GET',
+        url: 'kakao/v2/templates/categories',
       }),
     );
   }
@@ -50,19 +43,18 @@ export default class KakaoTemplateService extends DefaultService {
   async createKakaoAlimtalkTemplate(
     data: CreateKakaoAlimtalkTemplateRequest,
   ): Promise<KakaoAlimtalkTemplate> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const response = yield* reqEffect<
+      Effect.flatMap(
+        this.requestEffect<
           CreateKakaoAlimtalkTemplateRequest,
           KakaoAlimtalkTemplateSchema
         >({
           httpMethod: 'POST',
           url: 'kakao/v2/templates',
           body: data,
-        });
-        return yield* decodeKakaoAlimtalkTemplate(response);
-      }),
+        }),
+        decodeKakaoAlimtalkTemplate,
+      ),
     );
   }
 
@@ -116,15 +108,14 @@ export default class KakaoTemplateService extends DefaultService {
   async getKakaoAlimtalkTemplate(
     templateId: string,
   ): Promise<KakaoAlimtalkTemplate> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const response = yield* reqEffect<never, GetKakaoTemplateResponse>({
+      Effect.flatMap(
+        this.requestEffect<never, GetKakaoTemplateResponse>({
           httpMethod: 'GET',
           url: `kakao/v2/templates/${templateId}`,
-        });
-        return yield* decodeKakaoAlimtalkTemplate(response);
-      }),
+        }),
+        decodeKakaoAlimtalkTemplate,
+      ),
     );
   }
 
@@ -134,15 +125,14 @@ export default class KakaoTemplateService extends DefaultService {
   async cancelInspectionKakaoAlimtalkTemplate(
     templateId: string,
   ): Promise<KakaoAlimtalkTemplate> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const response = yield* reqEffect<never, KakaoAlimtalkTemplateSchema>({
+      Effect.flatMap(
+        this.requestEffect<never, KakaoAlimtalkTemplateSchema>({
           httpMethod: 'PUT',
           url: `kakao/v2/templates/${templateId}/inspection/cancel`,
-        });
-        return yield* decodeKakaoAlimtalkTemplate(response);
-      }),
+        }),
+        decodeKakaoAlimtalkTemplate,
+      ),
     );
   }
 
@@ -153,19 +143,18 @@ export default class KakaoTemplateService extends DefaultService {
     templateId: string,
     data: UpdateKakaoAlimtalkTemplateRequest,
   ): Promise<KakaoAlimtalkTemplate> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const response = yield* reqEffect<
+      Effect.flatMap(
+        this.requestEffect<
           UpdateKakaoAlimtalkTemplateRequest,
           KakaoAlimtalkTemplateSchema
         >({
           httpMethod: 'PUT',
           url: `kakao/v2/templates/${templateId}`,
           body: data,
-        });
-        return yield* decodeKakaoAlimtalkTemplate(response);
-      }),
+        }),
+        decodeKakaoAlimtalkTemplate,
+      ),
     );
   }
 
@@ -176,19 +165,15 @@ export default class KakaoTemplateService extends DefaultService {
     templateId: string,
     name: string,
   ): Promise<KakaoAlimtalkTemplate> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const response = yield* reqEffect<
-          {name: string},
-          KakaoAlimtalkTemplateSchema
-        >({
+      Effect.flatMap(
+        this.requestEffect<{name: string}, KakaoAlimtalkTemplateSchema>({
           httpMethod: 'PUT',
           url: `kakao/v2/templates/${templateId}/name`,
           body: {name},
-        });
-        return yield* decodeKakaoAlimtalkTemplate(response);
-      }),
+        }),
+        decodeKakaoAlimtalkTemplate,
+      ),
     );
   }
 
@@ -198,15 +183,14 @@ export default class KakaoTemplateService extends DefaultService {
   async removeKakaoAlimtalkTemplate(
     templateId: string,
   ): Promise<KakaoAlimtalkTemplate> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const response = yield* reqEffect<never, KakaoAlimtalkTemplateSchema>({
+      Effect.flatMap(
+        this.requestEffect<never, KakaoAlimtalkTemplateSchema>({
           httpMethod: 'DELETE',
           url: `kakao/v2/templates/${templateId}`,
-        });
-        return yield* decodeKakaoAlimtalkTemplate(response);
-      }),
+        }),
+        decodeKakaoAlimtalkTemplate,
+      ),
     );
   }
 }

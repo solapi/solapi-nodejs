@@ -23,10 +23,6 @@ import * as Effect from 'effect/Effect';
 import DefaultService from '../defaultService';
 
 export default class IamService extends DefaultService {
-  constructor(apiKey: string, apiSecret: string) {
-    super(apiKey, apiSecret);
-  }
-
   /**
    * 080 수신 거부 조회
    * @param data 080 수신 거부 상세 조회용 request 데이터
