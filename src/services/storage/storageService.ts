@@ -6,6 +6,7 @@ import {
 } from '@models/requests/messages/groupMessageRequest';
 import {FileUploadResponse} from '@models/responses/messageResponses';
 import * as Effect from 'effect/Effect';
+import {DefaultError} from '../../errors/defaultError';
 import DefaultService from '../defaultService';
 
 export default class StorageService extends DefaultService {
@@ -33,7 +34,12 @@ export default class StorageService extends DefaultService {
         const encodedFile = yield* Effect.tryPromise({
           try: () => fileToBase64(filePath),
           catch: error =>
-            error instanceof Error ? error : new Error(String(error)),
+            new DefaultError({
+              errorCode: 'FileReadError',
+              errorMessage:
+                error instanceof Error ? error.message : String(error),
+              context: {filePath},
+            }),
         });
         const parameter: FileUploadRequest = {
           file: encodedFile,

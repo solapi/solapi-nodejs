@@ -4,6 +4,7 @@ import stringifyQuery from '@lib/stringifyQuery';
 import {
   finalizeGetMessagesRequest,
   type GetMessagesRequest,
+  getMessagesRequestSchema,
 } from '@models/requests/messages/getMessagesRequest';
 import {
   finalizeGetStatisticsRequest,
@@ -165,7 +166,10 @@ export default class MessageService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const payload = finalizeGetMessagesRequest(data);
+        const validated = data
+          ? yield* decodeWithBadRequest(getMessagesRequestSchema, data)
+          : undefined;
+        const payload = finalizeGetMessagesRequest(validated);
         const parameter = stringifyQuery(payload, {
           indices: false,
           addQueryPrefix: true,

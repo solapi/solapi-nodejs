@@ -58,7 +58,10 @@ export function finalizeGetMessagesRequest(
   const payload: GetMessagesFinalizedPayload = {
     startKey: data.startKey,
     limit: data.limit,
-    dateType: data.dateType ?? 'CREATED',
+    dateType:
+      data.startDate != null || data.endDate != null
+        ? (data.dateType ?? 'CREATED')
+        : data.dateType,
     messageId: data.messageId,
     messageIds: data.messageIds,
     groupId: data.groupId,
