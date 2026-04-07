@@ -144,8 +144,8 @@ export type KakaoAlimtalkTemplate = Omit<
   KakaoAlimtalkTemplateSchema,
   'dateCreated' | 'dateUpdated'
 > & {
-  dateCreated: Date;
-  dateUpdated: Date;
+  dateCreated?: Date;
+  dateUpdated?: Date;
 };
 
 /**
@@ -159,10 +159,10 @@ export function decodeKakaoAlimtalkTemplate(
     dateCreated:
       data.dateCreated != null
         ? stringDateTransfer(data.dateCreated)
-        : new Date(),
+        : undefined,
     dateUpdated:
       data.dateUpdated != null
         ? stringDateTransfer(data.dateUpdated)
-        : new Date(),
+        : undefined,
   };
 }

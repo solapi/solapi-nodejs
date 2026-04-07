@@ -1,5 +1,6 @@
 import {GroupId} from '@internal-types/commonTypes';
 import {runSafePromise} from '@lib/effectErrorHandler';
+import {decodeWithBadRequest} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   finalizeGetGroupsRequest,
@@ -21,13 +22,11 @@ import {
   RemoveGroupMessagesResponse,
 } from '@models/responses/messageResponses';
 import {formatISO} from 'date-fns';
-import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import {
-  RequestSendMessagesSchema,
+  type RequestSendMessagesSchema,
   requestSendMessageSchema,
 } from '@/models/requests/messages/sendMessage';
-import {BadRequestError} from '../../errors/defaultError';
 import DefaultService from '../defaultService';
 
 /**
@@ -86,14 +85,10 @@ export default class GroupService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const validatedMessages = yield* Effect.try({
-          try: () =>
-            Schema.decodeUnknownSync(requestSendMessageSchema)(messages),
-          catch: error =>
-            new BadRequestError({
-              message: error instanceof Error ? error.message : String(error),
-            }),
-        });
+        const validatedMessages = yield* decodeWithBadRequest(
+          requestSendMessageSchema,
+          messages,
+        );
 
         const requestBody: GroupMessageAddRequest = {
           messages: Array.isArray(validatedMessages)

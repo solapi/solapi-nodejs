@@ -1,4 +1,6 @@
+import {runSafePromise} from '@lib/effectErrorHandler';
 import {type GetBalanceResponse} from '@models/responses/messageResponses';
+import * as Effect from 'effect/Effect';
 import DefaultService from '../defaultService';
 
 export default class CashService extends DefaultService {
@@ -11,9 +13,14 @@ export default class CashService extends DefaultService {
    * @returns GetBalanceResponse
    */
   async getBalance(): Promise<GetBalanceResponse> {
-    return this.request<never, GetBalanceResponse>({
-      httpMethod: 'GET',
-      url: 'cash/v1/balance',
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<never, GetBalanceResponse>({
+          httpMethod: 'GET',
+          url: 'cash/v1/balance',
+        });
+      }),
+    );
   }
 }

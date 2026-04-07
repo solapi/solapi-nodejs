@@ -33,10 +33,15 @@ export default class KakaoTemplateService extends DefaultService {
   async getKakaoAlimtalkTemplateCategories(): Promise<
     Array<KakaoAlimtalkTemplateCategory>
   > {
-    return this.request<never, Array<KakaoAlimtalkTemplateCategory>>({
-      httpMethod: 'GET',
-      url: 'kakao/v2/templates/categories',
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<never, Array<KakaoAlimtalkTemplateCategory>>({
+          httpMethod: 'GET',
+          url: 'kakao/v2/templates/categories',
+        });
+      }),
+    );
   }
 
   /**
@@ -86,7 +91,7 @@ export default class KakaoTemplateService extends DefaultService {
         const processTemplate = (template: unknown) =>
           Schema.decodeUnknown(kakaoAlimtalkTemplateSchema)(template);
 
-        const templateList = yield* Effect.all(
+        const decodedTemplates = yield* Effect.all(
           response.templateList.map(processTemplate),
         );
 
@@ -94,7 +99,7 @@ export default class KakaoTemplateService extends DefaultService {
           limit: response.limit,
           nextKey: response.nextKey,
           startKey: response.startKey,
-          templateList,
+          templateList: decodedTemplates.map(decodeKakaoAlimtalkTemplate),
         };
       }),
     );

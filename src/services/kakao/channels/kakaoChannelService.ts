@@ -31,10 +31,15 @@ export default class KakaoChannelService extends DefaultService {
   }
 
   async getKakaoChannelCategories(): Promise<Array<KakaoChannelCategory>> {
-    return this.request<never, Array<KakaoChannelCategory>>({
-      httpMethod: 'GET',
-      url: 'kakao/v2/channels/categories',
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<never, Array<KakaoChannelCategory>>({
+          httpMethod: 'GET',
+          url: 'kakao/v2/channels/categories',
+        });
+      }),
+    );
   }
 
   async getKakaoChannels(
@@ -78,30 +83,49 @@ export default class KakaoChannelService extends DefaultService {
   async requestKakaoChannelToken(
     data: CreateKakaoChannelTokenRequest,
   ): Promise<RequestKakaoChannelTokenResponse> {
-    return this.request<
-      CreateKakaoChannelTokenRequest,
-      RequestKakaoChannelTokenResponse
-    >({
-      httpMethod: 'POST',
-      url: 'kakao/v2/channels/token',
-      body: data,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<
+          CreateKakaoChannelTokenRequest,
+          RequestKakaoChannelTokenResponse
+        >({
+          httpMethod: 'POST',
+          url: 'kakao/v2/channels/token',
+          body: data,
+        });
+      }),
+    );
   }
 
   async createKakaoChannel(
     data: CreateKakaoChannelRequest,
   ): Promise<CreateKakaoChannelResponse> {
-    return this.request<CreateKakaoChannelRequest, CreateKakaoChannelResponse>({
-      httpMethod: 'POST',
-      url: 'kakao/v2/channels',
-      body: data,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        return yield* reqEffect<
+          CreateKakaoChannelRequest,
+          CreateKakaoChannelResponse
+        >({
+          httpMethod: 'POST',
+          url: 'kakao/v2/channels',
+          body: data,
+        });
+      }),
+    );
   }
 
   async removeKakaoChannel(channelId: string): Promise<KakaoChannel> {
-    return this.request<never, KakaoChannel>({
-      httpMethod: 'DELETE',
-      url: `kakao/v2/channels/${channelId}`,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.gen(function* () {
+        const response = yield* reqEffect<never, KakaoChannelSchema>({
+          httpMethod: 'DELETE',
+          url: `kakao/v2/channels/${channelId}`,
+        });
+        return decodeKakaoChannel(response);
+      }),
+    );
   }
 }

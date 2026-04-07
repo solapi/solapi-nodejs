@@ -1,7 +1,13 @@
 import {AuthenticationParameter} from '@lib/authenticator';
-import defaultFetcher from '@lib/defaultFetcher';
+import {defaultFetcherEffect} from '@lib/defaultFetcher';
 import {runSafePromise} from '@lib/effectErrorHandler';
 import * as Effect from 'effect/Effect';
+import type {
+  ClientError,
+  DefaultError,
+  NetworkError,
+  ServerError,
+} from '../errors/defaultError';
 
 export type RequestConfig = {
   method: string;
@@ -27,18 +33,13 @@ export default class DefaultService {
 
   protected requestEffect<T, R>(
     parameter: DefaultServiceParameter<T>,
-  ): Effect.Effect<R, Error> {
+  ): Effect.Effect<R, ClientError | ServerError | NetworkError | DefaultError> {
     const {httpMethod, url, body} = parameter;
     const requestConfig: RequestConfig = {
       method: httpMethod,
       url: `${this.baseUrl}/${url}`,
     };
-    const authInfo = this.authInfo;
-    return Effect.tryPromise({
-      try: () => defaultFetcher<T, R>(authInfo, requestConfig, body),
-      catch: error =>
-        error instanceof Error ? error : new Error(String(error)),
-    });
+    return defaultFetcherEffect<T, R>(this.authInfo, requestConfig, body);
   }
 
   protected async request<T, R>(

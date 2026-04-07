@@ -23,6 +23,7 @@ export {
 export {
   type GetKakaoChannelsFinalizeResponse,
   type GetKakaoChannelsResponse,
+  getKakaoChannelsResponseSchema,
 } from './kakao/getKakaoChannelsResponse';
 export {
   type GetKakaoTemplateResponse,

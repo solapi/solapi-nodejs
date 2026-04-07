@@ -20,7 +20,17 @@ const baseGetMessagesRequestSchema = Schema.Struct({
   endDate: Schema.optional(Schema.Union(Schema.String, Schema.DateFromSelf)),
 });
 
-export const getMessagesRequestSchema = baseGetMessagesRequestSchema;
+// dateType은 startDate 또는 endDate가 함께 제공될 때만 유효
+export const getMessagesRequestSchema = baseGetMessagesRequestSchema.pipe(
+  Schema.filter(data => {
+    const hasDate = data.startDate != null || data.endDate != null;
+    const hasDateType = data.dateType != null;
+    if (hasDateType && !hasDate) {
+      return 'dateType은 startDate 또는 endDate와 함께 사용해야 합니다.';
+    }
+    return true;
+  }),
+);
 export type GetMessagesRequest = Schema.Schema.Type<
   typeof getMessagesRequestSchema
 >;

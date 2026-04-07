@@ -1,4 +1,5 @@
 import {runSafePromise} from '@lib/effectErrorHandler';
+import {decodeWithBadRequest} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   finalizeGetMessagesRequest,
@@ -13,13 +14,13 @@ import {
   sendRequestConfigSchema,
 } from '@models/requests/messages/requestConfig';
 import {
-  MultipleMessageSendingRequestSchema,
+  type MultipleMessageSendingRequestSchema,
   multipleMessageSendingRequestSchema,
-  RequestSendMessagesSchema,
-  RequestSendOneMessageSchema,
+  type RequestSendMessagesSchema,
+  type RequestSendOneMessageSchema,
   requestSendMessageSchema,
-  requestSendOneMessageSchema,
-  SingleMessageSendingRequestSchema,
+  type SingleMessageSendingRequestSchema,
+  singleMessageSendingRequestSchema,
 } from '@models/requests/messages/sendMessage';
 import {
   GetMessagesResponse,
@@ -27,7 +28,6 @@ import {
   SingleMessageSentResponse,
 } from '@models/responses/messageResponses';
 import {DetailGroupMessageResponse} from '@models/responses/sendManyDetailResponse';
-import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import {
   BadRequestError,
@@ -52,19 +52,13 @@ export default class MessageService extends DefaultService {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
       Effect.gen(function* () {
-        const decodedMessage = yield* Effect.try({
-          try: () =>
-            Schema.decodeUnknownSync(requestSendOneMessageSchema)(message),
-          catch: error =>
-            new BadRequestError({
-              message: error instanceof Error ? error.message : String(error),
-            }),
-        });
-
-        const parameter = {
-          message: decodedMessage,
-          ...(appId ? {agent: {appId}} : {}),
-        } as SingleMessageSendingRequestSchema;
+        const parameter = yield* decodeWithBadRequest(
+          singleMessageSendingRequestSchema,
+          {
+            message,
+            ...(appId ? {agent: {appId}} : {}),
+          },
+        );
 
         return yield* reqEffect<
           SingleMessageSendingRequestSchema,
@@ -95,14 +89,10 @@ export default class MessageService extends DefaultService {
     return runSafePromise(
       Effect.gen(function* () {
         // 1. 스키마 검증
-        const messageSchema = yield* Effect.try({
-          try: () =>
-            Schema.decodeUnknownSync(requestSendMessageSchema)(messages),
-          catch: error =>
-            new BadRequestError({
-              message: error instanceof Error ? error.message : String(error),
-            }),
-        });
+        const messageSchema = yield* decodeWithBadRequest(
+          requestSendMessageSchema,
+          messages,
+        );
 
         // 2. MessageParameter -> Message 변환 및 기본 검증
         const messageParameters = Array.isArray(messageSchema)
@@ -117,16 +107,10 @@ export default class MessageService extends DefaultService {
           );
         }
 
-        const decodedConfig = yield* Effect.try({
-          try: () =>
-            Schema.decodeUnknownSync(sendRequestConfigSchema)(
-              requestConfigParameter ?? {},
-            ),
-          catch: error =>
-            new BadRequestError({
-              message: error instanceof Error ? error.message : String(error),
-            }),
-        });
+        const decodedConfig = yield* decodeWithBadRequest(
+          sendRequestConfigSchema,
+          requestConfigParameter ?? {},
+        );
 
         const parameterObject = {
           messages: messageParameters,
@@ -136,16 +120,10 @@ export default class MessageService extends DefaultService {
           showMessageList: decodedConfig.showMessageList,
         };
 
-        const parameter = yield* Effect.try({
-          try: () =>
-            Schema.decodeSync(multipleMessageSendingRequestSchema)(
-              parameterObject,
-            ),
-          catch: error =>
-            new BadRequestError({
-              message: error instanceof Error ? error.message : String(error),
-            }),
-        });
+        const parameter = yield* decodeWithBadRequest(
+          multipleMessageSendingRequestSchema,
+          parameterObject,
+        );
 
         // 3. API 호출
         const response = yield* reqEffect<

@@ -111,17 +111,13 @@ const handleServerErrorResponse = (res: Response) =>
   );
 
 /**
- * 공용 API 클라이언트 함수
- * @throws DefaultError 발송 실패 등 API 상의 다양한 오류를 표시합니다.
- * @param authParameter API 인증을 위한 파라미터
- * @param request API URI, HTTP method 정의
- * @param data API에 요청할 request body 데이터
+ * raw Effect를 반환하는 API 클라이언트 함수 (서비스 레이어에서 Effect 합성용)
  */
-export default async function defaultFetcher<T, R>(
+export function defaultFetcherEffect<T, R>(
   authParameter: AuthenticationParameter,
   request: DefaultRequest,
   data?: T,
-): Promise<R> {
+): Effect.Effect<R, ClientError | ServerError | NetworkError | DefaultError> {
   const authorizationHeaderData = getAuthInfo(authParameter);
 
   const effect = Effect.gen(function* (_) {
@@ -209,7 +205,7 @@ export default async function defaultFetcher<T, R>(
     ),
   );
 
-  const program = pipe(
+  return pipe(
     effect,
     Effect.retry(policy),
     Effect.catchTag('RetryableError', () =>
@@ -226,7 +222,21 @@ export default async function defaultFetcher<T, R>(
       ),
     ),
   );
+}
 
-  // runSafePromise를 사용하여 에러 포맷팅 적용
-  return runSafePromise(program);
+/**
+ * 공용 API 클라이언트 함수 (Promise 반환)
+ * @throws DefaultError 발송 실패 등 API 상의 다양한 오류를 표시합니다.
+ * @param authParameter API 인증을 위한 파라미터
+ * @param request API URI, HTTP method 정의
+ * @param data API에 요청할 request body 데이터
+ */
+export default async function defaultFetcher<T, R>(
+  authParameter: AuthenticationParameter,
+  request: DefaultRequest,
+  data?: T,
+): Promise<R> {
+  return runSafePromise(
+    defaultFetcherEffect<T, R>(authParameter, request, data),
+  );
 }
