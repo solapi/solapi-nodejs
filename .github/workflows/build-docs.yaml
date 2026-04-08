@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   build-docs:
+    if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -40,6 +41,7 @@ jobs:
         path: docs
 
   deploy:
+    if: ${{ !github.event.release.prerelease }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
