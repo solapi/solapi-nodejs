@@ -116,7 +116,7 @@ Schema.String.pipe(
 | File | Purpose |
 |------|---------|
 | `defaultFetcher.ts` | HTTP client — Effect.gen, retry 3x exponential backoff, Match |
-| `effectErrorHandler.ts` | `runSafePromise`, `toCompatibleError`, `formatError` |
+| `effectErrorHandler.ts` | `runSafePromise`, `runSafeSync`, `unwrapCause` |
 | `authenticator.ts` | HMAC-SHA256 auth header |
 | `stringifyQuery.ts` | URL query string builder (array handling) |
 | `fileToBase64.ts` | File/URL → Base64 |
@@ -146,7 +146,7 @@ Schema.String.pipe(
 **Error Flow**:
 ```
 API Response → defaultFetcher (Effect errors) → runSafePromise (Promise)
-  → toCompatibleError (Error properties) → Consumer
+  → 원본 Data.TaggedError 그대로 reject → Consumer
 ```
 
 **Production vs Development**: Production에서는 stack trace와 상세 컨텍스트가 제거됨.

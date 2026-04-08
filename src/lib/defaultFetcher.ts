@@ -143,16 +143,7 @@ export function defaultFetcherEffect<T, R>(
   ApiKeyError | ClientError | ServerError | NetworkError | DefaultError
 > {
   const effect = Effect.gen(function* () {
-    const authorizationHeaderData = yield* Effect.try({
-      try: () => getAuthInfo(authParameter),
-      catch: e =>
-        e instanceof ApiKeyError
-          ? e
-          : new DefaultError({
-              errorCode: 'AuthError',
-              errorMessage: e instanceof Error ? e.message : String(e),
-            }),
-    });
+    const authorizationHeaderData = yield* getAuthInfo(authParameter);
 
     const body = yield* Effect.try({
       try: () => (data ? JSON.stringify(data) : undefined),

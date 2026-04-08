@@ -19,9 +19,13 @@ export class VariableValidationError extends Data.TaggedError(
 )<{
   readonly invalidVariables: ReadonlyArray<string>;
 }> {
-  toString(): string {
+  get message(): string {
     const variableList = this.invalidVariables.map(v => `\`${v}\``).join(', ');
     return `변수명 ${variableList}에 점(.)을 포함할 수 없습니다. 언더스코어(_)나 다른 문자를 사용해주세요.`;
+  }
+
+  toString(): string {
+    return `VariableValidationError: ${this.message}`;
   }
 }
 
