@@ -7,10 +7,12 @@ describe('GroupService E2E', () => {
   let groupService: GroupService;
 
   beforeAll(() => {
-    const apiKey = process.env.API_KEY;
-    const apiSecret = process.env.API_SECRET;
+    const apiKey = process.env.SOLAPI_API_KEY;
+    const apiSecret = process.env.SOLAPI_API_SECRET;
     if (!apiKey || !apiSecret) {
-      throw new Error('API_KEY and API_SECRET must be provided in .env file');
+      throw new Error(
+        'SOLAPI_API_KEY and SOLAPI_API_SECRET must be provided in .env file',
+      );
     }
     groupService = new GroupService(apiKey, apiSecret);
   });
@@ -40,7 +42,7 @@ describe('GroupService E2E', () => {
     // 2. Add a message to the group
     const message: RequestSendOneMessageSchema = {
       to: '01000000000',
-      from: process.env.SENDER_NUMBER ?? '',
+      from: process.env.SOLAPI_SENDER ?? '',
       text: 'test message',
     };
     await groupService.addMessagesToGroup(groupId, message);

@@ -1,31 +1,22 @@
-import {
-  KakaoAlimtalkTemplateSchema,
-  kakaoAlimtalkTemplateSchema,
-} from '@models/base/kakao/kakaoAlimtalkTemplate';
+import {type KakaoAlimtalkTemplate} from '@models/base/kakao/kakaoAlimtalkTemplate';
 import {Schema} from 'effect';
-import {GetKakaoTemplateResponse} from './getKakaoTemplateResponse';
+import {getKakaoTemplateResponseSchema} from './getKakaoTemplateResponse';
 
 export const getKakaoAlimtalkTemplatesResponseSchema = Schema.Struct({
   limit: Schema.Number,
-  templateList: Schema.Array(kakaoAlimtalkTemplateSchema),
+  templateList: Schema.Array(getKakaoTemplateResponseSchema),
   startKey: Schema.String,
   nextKey: Schema.NullOr(Schema.String),
 });
-
 export type GetKakaoAlimtalkTemplatesResponseSchema = Schema.Schema.Type<
   typeof getKakaoAlimtalkTemplatesResponseSchema
 >;
+export type GetKakaoAlimtalkTemplatesResponse =
+  GetKakaoAlimtalkTemplatesResponseSchema;
 
-export interface GetKakaoAlimtalkTemplatesResponse {
+export type GetKakaoAlimtalkTemplatesFinalizeResponse = {
   limit: number;
-  templateList: Array<GetKakaoTemplateResponse>;
+  templateList: Array<KakaoAlimtalkTemplate>;
   startKey: string;
   nextKey: string | null;
-}
-
-export interface GetKakaoAlimtalkTemplatesFinalizeResponse {
-  limit: number;
-  templateList: Array<KakaoAlimtalkTemplateSchema>;
-  startKey: string;
-  nextKey: string | null;
-}
+};

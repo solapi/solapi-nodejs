@@ -35,28 +35,35 @@ export default function stringifyQuery(
     return '';
   }
 
-  // 빈 객체인 경우 빈 문자열 반환
+  // 빈 객체인 경우 빈 문자열 반환 (쿼리 파라미터가 없으므로 접두사도 불필요)
   if (Object.keys(obj).length === 0) {
-    return options.addQueryPrefix ? '?' : '';
+    return '';
   }
 
-  // 배열 처리를 위한 내부 함수
+  // 값 직렬화를 위한 내부 함수 (nested object 지원)
   const processValue = (key: string, value: unknown): string[] => {
     if (Array.isArray(value)) {
       if (options.indices === false) {
-        // indices: false인 경우 배열 인덱스 없이 처리
         return value.map(
           item =>
             `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`,
         );
-      } else {
-        // 기본값: 배열 인덱스 포함
-        return value.map(
-          (item, index) =>
-            `${encodeURIComponent(key)}[${index}]=${encodeURIComponent(String(item))}`,
-        );
       }
-    } else if (value !== null && value !== undefined) {
+      return value.map(
+        (item, index) =>
+          `${encodeURIComponent(key)}[${index}]=${encodeURIComponent(String(item))}`,
+      );
+    }
+    if (value !== null && value !== undefined) {
+      if (typeof value === 'object') {
+        const nested: string[] = [];
+        for (const [subKey, subValue] of Object.entries(
+          value as Record<string, unknown>,
+        )) {
+          nested.push(...processValue(`${key}[${subKey}]`, subValue));
+        }
+        return nested;
+      }
       return [
         `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
       ];

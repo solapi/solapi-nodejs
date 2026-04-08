@@ -1,12 +1,21 @@
 import {AuthenticationParameter} from '@lib/authenticator';
-import defaultFetcher from '@lib/defaultFetcher';
+import {defaultFetcherEffect} from '@lib/defaultFetcher';
+import {runSafePromise} from '@lib/effectErrorHandler';
+import * as Effect from 'effect/Effect';
+import type {
+  ApiKeyError,
+  ClientError,
+  DefaultError,
+  NetworkError,
+  ServerError,
+} from '../errors/defaultError';
 
-type RequestConfig = {
+export type RequestConfig = {
   method: string;
   url: string;
 };
 
-type DefaultServiceParameter<T> = {
+export type DefaultServiceParameter<T> = {
   httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   url: string;
   body?: T;
@@ -23,14 +32,23 @@ export default class DefaultService {
     };
   }
 
-  protected async request<T, R>(
+  protected requestEffect<T, R>(
     parameter: DefaultServiceParameter<T>,
-  ): Promise<R> {
+  ): Effect.Effect<
+    R,
+    ApiKeyError | ClientError | ServerError | NetworkError | DefaultError
+  > {
     const {httpMethod, url, body} = parameter;
     const requestConfig: RequestConfig = {
       method: httpMethod,
       url: `${this.baseUrl}/${url}`,
     };
-    return defaultFetcher<T, R>(this.authInfo, requestConfig, body);
+    return defaultFetcherEffect<T, R>(this.authInfo, requestConfig, body);
+  }
+
+  protected async request<T, R>(
+    parameter: DefaultServiceParameter<T>,
+  ): Promise<R> {
+    return runSafePromise(this.requestEffect<T, R>(parameter));
   }
 }

@@ -29,11 +29,15 @@ export class DefaultError extends Data.TaggedError('DefaultError')<{
   readonly errorMessage: string;
   readonly context?: Record<string, unknown>;
 }> {
+  get message(): string {
+    return `${this.errorCode}: ${this.errorMessage}`;
+  }
+
   toString(): string {
     if (process.env.NODE_ENV === 'production') {
-      return `${this.errorCode}: ${this.errorMessage}`;
+      return this.message;
     }
-    return `${this.errorCode}: ${this.errorMessage}${
+    return `${this.message}${
       this.context ? `\nContext: ${JSON.stringify(this.context, null, 2)}` : ''
     }`;
   }
@@ -77,8 +81,12 @@ export class NetworkError extends Data.TaggedError('NetworkError')<{
   readonly cause: unknown;
   readonly isRetryable?: boolean;
 }> {
+  get message(): string {
+    return `${this.method} ${this.url} 요청 실패 - ${this.cause}`;
+  }
+
   toString(): string {
-    return `NetworkError: ${this.method} ${this.url} 요청 실패 - ${this.cause}`;
+    return `NetworkError: ${this.message}`;
   }
 }
 
@@ -89,9 +97,13 @@ export class ClientError extends Data.TaggedError('ClientError')<{
   readonly httpStatus: number;
   readonly url?: string;
 }> {
+  get message(): string {
+    return `${this.errorCode}: ${this.errorMessage}`;
+  }
+
   toString(): string {
     if (process.env.NODE_ENV === 'production') {
-      return `${this.errorCode}: ${this.errorMessage}`;
+      return this.message;
     }
     return `ClientError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}\nURL: ${this.url}`;
   }
@@ -102,6 +114,26 @@ export const ApiError = ClientError;
 /** @deprecated Use ClientError instead */
 export type ApiError = ClientError;
 
+// Defect(예측되지 않은 예외) — Effect 경계에서 발생하는 비정상 에러
+export class UnexpectedDefectError extends Data.TaggedError(
+  'UnexpectedDefectError',
+)<{
+  readonly message: string;
+}> {
+  toString(): string {
+    return `UnexpectedDefectError: ${this.message}`;
+  }
+}
+
+// Effect 실행 실패 (중단 등)
+export class UnhandledExitError extends Data.TaggedError('UnhandledExitError')<{
+  readonly message: string;
+}> {
+  toString(): string {
+    return `UnhandledExitError: ${this.message}`;
+  }
+}
+
 // 5xx 서버 에러용
 export class ServerError extends Data.TaggedError('ServerError')<{
   readonly errorCode: string;
@@ -110,12 +142,16 @@ export class ServerError extends Data.TaggedError('ServerError')<{
   readonly url?: string;
   readonly responseBody?: string;
 }> {
+  get message(): string {
+    return `${this.errorCode} - ${this.errorMessage}`;
+  }
+
   toString(): string {
     const isProduction = process.env.NODE_ENV === 'production';
     if (isProduction) {
-      return `ServerError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}`;
+      return `ServerError(${this.httpStatus}): ${this.message}`;
     }
-    return `ServerError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}
+    return `ServerError(${this.httpStatus}): ${this.message}
 URL: ${this.url}
 Response: ${this.responseBody?.substring(0, 500) ?? '(empty)'}`;
   }

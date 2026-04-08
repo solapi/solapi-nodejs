@@ -6,10 +6,16 @@ import KakaoTemplateService from '@services/kakao/templates/kakaoTemplateService
 import GroupService from '@services/messages/groupService';
 import MessageService from '@services/messages/messageService';
 import StorageService from '@services/storage/storageService';
+import {ApiKeyError} from './errors/defaultError';
 
 type Writable<T> = {-readonly [P in keyof T]: T[P]};
 
+// Errors
 export * from './errors/defaultError';
+// Models (base types, request types, response types, schemas)
+export * from './models/index';
+// Common Types & Schemas
+export * from './types/index';
 
 /**
  * SOLAPI 메시지 서비스
@@ -255,6 +261,12 @@ export class SolapiMessageService {
   readonly uploadFile: typeof StorageService.prototype.uploadFile;
 
   constructor(apiKey: string, apiSecret: string) {
+    if (!apiKey || !apiSecret) {
+      throw new ApiKeyError({
+        message: 'API Key와 API Secret은 필수입니다.',
+      });
+    }
+
     this.cashService = new CashService(apiKey, apiSecret);
     this.iamService = new IamService(apiKey, apiSecret);
     this.kakaoChannelService = new KakaoChannelService(apiKey, apiSecret);
