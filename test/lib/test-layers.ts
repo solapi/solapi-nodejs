@@ -30,8 +30,8 @@ const createServiceLayer = <S>(
   Layer.effect(
     tag,
     Effect.gen(function* () {
-      const apiKey = yield* Config.string('API_KEY');
-      const apiSecret = yield* Config.string('API_SECRET');
+      const apiKey = yield* Config.string('SOLAPI_API_KEY');
+      const apiSecret = yield* Config.string('SOLAPI_API_SECRET');
       return new ServiceClass(apiKey, apiSecret);
     }),
   );

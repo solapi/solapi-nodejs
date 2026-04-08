@@ -3,9 +3,9 @@
  *
  * ## 환경변수 설정
  * 실제 테스트 실행을 위해서는 다음 환경 변수가 필요합니다:
- * - API_KEY: SOLAPI API 키
- * - API_SECRET: SOLAPI API 시크릿
- * - SENDER_NUMBER: SOLAPI에 등록된 발신번호 (fallback: 01000000000)
+ * - SOLAPI_API_KEY: SOLAPI API 키
+ * - SOLAPI_API_SECRET: SOLAPI API 시크릿
+ * - SOLAPI_SENDER: SOLAPI에 등록된 발신번호 (fallback: 01000000000)
  *
  * ## 테스트 특징
  * - 8가지 BMS Free 타입 (TEXT, IMAGE, WIDE, WIDE_ITEM_LIST, COMMERCE, CAROUSEL_FEED, CAROUSEL_COMMERCE, PREMIUM_VIDEO)
@@ -51,7 +51,7 @@ describe('BMS Free Message E2E', () => {
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -91,7 +91,7 @@ describe('BMS Free Message E2E', () => {
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -143,7 +143,7 @@ describe('BMS Free Message E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -193,7 +193,7 @@ describe('BMS Free Message E2E', () => {
           const messageService = yield* MessageServiceTag;
           const kakaoChannelService = yield* KakaoChannelServiceTag;
           const storageService = yield* StorageServiceTag;
-          const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+          const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
             Config.withDefault('01000000000'),
           );
 
@@ -252,7 +252,7 @@ describe('BMS Free Message E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -300,7 +300,7 @@ describe('BMS Free Message E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -353,7 +353,7 @@ describe('BMS Free Message E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -416,7 +416,7 @@ describe('BMS Free Message E2E', () => {
           const messageService = yield* MessageServiceTag;
           const kakaoChannelService = yield* KakaoChannelServiceTag;
           const storageService = yield* StorageServiceTag;
-          const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+          const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
             Config.withDefault('01000000000'),
           );
 
@@ -482,7 +482,7 @@ describe('BMS Free Message E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -535,7 +535,7 @@ describe('BMS Free Message E2E', () => {
           const messageService = yield* MessageServiceTag;
           const kakaoChannelService = yield* KakaoChannelServiceTag;
           const storageService = yield* StorageServiceTag;
-          const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+          const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
             Config.withDefault('01000000000'),
           );
 
@@ -596,7 +596,7 @@ describe('BMS Free Message E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -650,7 +650,7 @@ describe('BMS Free Message E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -729,7 +729,7 @@ describe('BMS Free Message E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -799,7 +799,7 @@ describe('BMS Free Message E2E', () => {
           const messageService = yield* MessageServiceTag;
           const kakaoChannelService = yield* KakaoChannelServiceTag;
           const storageService = yield* StorageServiceTag;
-          const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+          const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
             Config.withDefault('01000000000'),
           );
 
@@ -887,7 +887,7 @@ describe('BMS Free Message E2E', () => {
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -935,7 +935,7 @@ describe('BMS Free Message E2E', () => {
           const messageService = yield* MessageServiceTag;
           const kakaoChannelService = yield* KakaoChannelServiceTag;
           const storageService = yield* StorageServiceTag;
-          const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+          const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
             Config.withDefault('01000000000'),
           );
 
@@ -994,7 +994,7 @@ describe('BMS Free Message E2E', () => {
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -1033,7 +1033,7 @@ describe('BMS Free Message E2E', () => {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
         const storageService = yield* StorageServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -1082,7 +1082,7 @@ describe('BMS Free Message E2E', () => {
         Effect.gen(function* () {
           const messageService = yield* MessageServiceTag;
           const kakaoChannelService = yield* KakaoChannelServiceTag;
-          const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+          const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
             Config.withDefault('01000000000'),
           );
 
@@ -1126,7 +1126,7 @@ describe('BMS Free Message E2E', () => {
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 
@@ -1169,7 +1169,7 @@ describe('BMS Free Message E2E', () => {
       Effect.gen(function* () {
         const messageService = yield* MessageServiceTag;
         const kakaoChannelService = yield* KakaoChannelServiceTag;
-        const senderNumber = yield* Config.string('SENDER_NUMBER').pipe(
+        const senderNumber = yield* Config.string('SOLAPI_SENDER').pipe(
           Config.withDefault('01000000000'),
         );
 

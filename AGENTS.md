@@ -1,14 +1,8 @@
-# SOLAPI SDK for Node.js
+# AGENTS.md
 
-**Generated:** 2026-01-21
-**Commit:** 9df35df
-**Branch:** master
+SOLAPI SDK for Node.js. Effect 라이브러리 기반 함수형 프로그래밍 + 타입 안전 에러 처리.
 
-## OVERVIEW
-
-Server-side SDK for SMS/LMS/MMS and Kakao messaging in Korea. Uses Effect library for type-safe functional programming with Data.TaggedError-based error handling.
-
-## STRUCTURE
+## Structure
 
 ```
 solapi-nodejs/
@@ -16,15 +10,15 @@ solapi-nodejs/
 │   ├── index.ts              # SolapiMessageService facade (entry point)
 │   ├── errors/               # Data.TaggedError types
 │   ├── lib/                  # Core utilities (fetcher, auth, error handler)
-│   ├── models/               # Schemas, requests, responses (see models/AGENTS.md)
-│   ├── services/             # Domain services (see services/AGENTS.md)
+│   ├── models/               # Schemas, requests, responses
+│   ├── services/             # Domain services
 │   └── types/                # Shared type definitions
 ├── test/                     # Mirrors src/ structure
 ├── examples/                 # Usage examples (excluded from build)
 └── debug/                    # Debug scripts
 ```
 
-## WHERE TO LOOK
+## Where to Look
 
 | Task | Location | Notes |
 |------|----------|-------|
@@ -36,58 +30,160 @@ solapi-nodejs/
 | Fix API request issue | `src/lib/defaultFetcher.ts` | HTTP client with retry |
 | Understand error flow | `src/lib/effectErrorHandler.ts` | Effect → Promise conversion |
 
-## CONVENTIONS
+## Conventions
 
-**Effect Library (MANDATORY)**:
-- All errors: `Data.TaggedError` with environment-aware `toString()`
-- Async operations: `Effect.gen` + `Effect.tryPromise`, never wrap with try-catch
-- Validation: `Effect Schema` with `Schema.filter`, `Schema.transform`
-- Error execution: `runSafePromise()` / `runSafeSync()` from effectErrorHandler
+### Effect Library (Mandatory)
 
-**TypeScript**:
-- **NEVER use `any`** — use `unknown` + type guards or Effect Schema
-- Strict mode enforced (`noUnusedLocals`, `noUnusedParameters`)
-- Path aliases: `@models`, `@lib`, `@services`, `@errors`, `@internal-types`
+**Async operations**: `Effect.tryPromise` 또는 `Effect.gen`
+```typescript
+Effect.tryPromise({
+  try: () => fetch(url, options),
+  catch: e => new NetworkError({ url, cause: e }),
+});
+```
 
-**Testing**:
-- Unit: `vitest` with `Schema.decodeUnknownEither()` for validation tests
-- E2E: `@effect/vitest` with `it.effect()` and `Effect.gen`
-- Run: `pnpm test` / `pnpm test:watch`
+**Complex flow**: `Effect.gen`
+```typescript
+Effect.gen(function* (_) {
+  const auth = yield* _(buildAuth(params));
+  const response = yield* _(fetchWithRetry(url, auth));
+  return yield* _(parseResponse(response));
+});
+```
 
-## ANTI-PATTERNS
+**Error to Promise**: 반드시 `runSafePromise` 경유
+```typescript
+return runSafePromise(effect);
+// BAD: try { await Effect.runPromise(...) } catch { }
+```
+
+### Service Pattern
+
+`DefaultService` 상속 → `this.request()` 사용:
+```typescript
+export default class MyService extends DefaultService {
+  async myMethod(data: Request): Promise<Response> {
+    return this.request<Request, Response>({
+      httpMethod: 'POST',
+      url: 'my/endpoint',
+      body: data,
+    });
+  }
+}
+```
+
+Effect.gen 활용 (복잡한 로직):
+```typescript
+async send(messages: Request): Promise<Response> {
+  const effect = Effect.gen(function* (_) {
+    const validated = yield* _(validateSchema(messages));
+    return yield* _(Effect.promise(() => this.request(...)));
+  });
+  return runSafePromise(effect);
+}
+```
+
+### Model Pattern
+
+Three-layer architecture: `base/` (도메인) → `requests/` (입력 변환) → `responses/` (API 응답)
+
+**Type + Schema**:
+```typescript
+export type MyType = Schema.Schema.Type<typeof mySchema>;
+export const mySchema = Schema.Struct({
+  field: Schema.String,
+  optional: Schema.optional(Schema.Number),
+});
+```
+
+**Discriminated Union**:
+```typescript
+export const buttonSchema = Schema.Union(
+  webButtonSchema,   // { linkType: 'WL', ... }
+  appButtonSchema,   // { linkType: 'AL', ... }
+);
+```
+
+**Custom Validation**:
+```typescript
+Schema.String.pipe(
+  Schema.filter(isValid, { message: () => 'Error message' }),
+);
+```
+
+### Lib Utilities
+
+| File | Purpose |
+|------|---------|
+| `defaultFetcher.ts` | HTTP client — Effect.gen, retry 3x exponential backoff, Match |
+| `effectErrorHandler.ts` | `runSafePromise`, `runSafeSync`, `unwrapCause` |
+| `authenticator.ts` | HMAC-SHA256 auth header |
+| `stringifyQuery.ts` | URL query string builder (array handling) |
+| `fileToBase64.ts` | File/URL → Base64 |
+| `stringDateTrasnfer.ts` | Date parsing with `InvalidDateError` |
+
+## Anti-Patterns
 
 | Pattern | Why Bad | Do Instead |
 |---------|---------|------------|
 | `any` type | Loses type safety | `unknown` + type guards |
 | `as any`, `@ts-ignore` | Suppresses errors | Fix the type issue |
-| try-catch around Effect | Loses Effect benefits | Use `Effect.catchTag` |
-| Direct `throw new Error()` | Inconsistent error handling | Use `Data.TaggedError` |
+| try-catch around Effect | Loses Effect benefits | `Effect.catchTag` |
+| Direct `throw new Error()` | Inconsistent error handling | `Data.TaggedError` |
 | Empty catch blocks | Swallows errors | Handle or propagate |
+| Bypass `runSafePromise` | Loses error formatting | Always use `runSafePromise` |
+| Call `defaultFetcher` directly | Bypasses service layer | Use `this.request()` |
+| Skip schema validation | Runtime errors | Always validate input |
+| Interface when schema needed | No runtime validation | Use `Schema.Struct` |
+| Duplicate validation logic | Inconsistency | Compose schemas |
+| Hardcode API URL | Inflexible | Use `DefaultService.baseUrl` |
+| Mix Effect and Promise styles | Confusing | Pick one per method |
 
-## COMMANDS
+## Architecture Notes
 
-```bash
-pnpm dev          # Watch mode (tsup)
-pnpm build        # Lint + build
-pnpm lint         # Biome check with auto-fix
-pnpm test         # Run tests once
-pnpm test:watch   # Watch mode
-pnpm docs         # Generate TypeDoc
-```
-
-## ARCHITECTURE NOTES
-
-**Service Facade Pattern**: `SolapiMessageService` aggregates 7 domain services via `bindServices()` dynamic method binding. All services extend `DefaultService`.
+**Service Facade**: `SolapiMessageService`가 7개 도메인 서비스를 `bindServices()`로 동적 바인딩.
 
 **Error Flow**:
 ```
-API Response
-  → defaultFetcher (creates Effect errors)
-  → runSafePromise (converts to Promise)
-  → toCompatibleError (preserves properties on Error)
-  → Consumer
+API Response → defaultFetcher (Effect errors) → runSafePromise (Promise)
+  → 원본 Data.TaggedError 그대로 reject → Consumer
 ```
 
-**Production vs Development**: Error messages stripped of stack traces and detailed context in production (`process.env.NODE_ENV === 'production'`).
+**Production vs Development**: Production에서는 stack trace와 상세 컨텍스트가 제거됨.
 
-**Retry Logic**: `defaultFetcher.ts` implements 3x retry with exponential backoff for retryable errors (connection refused, reset, 503).
+**Retry Logic**: `defaultFetcher.ts` — 3회 재시도, exponential backoff (connection refused, reset, 503).
+
+## Testing Guidelines (Detail)
+
+### Failure Injection
+- 의존성 실패 시뮬레이션 (첫 호출, N번째 호출, 지속적 실패)
+- 타임아웃, 취소 케이스 포함
+- 부분 성공 후 실패 시나리오
+
+### Concurrency
+- Race condition 없음 확인
+- Deadlock 없음 확인
+- 중복 실행 없음 확인
+
+### Persistence
+- Atomic behavior (전부 또는 전무)
+- 중간 상태 오염 없음
+- 안전한 재시도 및 복구
+
+### Fuzz (권장)
+- 입력 파싱/디코딩에 fuzz 테스트 적용
+- panic이나 무한 리소스 사용 없음 확인
+
+### Style
+- 테이블 기반 테스트: `it.each()` 활용
+- 외부 의존성: fake/stub 사용
+- cleanup hooks (`afterEach`/`afterAll`)
+
+## Sub-Agents
+
+### tidy-first
+Kent Beck의 "Tidy First?" 원칙 적용 리팩토링 전문가.
+`.claude/agents/tidy-first.md` 참조.
+
+**자동 호출**: 기능 추가, 동작 구현, 코드 리뷰, 리팩토링 작업 시.
+**핵심 규칙**: 구조적 변경과 동작 변경을 항상 분리.

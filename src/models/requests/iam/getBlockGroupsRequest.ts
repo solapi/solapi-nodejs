@@ -1,41 +1,20 @@
-export interface GetBlockGroupsRequest {
-  /**
-   * @description 수신 거부 그룹 핸들키
-   */
-  blockGroupId?: string;
+import {Schema} from 'effect';
+import {likeLiteralSchema} from '../common/datePayload';
 
-  /**
-   * @description 수신 거부 그룹에 등록된 모든 발신번호 적용 여부.
-   */
-  useAll?: boolean;
+export const getBlockGroupsRequestSchema = Schema.Struct({
+  blockGroupId: Schema.optional(Schema.String),
+  useAll: Schema.optional(Schema.Boolean),
+  senderNumber: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.Union(Schema.String, likeLiteralSchema)),
+  status: Schema.optional(Schema.Literal('ACTIVE', 'INACTIVE')),
+  startKey: Schema.optional(Schema.String),
+  limit: Schema.optional(Schema.Number),
+});
+export type GetBlockGroupsRequest = Schema.Schema.Type<
+  typeof getBlockGroupsRequestSchema
+>;
 
-  /**
-   * @description 수신 거부 그룹에 등록된 발신번호
-   */
-  senderNumber?: string;
-
-  /**
-   * @description 수신 거부 그룹 이름 (부분 검색 가능)
-   */
-  name?: {like: string} | string;
-
-  /**
-   * @description 수신 거부 그룹 활성화 상태
-   */
-  status?: 'ACTIVE' | 'INACTIVE';
-
-  /**
-   * @description 페이지네이션 조회 키
-   */
-  startKey?: string;
-
-  /**
-   * @description 조회 시 제한할 건 수 (기본: 20, 최대: 500)
-   */
-  limit?: number;
-}
-
-export class GetBlockGroupsFinalizeRequest implements GetBlockGroupsRequest {
+export type GetBlockGroupsFinalizedPayload = {
   blockGroupId?: string;
   useAll?: boolean;
   senderNumber?: string;
@@ -43,22 +22,26 @@ export class GetBlockGroupsFinalizeRequest implements GetBlockGroupsRequest {
   status?: 'ACTIVE' | 'INACTIVE';
   startKey?: string;
   limit?: number;
+};
 
-  constructor(parameter: GetBlockGroupsRequest) {
-    this.blockGroupId = parameter.blockGroupId;
-    this.useAll = parameter.useAll;
-    this.senderNumber = parameter.senderNumber;
-    if (parameter.name != undefined) {
-      if (typeof parameter.name == 'string') {
-        this.name = {
-          like: parameter.name,
-        };
-      } else {
-        this.name = parameter.name;
-      }
-    }
-    this.status = parameter.status;
-    this.startKey = parameter.startKey;
-    this.limit = parameter.limit;
+export function finalizeGetBlockGroupsRequest(
+  data?: GetBlockGroupsRequest,
+): GetBlockGroupsFinalizedPayload {
+  if (!data) return {};
+
+  const payload: GetBlockGroupsFinalizedPayload = {
+    blockGroupId: data.blockGroupId,
+    useAll: data.useAll,
+    senderNumber: data.senderNumber,
+    status: data.status,
+    startKey: data.startKey,
+    limit: data.limit,
+  };
+
+  if (data.name != null) {
+    payload.name =
+      typeof data.name === 'string' ? {like: data.name} : data.name;
   }
+
+  return payload;
 }

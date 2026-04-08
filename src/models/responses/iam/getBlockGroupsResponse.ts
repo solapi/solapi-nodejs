@@ -1,8 +1,12 @@
-import {BlockGroup} from '@internal-types/commonTypes';
+import {blockGroupSchema} from '@internal-types/commonTypes';
+import {Schema} from 'effect';
 
-export type GetBlockGroupsResponse = {
-  startKey: string | null | undefined;
-  limit: number;
-  nextKey: string | null | undefined;
-  blockGroups: BlockGroup[];
-};
+export const getBlockGroupsResponseSchema = Schema.Struct({
+  startKey: Schema.NullishOr(Schema.String),
+  limit: Schema.Number,
+  nextKey: Schema.NullishOr(Schema.String),
+  blockGroups: Schema.Array(blockGroupSchema),
+});
+export type GetBlockGroupsResponse = Schema.Schema.Type<
+  typeof getBlockGroupsResponseSchema
+>;

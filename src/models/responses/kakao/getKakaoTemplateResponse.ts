@@ -1,13 +1,21 @@
 import {
-  KakaoAlimtalkTemplateAssignType,
-  KakaoAlimtalkTemplateInterface,
-} from '../../base/kakao/kakaoAlimtalkTemplate';
+  kakaoAlimtalkTemplateAssignTypeSchema,
+  kakaoAlimtalkTemplateSchema,
+} from '@models/base/kakao/kakaoAlimtalkTemplate';
+import {Schema} from 'effect';
 
-export interface GetKakaoTemplateResponse
-  extends KakaoAlimtalkTemplateInterface {
-  assignType: KakaoAlimtalkTemplateAssignType;
-  accountId: string;
-  commentable: boolean;
-  dateCreated: string;
-  dateUpdated: string;
-}
+export const getKakaoTemplateResponseSchema = kakaoAlimtalkTemplateSchema.pipe(
+  Schema.omit('assignType', 'commentable', 'dateCreated', 'dateUpdated'),
+  Schema.extend(
+    Schema.Struct({
+      assignType: kakaoAlimtalkTemplateAssignTypeSchema,
+      accountId: Schema.String,
+      commentable: Schema.Boolean,
+      dateCreated: Schema.String,
+      dateUpdated: Schema.String,
+    }),
+  ),
+);
+export type GetKakaoTemplateResponse = Schema.Schema.Type<
+  typeof getKakaoTemplateResponseSchema
+>;
