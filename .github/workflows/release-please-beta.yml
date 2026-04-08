@@ -14,13 +14,19 @@ permissions:
   statuses: write
   id-token: write
 
+concurrency:
+  group: release-please-beta
+  cancel-in-progress: false
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   release-please:
     name: Release Please (Beta)
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
@@ -43,8 +49,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          SHA=$(gh pr list --repo "$REPO" --head release-please--branches--beta --state open --json headRefOid --jq '.[0].headRefOid')
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          SHA=$(gh pr list --repo "$REPO" --head release-please--branches--beta --state open --json headRefOid --jq '.[0].headRefOid // empty')
+          echo "sha=${SHA:-}" >> "$GITHUB_OUTPUT"
 
   test-release-pr:
     name: Test (Beta Release PR)

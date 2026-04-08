@@ -5,6 +5,7 @@
       "release-type": "node",
       "prerelease": true,
       "prerelease-type": "beta",
+      "bootstrap-sha": "2e907370fc7bb91e6ace2c94eb1cb6ae3f9e4935",
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
       "changelog-sections": [
