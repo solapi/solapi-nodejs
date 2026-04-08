@@ -17,6 +17,7 @@
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
+    "includes": ["**", "!package.json"],
     "indentStyle": "space",
     "indentWidth": 2,
     "lineEnding": "lf",
