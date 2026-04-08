@@ -114,6 +114,26 @@ export const ApiError = ClientError;
 /** @deprecated Use ClientError instead */
 export type ApiError = ClientError;
 
+// Defect(예측되지 않은 예외) — Effect 경계에서 발생하는 비정상 에러
+export class UnexpectedDefectError extends Data.TaggedError(
+  'UnexpectedDefectError',
+)<{
+  readonly message: string;
+}> {
+  toString(): string {
+    return `UnexpectedDefectError: ${this.message}`;
+  }
+}
+
+// Effect 실행 실패 (중단 등)
+export class UnhandledExitError extends Data.TaggedError('UnhandledExitError')<{
+  readonly message: string;
+}> {
+  toString(): string {
+    return `UnhandledExitError: ${this.message}`;
+  }
+}
+
 // 5xx 서버 에러용
 export class ServerError extends Data.TaggedError('ServerError')<{
   readonly errorCode: string;

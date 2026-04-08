@@ -1,4 +1,8 @@
 import {Cause, Chunk, Effect, Exit} from 'effect';
+import {
+  UnexpectedDefectError,
+  UnhandledExitError,
+} from '../errors/defaultError';
 
 /**
  * Defect(예측되지 않은 에러)에서 정보 추출
@@ -36,7 +40,7 @@ const extractDefectInfo = (
 
 /**
  * Cause에서 throw/reject할 에러를 추출.
- * 예측된 실패 → 원본 Effect 에러, Defect → 래핑된 Error
+ * 예측된 실패 → 원본 Effect 에러, Defect → Data.TaggedError
  */
 const unwrapCause = (cause: Cause.Cause<unknown>): unknown => {
   const failure = Cause.failureOption(cause);
@@ -55,18 +59,14 @@ const unwrapCause = (cause: Cause.Cause<unknown>): unknown => {
     const message = isProduction
       ? `Unexpected error: ${defectInfo.summary}`
       : `Unexpected error: ${defectInfo.details}\nCause: ${Cause.pretty(cause)}`;
-    const error = new Error(message);
-    error.name = 'UnexpectedDefectError';
-    return error;
+    return new UnexpectedDefectError({message});
   }
 
   const isProduction = process.env.NODE_ENV === 'production';
   const message = isProduction
     ? 'Effect execution failed unexpectedly'
     : `Unhandled Effect Exit:\n${Cause.pretty(cause)}`;
-  const error = new Error(message);
-  error.name = 'UnhandledExitError';
-  return error;
+  return new UnhandledExitError({message});
 };
 
 export const runSafeSync = <E, A>(effect: Effect.Effect<A, E>): A => {
