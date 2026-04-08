@@ -1,6 +1,6 @@
 {
   "name": "solapi",
-  "version": "5.5.4",
+  "version": "5.6.0",
   "description": "SOLAPI SDK for Node.js(Server Side Only)",
   "keywords": [
     "solapi",
@@ -29,7 +29,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.mjs",
-  "files": ["/dist"],
+  "files": [
+    "/dist"
+  ],
   "scripts": {
     "build": "pnpm lint && tsup",
     "docs": "typedoc --entryPointStrategy expand ./src",
