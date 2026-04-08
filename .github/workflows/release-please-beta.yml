@@ -42,6 +42,16 @@ jobs:
           config-file: release-please-config-beta.json
           manifest-file: .release-please-manifest-beta.json
 
+      - name: Update release title with date
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          DATE=$(date -u +"%Y/%m/%d")
+          gh release edit "$TAG" --repo "$REPO" --title "$TAG ($DATE)"
+
       - name: Get PR head SHA
         id: pr-sha
         if: ${{ !steps.release.outputs.release_created }}
