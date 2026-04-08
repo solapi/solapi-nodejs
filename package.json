@@ -34,8 +34,10 @@
     "build": "pnpm lint && tsup",
     "docs": "typedoc --entryPointStrategy expand ./src",
     "lint": "biome check --write",
+    "lint:ci": "biome check",
     "dev": "tsup --watch",
     "test": "vitest run",
+    "test:ci": "vitest run --exclude '**/*.e2e.test.ts'",
     "test:watch": "vitest"
   },
   "dependencies": {
