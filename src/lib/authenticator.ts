@@ -1,7 +1,7 @@
 import {createHmac, randomBytes} from 'crypto';
 import {formatISO} from 'date-fns';
 import {Effect} from 'effect';
-import {ApiKeyError} from '../errors/defaultError';
+import {ApiKeyError, DefaultError} from '../errors/defaultError';
 
 enum AuthenticateType {
   API_KEY,
@@ -35,25 +35,34 @@ function genCustomText(alphabet: string, size: number): string {
 export default function getAuthInfo(
   authenticationParameter: AuthenticationParameter,
   authType: AuthenticateType = AuthenticateType.API_KEY,
-): Effect.Effect<string, ApiKeyError> {
+): Effect.Effect<string, ApiKeyError | DefaultError> {
   const {apiKey, apiSecret} = authenticationParameter;
   switch (authType) {
     case AuthenticateType.API_KEY:
     default:
       if (!apiKey || !apiSecret) {
-        return Effect.fail(new ApiKeyError({message: 'Invalid API Key Error'}));
-      }
-      return Effect.sync(() => {
-        const salt = genCustomText(
-          '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-          32,
+        return Effect.fail(
+          new ApiKeyError({message: 'API Key와 API Secret은 필수입니다.'}),
         );
-        const date = formatISO(new Date());
-        const hmacData = date + salt;
-        const genHmac = createHmac('sha256', apiSecret);
-        genHmac.update(hmacData);
-        const signature = genHmac.digest('hex');
-        return `HMAC-SHA256 apiKey=${apiKey}, date=${date}, salt=${salt}, signature=${signature}`;
+      }
+      return Effect.try({
+        try: () => {
+          const salt = genCustomText(
+            '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            32,
+          );
+          const date = formatISO(new Date());
+          const hmacData = date + salt;
+          const genHmac = createHmac('sha256', apiSecret);
+          genHmac.update(hmacData);
+          const signature = genHmac.digest('hex');
+          return `HMAC-SHA256 apiKey=${apiKey}, date=${date}, salt=${salt}, signature=${signature}`;
+        },
+        catch: e =>
+          new DefaultError({
+            errorCode: 'AuthError',
+            errorMessage: e instanceof Error ? e.message : String(e),
+          }),
       });
   }
 }

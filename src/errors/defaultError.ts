@@ -123,7 +123,7 @@ export class ServerError extends Data.TaggedError('ServerError')<{
   readonly responseBody?: string;
 }> {
   get message(): string {
-    return `${this.errorCode}: ${this.errorMessage}`;
+    return `${this.errorCode} - ${this.errorMessage}`;
   }
 
   toString(): string {
@@ -131,7 +131,7 @@ export class ServerError extends Data.TaggedError('ServerError')<{
     if (isProduction) {
       return `ServerError(${this.httpStatus}): ${this.message}`;
     }
-    return `ServerError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}
+    return `ServerError(${this.httpStatus}): ${this.message}
 URL: ${this.url}
 Response: ${this.responseBody?.substring(0, 500) ?? '(empty)'}`;
   }

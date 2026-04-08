@@ -34,39 +34,46 @@ const extractDefectInfo = (
   };
 };
 
-// Effect 프로그램의 실행 결과를 안전하게 처리
+/**
+ * Cause에서 throw/reject할 에러를 추출.
+ * 예측된 실패 → 원본 Effect 에러, Defect → 래핑된 Error
+ */
+const unwrapCause = (cause: Cause.Cause<unknown>): unknown => {
+  const failure = Cause.failureOption(cause);
+  if (failure._tag === 'Some') {
+    return failure.value;
+  }
+
+  const defects = Cause.defects(cause);
+  if (defects.length > 0) {
+    const firstDefect = Chunk.unsafeGet(defects, 0);
+    if (firstDefect instanceof Error) {
+      return firstDefect;
+    }
+    const isProduction = process.env.NODE_ENV === 'production';
+    const defectInfo = extractDefectInfo(firstDefect);
+    const message = isProduction
+      ? `Unexpected error: ${defectInfo.summary}`
+      : `Unexpected error: ${defectInfo.details}\nCause: ${Cause.pretty(cause)}`;
+    const error = new Error(message);
+    error.name = 'UnexpectedDefectError';
+    return error;
+  }
+
+  const isProduction = process.env.NODE_ENV === 'production';
+  const message = isProduction
+    ? 'Effect execution failed unexpectedly'
+    : `Unhandled Effect Exit:\n${Cause.pretty(cause)}`;
+  const error = new Error(message);
+  error.name = 'UnhandledExitError';
+  return error;
+};
+
 export const runSafeSync = <E, A>(effect: Effect.Effect<A, E>): A => {
   const exit = Effect.runSyncExit(effect);
-
   return Exit.match(exit, {
     onFailure: cause => {
-      const failure = Cause.failureOption(cause);
-      if (failure._tag === 'Some') {
-        throw failure.value;
-      }
-      // 예측되지 않은 예외(Defect)인지 확인
-      const defects = Cause.defects(cause);
-      if (defects.length > 0) {
-        const firstDefect = Chunk.unsafeGet(defects, 0);
-        if (firstDefect instanceof Error) {
-          throw firstDefect;
-        }
-        const isProduction = process.env.NODE_ENV === 'production';
-        const defectInfo = extractDefectInfo(firstDefect);
-        const message = isProduction
-          ? `Unexpected error: ${defectInfo.summary}`
-          : `Unexpected error: ${defectInfo.details}\nCause: ${Cause.pretty(cause)}`;
-        const error = new Error(message);
-        error.name = 'UnexpectedDefectError';
-        throw error;
-      }
-      const isProduction = process.env.NODE_ENV === 'production';
-      const message = isProduction
-        ? 'Effect execution failed unexpectedly'
-        : `Unhandled Effect Exit:\n${Cause.pretty(cause)}`;
-      const error = new Error(message);
-      error.name = 'UnhandledExitError';
-      throw error;
+      throw unwrapCause(cause);
     },
     onSuccess: value => value,
   });
@@ -78,36 +85,7 @@ export const runSafePromise = <E, A>(
 ): Promise<A> => {
   return Effect.runPromiseExit(effect).then(
     Exit.match({
-      onFailure: cause => {
-        const failure = Cause.failureOption(cause);
-        if (failure._tag === 'Some') {
-          return Promise.reject(failure.value);
-        }
-
-        const defects = Cause.defects(cause);
-        if (defects.length > 0) {
-          const firstDefect = Chunk.unsafeGet(defects, 0);
-          if (firstDefect instanceof Error) {
-            return Promise.reject(firstDefect);
-          }
-          const isProduction = process.env.NODE_ENV === 'production';
-          const defectInfo = extractDefectInfo(firstDefect);
-          const message = isProduction
-            ? `Unexpected error: ${defectInfo.summary}`
-            : `Unexpected error: ${defectInfo.details}\nCause: ${Cause.pretty(cause)}`;
-          const error = new Error(message);
-          error.name = 'UnexpectedDefectError';
-          return Promise.reject(error);
-        }
-
-        const isProduction = process.env.NODE_ENV === 'production';
-        const message = isProduction
-          ? 'Effect execution failed unexpectedly'
-          : `Unhandled Effect Exit:\n${Cause.pretty(cause)}`;
-        const error = new Error(message);
-        error.name = 'UnhandledExitError';
-        return Promise.reject(error);
-      },
+      onFailure: cause => Promise.reject(unwrapCause(cause)),
       onSuccess: value => Promise.resolve(value),
     }),
   );
