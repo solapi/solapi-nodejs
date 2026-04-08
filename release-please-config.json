@@ -3,6 +3,7 @@
   "packages": {
     ".": {
       "release-type": "node",
+      "bootstrap-sha": "cffece64628d7d16360f7622fb3b2e1dfa667136",
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
       "changelog-sections": [
