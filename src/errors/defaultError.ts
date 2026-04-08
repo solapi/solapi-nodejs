@@ -29,11 +29,15 @@ export class DefaultError extends Data.TaggedError('DefaultError')<{
   readonly errorMessage: string;
   readonly context?: Record<string, unknown>;
 }> {
+  get message(): string {
+    return `${this.errorCode}: ${this.errorMessage}`;
+  }
+
   toString(): string {
     if (process.env.NODE_ENV === 'production') {
-      return `${this.errorCode}: ${this.errorMessage}`;
+      return this.message;
     }
-    return `${this.errorCode}: ${this.errorMessage}${
+    return `${this.message}${
       this.context ? `\nContext: ${JSON.stringify(this.context, null, 2)}` : ''
     }`;
   }
@@ -77,8 +81,12 @@ export class NetworkError extends Data.TaggedError('NetworkError')<{
   readonly cause: unknown;
   readonly isRetryable?: boolean;
 }> {
+  get message(): string {
+    return `${this.method} ${this.url} 요청 실패 - ${this.cause}`;
+  }
+
   toString(): string {
-    return `NetworkError: ${this.method} ${this.url} 요청 실패 - ${this.cause}`;
+    return `NetworkError: ${this.message}`;
   }
 }
 
@@ -89,9 +97,13 @@ export class ClientError extends Data.TaggedError('ClientError')<{
   readonly httpStatus: number;
   readonly url?: string;
 }> {
+  get message(): string {
+    return `${this.errorCode}: ${this.errorMessage}`;
+  }
+
   toString(): string {
     if (process.env.NODE_ENV === 'production') {
-      return `${this.errorCode}: ${this.errorMessage}`;
+      return this.message;
     }
     return `ClientError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}\nURL: ${this.url}`;
   }
@@ -110,10 +122,14 @@ export class ServerError extends Data.TaggedError('ServerError')<{
   readonly url?: string;
   readonly responseBody?: string;
 }> {
+  get message(): string {
+    return `${this.errorCode}: ${this.errorMessage}`;
+  }
+
   toString(): string {
     const isProduction = process.env.NODE_ENV === 'production';
     if (isProduction) {
-      return `ServerError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}`;
+      return `ServerError(${this.httpStatus}): ${this.message}`;
     }
     return `ServerError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}
 URL: ${this.url}

@@ -83,7 +83,6 @@ export const createGroupRequestSchema = Schema.extend(
   defaultAgentTypeSchema,
   Schema.Struct({
     allowDuplicates: Schema.Boolean,
-    appId: Schema.optional(Schema.String),
     customFields: Schema.optional(
       Schema.Record({key: Schema.String, value: Schema.String}),
     ),
