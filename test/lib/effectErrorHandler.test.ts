@@ -4,6 +4,7 @@ import {
   ApiKeyError,
   BadRequestError,
   UnexpectedDefectError,
+  UnhandledExitError,
 } from '../../src/errors/defaultError';
 import {runSafePromise, runSafeSync} from '../../src/lib/effectErrorHandler';
 
@@ -37,6 +38,16 @@ describe('runSafeSync', () => {
     const effect = Effect.die(originalError);
     expect(() => runSafeSync(effect)).toThrow(originalError);
   });
+
+  it('should throw UnhandledExitError for interrupted effects', () => {
+    const effect = Effect.interrupt;
+    try {
+      runSafeSync(effect);
+    } catch (e) {
+      expect((e as UnhandledExitError)._tag).toBe('UnhandledExitError');
+      expect(e).toBeInstanceOf(Error);
+    }
+  });
 });
 
 describe('runSafePromise', () => {
@@ -62,6 +73,27 @@ describe('runSafePromise', () => {
       await runSafePromise(effect);
     } catch (e) {
       expect((e as UnexpectedDefectError)._tag).toBe('UnexpectedDefectError');
+    }
+  });
+
+  it('should reject with original Error for Error defects', async () => {
+    const originalError = new RangeError('out of range');
+    const effect = Effect.die(originalError);
+    try {
+      await runSafePromise(effect);
+    } catch (e) {
+      expect(e).toBe(originalError);
+      expect(e).toBeInstanceOf(RangeError);
+    }
+  });
+
+  it('should reject with UnhandledExitError for interrupted effects', async () => {
+    const effect = Effect.interrupt;
+    try {
+      await runSafePromise(effect);
+    } catch (e) {
+      expect((e as UnhandledExitError)._tag).toBe('UnhandledExitError');
+      expect(e).toBeInstanceOf(Error);
     }
   });
 });
