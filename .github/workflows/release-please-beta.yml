@@ -59,14 +59,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set pending status
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ needs.release-please.outputs.pr_head_sha }}
           REPO: ${{ github.repository }}
         run: |
           gh api "repos/$REPO/statuses/$SHA" \
-            -f state=pending -f context="Test (Beta)" -f description="Running tests..."
+            -f state=pending -f context="Test (Beta)" -f description="Running tests..." \
+          || echo "::warning::Failed to set pending status on $SHA"
 
       - name: Checkout
         uses: actions/checkout@v6
@@ -94,23 +94,27 @@ jobs:
 
       - name: Report success
         if: success()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ needs.release-please.outputs.pr_head_sha }}
           REPO: ${{ github.repository }}
         run: |
           gh api "repos/$REPO/statuses/$SHA" \
-            -f state=success -f context="Test (Beta)" -f description="Tests passed"
+            -f state=success -f context="Test (Beta)" -f description="Tests passed" \
+          || echo "::warning::Failed to report success status on $SHA"
 
       - name: Report failure
         if: failure()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ needs.release-please.outputs.pr_head_sha }}
           REPO: ${{ github.repository }}
         run: |
           gh api "repos/$REPO/statuses/$SHA" \
-            -f state=failure -f context="Test (Beta)" -f description="Tests failed"
+            -f state=failure -f context="Test (Beta)" -f description="Tests failed" \
+          || echo "::warning::Failed to report failure status on $SHA"
 
   lint-release-pr:
     name: Lint (Beta Release PR)
@@ -119,14 +123,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set pending status
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ needs.release-please.outputs.pr_head_sha }}
           REPO: ${{ github.repository }}
         run: |
           gh api "repos/$REPO/statuses/$SHA" \
-            -f state=pending -f context="Lint (Beta)" -f description="Running lint..."
+            -f state=pending -f context="Lint (Beta)" -f description="Running lint..." \
+          || echo "::warning::Failed to set pending status on $SHA"
 
       - name: Checkout
         uses: actions/checkout@v6
@@ -151,23 +155,27 @@ jobs:
 
       - name: Report success
         if: success()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ needs.release-please.outputs.pr_head_sha }}
           REPO: ${{ github.repository }}
         run: |
           gh api "repos/$REPO/statuses/$SHA" \
-            -f state=success -f context="Lint (Beta)" -f description="Lint passed"
+            -f state=success -f context="Lint (Beta)" -f description="Lint passed" \
+          || echo "::warning::Failed to report success status on $SHA"
 
       - name: Report failure
         if: failure()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHA: ${{ needs.release-please.outputs.pr_head_sha }}
           REPO: ${{ github.repository }}
         run: |
           gh api "repos/$REPO/statuses/$SHA" \
-            -f state=failure -f context="Lint (Beta)" -f description="Lint failed"
+            -f state=failure -f context="Lint (Beta)" -f description="Lint failed" \
+          || echo "::warning::Failed to report failure status on $SHA"
 
   publish:
     name: Publish to npm (Beta)
@@ -201,3 +209,17 @@ jobs:
         run: npm publish --provenance --access public --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Report publish failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "::error::npm publish failed for $TAG"
+          gh release edit "$TAG" --repo "$REPO" \
+            --notes "$(gh release view "$TAG" --repo "$REPO" --json body --jq .body)
+
+          ---
+          > **WARNING**: npm publish failed. Package was NOT published to npm." || true
