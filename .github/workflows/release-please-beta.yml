@@ -1,0 +1,235 @@
+name: Beta Release
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [beta]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+  statuses: write
+  id-token: write
+
+concurrency:
+  group: release-please-beta
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  release-please:
+    name: Release Please (Beta)
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      pr_head_sha: ${{ steps.pr-sha.outputs.sha }}
+    steps:
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: beta
+          config-file: release-please-config-beta.json
+          manifest-file: .release-please-manifest-beta.json
+
+      - name: Update release title with date
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          DATE=$(date -u +"%Y/%m/%d")
+          gh release edit "$TAG" --repo "$REPO" --title "$TAG ($DATE)"
+
+      - name: Get PR head SHA
+        id: pr-sha
+        if: ${{ !steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          SHA=$(gh pr list --repo "$REPO" --head release-please--branches--beta --state open --json headRefOid --jq '.[0].headRefOid // empty')
+          echo "sha=${SHA:-}" >> "$GITHUB_OUTPUT"
+
+  test-release-pr:
+    name: Test (Beta Release PR)
+    needs: release-please
+    if: ${{ !needs.release-please.outputs.release_created && needs.release-please.outputs.pr_head_sha != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set pending status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ needs.release-please.outputs.pr_head_sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$REPO/statuses/$SHA" \
+            -f state=pending -f context="Test (Beta)" -f description="Running tests..." \
+          || echo "::warning::Failed to set pending status on $SHA"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release-please.outputs.pr_head_sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 18
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test (unit only)
+        run: pnpm test:ci
+
+      - name: Build
+        run: pnpm tsup
+
+      - name: Report success
+        if: success()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ needs.release-please.outputs.pr_head_sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$REPO/statuses/$SHA" \
+            -f state=success -f context="Test (Beta)" -f description="Tests passed" \
+          || echo "::warning::Failed to report success status on $SHA"
+
+      - name: Report failure
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ needs.release-please.outputs.pr_head_sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$REPO/statuses/$SHA" \
+            -f state=failure -f context="Test (Beta)" -f description="Tests failed" \
+          || echo "::warning::Failed to report failure status on $SHA"
+
+  lint-release-pr:
+    name: Lint (Beta Release PR)
+    needs: release-please
+    if: ${{ !needs.release-please.outputs.release_created && needs.release-please.outputs.pr_head_sha != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set pending status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ needs.release-please.outputs.pr_head_sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$REPO/statuses/$SHA" \
+            -f state=pending -f context="Lint (Beta)" -f description="Running lint..." \
+          || echo "::warning::Failed to set pending status on $SHA"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release-please.outputs.pr_head_sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 18
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint:ci
+
+      - name: Report success
+        if: success()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ needs.release-please.outputs.pr_head_sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$REPO/statuses/$SHA" \
+            -f state=success -f context="Lint (Beta)" -f description="Lint passed" \
+          || echo "::warning::Failed to report success status on $SHA"
+
+      - name: Report failure
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ needs.release-please.outputs.pr_head_sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$REPO/statuses/$SHA" \
+            -f state=failure -f context="Lint (Beta)" -f description="Lint failed" \
+          || echo "::warning::Failed to report failure status on $SHA"
+
+  publish:
+    name: Publish to npm (Beta)
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 18
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm tsup
+
+      - name: Publish with provenance (beta)
+        run: npm publish --provenance --access public --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Report publish failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "::error::npm publish failed for $TAG"
+          gh release edit "$TAG" --repo "$REPO" \
+            --notes "$(gh release view "$TAG" --repo "$REPO" --json body --jq .body)
+
+          ---
+          > **WARNING**: npm publish failed. Package was NOT published to npm." || true
