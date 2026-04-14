@@ -44,10 +44,6 @@ export {
   getKakaoChannelsRequestSchema,
 } from './kakao/getKakaoChannelsRequest';
 export {
-  type KakaoOptionRequest,
-  kakaoOptionRequestSchema,
-} from './kakao/kakaoOptionRequest';
-export {
   type UpdateKakaoAlimtalkTemplateRequest,
   updateKakaoAlimtalkTemplateRequestSchema,
 } from './kakao/updateKakaoAlimtalkTemplateRequest';
