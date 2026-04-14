@@ -20,19 +20,21 @@ class RetryableError extends Data.TaggedError('RetryableError')<{
   readonly error?: unknown;
 }> {}
 
+const toMessage = (e: unknown): string =>
+  e instanceof Error ? e.message : String(e);
+
+const makeParseError = (res: Response, message: string) =>
+  new DefaultError({
+    errorCode: 'ParseError',
+    errorMessage: message,
+    context: {responseStatus: res.status, responseUrl: res.url},
+  });
+
 const handleOkResponse = <R>(res: Response) =>
   pipe(
     Effect.tryPromise({
       try: () => res.text(),
-      catch: e =>
-        new DefaultError({
-          errorCode: 'ParseError',
-          errorMessage: e instanceof Error ? e.message : String(e),
-          context: {
-            responseStatus: res.status,
-            responseUrl: res.url,
-          },
-        }),
+      catch: e => makeParseError(res, toMessage(e)),
     }),
     Effect.flatMap(responseText => {
       if (!responseText) {
@@ -40,27 +42,12 @@ const handleOkResponse = <R>(res: Response) =>
           return Effect.succeed({} as R);
         }
         return Effect.fail(
-          new DefaultError({
-            errorCode: 'ParseError',
-            errorMessage: 'API returned empty response body',
-            context: {
-              responseStatus: res.status,
-              responseUrl: res.url,
-            },
-          }),
+          makeParseError(res, 'API returned empty response body'),
         );
       }
       return Effect.try({
         try: () => JSON.parse(responseText) as R,
-        catch: e =>
-          new DefaultError({
-            errorCode: 'ParseError',
-            errorMessage: e instanceof Error ? e.message : String(e),
-            context: {
-              responseStatus: res.status,
-              responseUrl: res.url,
-            },
-          }),
+        catch: e => makeParseError(res, toMessage(e)),
       });
     }),
   );
@@ -69,15 +56,7 @@ const handleClientErrorResponse = (res: Response) =>
   pipe(
     Effect.tryPromise({
       try: () => res.text(),
-      catch: e =>
-        new DefaultError({
-          errorCode: 'ParseError',
-          errorMessage: e instanceof Error ? e.message : String(e),
-          context: {
-            responseStatus: res.status,
-            responseUrl: res.url,
-          },
-        }),
+      catch: e => makeParseError(res, toMessage(e)),
     }),
     Effect.flatMap(text => {
       const genericError = new ClientError({
@@ -87,12 +66,20 @@ const handleClientErrorResponse = (res: Response) =>
         url: res.url,
       });
 
-      return pipe(
+      return Effect.flatMap(
         Effect.try({
           try: () => JSON.parse(text) as unknown,
-          catch: () => genericError,
+          catch: (e: unknown) =>
+            e instanceof SyntaxError
+              ? genericError
+              : new ClientError({
+                  errorCode: 'ResponseParseError',
+                  errorMessage: toMessage(e),
+                  httpStatus: res.status,
+                  url: res.url,
+                }),
         }),
-        Effect.flatMap(json =>
+        json =>
           Effect.fail(
             isErrorResponse(json)
               ? new ClientError({
@@ -103,7 +90,6 @@ const handleClientErrorResponse = (res: Response) =>
                 })
               : genericError,
           ),
-        ),
       );
     }),
   );
@@ -117,26 +103,20 @@ function parseServerErrorBody(
   genericError: ServerError,
   makeError: (errorCode: string, errorMessage: string) => ServerError,
 ): Effect.Effect<never, ServerError> {
-  return pipe(
+  return Effect.flatMap(
     Effect.try({
       try: () => JSON.parse(text) as unknown,
-      catch: (parseError: unknown) =>
-        parseError instanceof SyntaxError
+      catch: (e: unknown) =>
+        e instanceof SyntaxError
           ? genericError
-          : makeError(
-              'ResponseParseError',
-              parseError instanceof Error
-                ? parseError.message
-                : String(parseError),
-            ),
+          : makeError('ResponseParseError', toMessage(e)),
     }),
-    Effect.flatMap(json =>
+    json =>
       Effect.fail(
         isErrorResponse(json)
           ? makeError(json.errorCode, json.errorMessage)
           : genericError,
       ),
-    ),
   );
 }
 
@@ -147,11 +127,8 @@ const handleServerErrorResponse = (res: Response) =>
       catch: e =>
         new DefaultError({
           errorCode: 'ResponseReadError',
-          errorMessage: e instanceof Error ? e.message : String(e),
-          context: {
-            responseStatus: res.status,
-            responseUrl: res.url,
-          },
+          errorMessage: toMessage(e),
+          context: {responseStatus: res.status, responseUrl: res.url},
         }),
     }),
     Effect.flatMap(text => {
@@ -196,10 +173,8 @@ export function defaultFetcherEffect<T, R>(
       catch: e =>
         new DefaultError({
           errorCode: 'JSONStringifyError',
-          errorMessage: e instanceof Error ? e.message : String(e),
-          context: {
-            data,
-          },
+          errorMessage: toMessage(e),
+          context: {data},
         }),
     });
 

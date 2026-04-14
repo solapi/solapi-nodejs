@@ -8,9 +8,9 @@ const messageService = new SolapiMessageService(
   'ENTER_YOUR_API_SECRET',
 );
 
-// 단일 발송 예제, send 메소드로도 동일하게 사용가능
+// 단일 발송 예제
 messageService
-  .sendOne({
+  .send({
     to: '국제번호를 제외한 수신번호',
     from: '계정에서 등록한 발신번호 입력',
     text: '한글 45자, 영자 90자 이하 입력되면 자동으로 SMS타입의 메시지가 발송됩니다.',
@@ -21,14 +21,14 @@ messageService
 // 단일 예약 발송 예제
 // 예약발송 시 현재 시간보다 과거의 시간을 입력할 경우 즉시 발송됩니다.
 messageService
-  .sendOneFuture(
+  .send(
     {
       to: '국제번호를 제외한 수신번호',
       from: '계정에서 등록한 발신번호 입력',
       text: '한글 45자, 영자 90자 이하 입력되면 자동으로 SMS타입의 메시지가 발송됩니다.',
       country: '1', // 미국 국가번호, 국가번호 뒤에 추가로 번호가 붙는 국가들은 붙여서 기입해야 합니다. 예) 1 441 -> "1441"
     },
-    '2022-12-08 00:00:00',
+    {scheduledDate: '2022-12-08 00:00:00'},
   )
   .then(res => console.log(res));
 

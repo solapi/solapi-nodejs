@@ -152,10 +152,13 @@ Response: ${this.responseBody?.substring(0, 500) ?? '(empty)'}`;
   }
 }
 
-export const isErrorResponse = (value: unknown): value is ErrorResponse =>
-  value != null &&
-  typeof value === 'object' &&
-  'errorCode' in value &&
-  typeof (value as Record<string, unknown>).errorCode === 'string' &&
-  'errorMessage' in value &&
-  typeof (value as Record<string, unknown>).errorMessage === 'string';
+export const isErrorResponse = (value: unknown): value is ErrorResponse => {
+  if (value == null || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
+  return (
+    typeof obj.errorCode === 'string' &&
+    obj.errorCode !== '' &&
+    typeof obj.errorMessage === 'string' &&
+    obj.errorMessage !== ''
+  );
+};
