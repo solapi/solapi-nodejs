@@ -8,7 +8,6 @@ import {
   ServerError,
 } from '../errors/defaultError';
 import getAuthInfo, {AuthenticationParameter} from './authenticator';
-import {runSafePromise} from './effectErrorHandler';
 
 type DefaultRequest = {
   url: string;
@@ -260,22 +259,5 @@ export function defaultFetcherEffect<T, R>(
         }),
       ),
     ),
-  );
-}
-
-/**
- * 공용 API 클라이언트 함수 (Promise 반환)
- * @throws DefaultError 발송 실패 등 API 상의 다양한 오류를 표시합니다.
- * @param authParameter API 인증을 위한 파라미터
- * @param request API URI, HTTP method 정의
- * @param data API에 요청할 request body 데이터
- */
-export default async function defaultFetcher<T, R>(
-  authParameter: AuthenticationParameter,
-  request: DefaultRequest,
-  data?: T,
-): Promise<R> {
-  return runSafePromise(
-    defaultFetcherEffect<T, R>(authParameter, request, data),
   );
 }

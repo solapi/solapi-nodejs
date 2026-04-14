@@ -135,11 +135,6 @@ export type KakaoAlimtalkTemplateSchema = Schema.Schema.Type<
 >;
 
 /**
- * @deprecated v6.0.0에서 KakaoAlimtalkTemplateSchema를 사용하세요
- */
-export type KakaoAlimtalkTemplateInterface = KakaoAlimtalkTemplateSchema;
-
-/**
  * 날짜가 Date로 변환된 알림톡 템플릿 타입
  */
 export type KakaoAlimtalkTemplate = Omit<

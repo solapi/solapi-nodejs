@@ -1,5 +1,3 @@
-// Message Responses
-
 // IAM Responses
 export {
   type GetBlacksResponse,

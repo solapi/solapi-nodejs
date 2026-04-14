@@ -137,13 +137,3 @@ export const bmsCarouselCommerceSchema = Schema.Struct({
 export type BmsCarouselCommerceSchema = Schema.Schema.Type<
   typeof bmsCarouselCommerceSchema
 >;
-
-/**
- * @deprecated bmsCarouselHeadSchema 사용 권장
- */
-export const bmsCarouselCommerceHeadSchema = bmsCarouselHeadSchema;
-
-/**
- * @deprecated bmsCarouselTailSchema 사용 권장
- */
-export const bmsCarouselCommerceTailSchema = bmsCarouselTailSchema;
