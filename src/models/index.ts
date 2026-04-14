@@ -62,11 +62,10 @@ export {
   bmsChatBubbleTypeSchema,
   type KakaoOptionBmsSchema,
   transformVariables,
-  type VariableValidationError,
+  VariableValidationError,
   validateVariableNames,
 } from './base/kakao/kakaoOption';
 export {
-  type Message,
   type MessageSchema,
   type MessageType,
   messageSchema,
@@ -86,9 +85,11 @@ export {
 } from './base/rcs/rcsButton';
 export {
   type AdditionalBody,
+  additionalBodySchema,
   type RcsOptionRequest,
   type RcsOptionSchema,
   rcsOptionRequestSchema,
+  rcsOptionSchema,
 } from './base/rcs/rcsOption';
 
 // Requests

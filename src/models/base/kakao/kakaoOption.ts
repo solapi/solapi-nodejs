@@ -1,6 +1,5 @@
 import {runSafeSync} from '@lib/effectErrorHandler';
 import {Data, Effect, Array as EffectArray, pipe, Schema} from 'effect';
-import {type KakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
 import {
   bmsButtonSchema,
   bmsCarouselCommerceSchema,
@@ -11,7 +10,7 @@ import {
   bmsSubWideItemSchema,
   bmsVideoSchema,
 } from './bms';
-import {KakaoButton, kakaoButtonSchema} from './kakaoButton';
+import {kakaoButtonSchema} from './kakaoButton';
 
 // Effect Data 타입을 활용한 에러 클래스
 export class VariableValidationError extends Data.TaggedError(
@@ -206,23 +205,3 @@ export const baseKakaoOptionSchema = Schema.Struct({
   buttons: Schema.optional(Schema.Array(kakaoButtonSchema)),
   bms: Schema.optional(kakaoOptionBmsSchema),
 });
-
-export class KakaoOption {
-  pfId: string;
-  templateId?: string;
-  variables?: Record<string, string>;
-  disableSms?: boolean;
-  adFlag?: boolean;
-  buttons?: ReadonlyArray<KakaoButton>;
-  imageId?: string;
-
-  constructor(parameter: KakaoOptionRequest) {
-    this.pfId = parameter.pfId;
-    this.templateId = parameter.templateId;
-    this.variables = parameter.variables;
-    this.disableSms = parameter.disableSms;
-    this.adFlag = parameter.adFlag;
-    this.buttons = parameter.buttons;
-    this.imageId = parameter.imageId;
-  }
-}
