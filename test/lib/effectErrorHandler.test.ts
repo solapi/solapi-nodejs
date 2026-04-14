@@ -34,6 +34,7 @@ describe('runSafeSync', () => {
   });
 
   it('should handle defect with non-string _tag as generic object', () => {
+    expect.assertions(2);
     const effect = Effect.die({_tag: 42, message: 'numeric tag'});
     try {
       runSafeSync(effect);
@@ -45,6 +46,7 @@ describe('runSafeSync', () => {
   });
 
   it('should handle tagged defect without message property', () => {
+    expect.assertions(2);
     const effect = Effect.die({_tag: 'CustomTag'});
     try {
       runSafeSync(effect);
