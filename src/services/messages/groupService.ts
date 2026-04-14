@@ -1,10 +1,6 @@
 import {GroupId} from '@internal-types/commonTypes';
 import {runSafePromise} from '@lib/effectErrorHandler';
-import {
-  decodeWithBadRequest,
-  safeFinalize,
-  safeFormatWithTransfer,
-} from '@lib/schemaUtils';
+import {decodeWithBadRequest, safeFormatWithTransfer} from '@lib/schemaUtils';
 import stringifyQuery from '@lib/stringifyQuery';
 import {
   finalizeGetGroupsRequest,
@@ -80,24 +76,19 @@ export default class GroupService extends DefaultService {
   ): Promise<AddMessageResponse> {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const validatedMessages = yield* decodeWithBadRequest(
-          requestSendMessageSchema,
-          messages,
-        );
-
-        const requestBody: GroupMessageAddRequest = {
-          messages: Array.isArray(validatedMessages)
-            ? validatedMessages
-            : [validatedMessages],
-        };
-
-        return yield* reqEffect<GroupMessageAddRequest, AddMessageResponse>({
-          httpMethod: 'PUT',
-          url: `messages/v4/groups/${groupId}/messages`,
-          body: requestBody,
-        });
-      }),
+      Effect.flatMap(
+        decodeWithBadRequest(requestSendMessageSchema, messages),
+        validatedMessages =>
+          reqEffect<GroupMessageAddRequest, AddMessageResponse>({
+            httpMethod: 'PUT',
+            url: `messages/v4/groups/${groupId}/messages`,
+            body: {
+              messages: Array.isArray(validatedMessages)
+                ? validatedMessages
+                : [validatedMessages],
+            },
+          }),
+      ),
     );
   }
 
@@ -122,20 +113,15 @@ export default class GroupService extends DefaultService {
   async reserveGroup(groupId: GroupId, scheduledDate: Date | string) {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const formattedScheduledDate =
-          yield* safeFormatWithTransfer(scheduledDate);
-        return yield* reqEffect<
-          ScheduledDateSendingRequest,
-          GroupMessageResponse
-        >({
-          httpMethod: 'POST',
-          url: `messages/v4/groups/${groupId}/schedule`,
-          body: {
-            scheduledDate: formattedScheduledDate,
-          },
-        });
-      }),
+      Effect.flatMap(
+        safeFormatWithTransfer(scheduledDate),
+        formattedScheduledDate =>
+          reqEffect<ScheduledDateSendingRequest, GroupMessageResponse>({
+            httpMethod: 'POST',
+            url: `messages/v4/groups/${groupId}/schedule`,
+            body: {scheduledDate: formattedScheduledDate},
+          }),
+      ),
     );
   }
 
@@ -159,23 +145,12 @@ export default class GroupService extends DefaultService {
    * @param data 그룹 정보 상세 조회용 request 데이터
    */
   async getGroups(data?: GetGroupsRequest): Promise<GetGroupsResponse> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const validated = data
-          ? yield* decodeWithBadRequest(getGroupsRequestSchema, data)
-          : undefined;
-        const payload = yield* safeFinalize(() =>
-          finalizeGetGroupsRequest(validated),
-        );
-        const parameter = stringifyQuery(payload, {
-          indices: false,
-          addQueryPrefix: true,
-        });
-        return yield* reqEffect<never, GetGroupsResponse>({
-          httpMethod: 'GET',
-          url: `messages/v4/groups${parameter}`,
-        });
+      this.getWithQuery({
+        schema: getGroupsRequestSchema,
+        finalize: finalizeGetGroupsRequest,
+        url: 'messages/v4/groups',
+        data,
       }),
     );
   }

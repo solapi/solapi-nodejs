@@ -25,20 +25,13 @@ export default class StorageService extends DefaultService {
   ): Promise<FileUploadResponse> {
     const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const encodedFile = yield* fileToBase64Effect(filePath);
-        const parameter: FileUploadRequest = {
-          file: encodedFile,
-          type: fileType,
-          name,
-          link,
-        };
-        return yield* reqEffect<FileUploadRequest, FileUploadResponse>({
+      Effect.flatMap(fileToBase64Effect(filePath), encodedFile =>
+        reqEffect<FileUploadRequest, FileUploadResponse>({
           httpMethod: 'POST',
           url: 'storage/v1/files',
-          body: parameter,
-        });
-      }),
+          body: {file: encodedFile, type: fileType, name, link},
+        }),
+      ),
     );
   }
 }

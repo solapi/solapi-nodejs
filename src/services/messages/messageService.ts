@@ -1,6 +1,5 @@
 import {runSafePromise} from '@lib/effectErrorHandler';
-import {decodeWithBadRequest, safeFinalize} from '@lib/schemaUtils';
-import stringifyQuery from '@lib/stringifyQuery';
+import {decodeWithBadRequest} from '@lib/schemaUtils';
 import {
   finalizeGetMessagesRequest,
   type GetMessagesRequest,
@@ -62,11 +61,9 @@ export default class MessageService extends DefaultService {
           : [messageSchema];
 
         if (messageParameters.length === 0) {
-          return yield* Effect.fail(
-            new BadRequestError({
-              message: '데이터가 반드시 1건 이상 기입되어 있어야 합니다.',
-            }),
-          );
+          return yield* new BadRequestError({
+            message: '데이터가 반드시 1건 이상 기입되어 있어야 합니다.',
+          });
         }
 
         const decodedConfig = yield* decodeWithBadRequest(
@@ -104,12 +101,10 @@ export default class MessageService extends DefaultService {
           count.total === count.registeredFailed;
 
         if (failedAll) {
-          return yield* Effect.fail(
-            new MessageNotReceivedError({
-              failedMessageList: response.failedMessageList,
-              totalCount: response.failedMessageList.length,
-            }),
-          );
+          return yield* new MessageNotReceivedError({
+            failedMessageList: response.failedMessageList,
+            totalCount: response.failedMessageList.length,
+          });
         }
 
         return response;
@@ -124,23 +119,12 @@ export default class MessageService extends DefaultService {
   async getMessages(
     data?: Readonly<GetMessagesRequest>,
   ): Promise<GetMessagesResponse> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const validated = data
-          ? yield* decodeWithBadRequest(getMessagesRequestSchema, data)
-          : undefined;
-        const payload = yield* safeFinalize(() =>
-          finalizeGetMessagesRequest(validated),
-        );
-        const parameter = stringifyQuery(payload, {
-          indices: false,
-          addQueryPrefix: true,
-        });
-        return yield* reqEffect<never, GetMessagesResponse>({
-          httpMethod: 'GET',
-          url: `messages/v4/list${parameter}`,
-        });
+      this.getWithQuery({
+        schema: getMessagesRequestSchema,
+        finalize: finalizeGetMessagesRequest,
+        url: 'messages/v4/list',
+        data,
       }),
     );
   }
@@ -153,23 +137,12 @@ export default class MessageService extends DefaultService {
   async getStatistics(
     data?: Readonly<GetStatisticsRequest>,
   ): Promise<GetStatisticsResponse> {
-    const reqEffect = this.requestEffect.bind(this);
     return runSafePromise(
-      Effect.gen(function* () {
-        const validated = data
-          ? yield* decodeWithBadRequest(getStatisticsRequestSchema, data)
-          : undefined;
-        const payload = yield* safeFinalize(() =>
-          finalizeGetStatisticsRequest(validated),
-        );
-        const parameter = stringifyQuery(payload, {
-          indices: false,
-          addQueryPrefix: true,
-        });
-        return yield* reqEffect<never, GetStatisticsResponse>({
-          httpMethod: 'GET',
-          url: `messages/v4/statistics${parameter}`,
-        });
+      this.getWithQuery({
+        schema: getStatisticsRequestSchema,
+        finalize: finalizeGetStatisticsRequest,
+        url: 'messages/v4/statistics',
+        data,
       }),
     );
   }
