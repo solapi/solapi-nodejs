@@ -107,8 +107,6 @@ export {
   type RequestSendOneMessageSchema,
   requestSendMessageSchema,
   requestSendOneMessageSchema,
-  type SingleMessageSendingRequestSchema,
-  singleMessageSendingRequestSchema,
 } from './messages/sendMessage';
 // Voice
 export {

@@ -9,22 +9,7 @@ import {
   messageTypeRecordSchema,
 } from '@internal-types/commonTypes';
 import {Schema} from 'effect';
-import {messageSchema, messageTypeSchema} from '../base/messages/message';
-
-export const singleMessageSentResponseSchema = Schema.Struct({
-  groupId: Schema.String,
-  to: Schema.String,
-  from: Schema.String,
-  type: messageTypeSchema,
-  statusMessage: Schema.String,
-  country: Schema.String,
-  messageId: Schema.String,
-  statusCode: Schema.String,
-  accountId: Schema.String,
-});
-export type SingleMessageSentResponse = Schema.Schema.Type<
-  typeof singleMessageSentResponseSchema
->;
+import {messageSchema} from '../base/messages/message';
 
 export const groupMessageResponseSchema = Schema.Struct({
   count: countSchema,

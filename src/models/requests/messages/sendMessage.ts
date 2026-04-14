@@ -93,11 +93,6 @@ const agentWithDefaultSchema = Schema.optional(defaultAgentTypeSchema).pipe(
   Schema.withConstructorDefault(() => defaultAgentValue),
 );
 
-export const singleMessageSendingRequestSchema = Schema.Struct({
-  message: requestSendOneMessageSchema,
-  agent: agentWithDefaultSchema,
-});
-
 export const multipleMessageSendingRequestSchema = Schema.Struct({
   allowDuplicates: Schema.optional(Schema.Boolean),
   agent: agentWithDefaultSchema,
@@ -110,8 +105,4 @@ export const multipleMessageSendingRequestSchema = Schema.Struct({
 
 export type MultipleMessageSendingRequestSchema = Schema.Schema.Type<
   typeof multipleMessageSendingRequestSchema
->;
-
-export type SingleMessageSendingRequestSchema = Schema.Schema.Type<
-  typeof singleMessageSendingRequestSchema
 >;

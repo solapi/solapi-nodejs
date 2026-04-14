@@ -52,8 +52,6 @@ export {
   type RequestKakaoChannelTokenResponse,
   removeGroupMessagesResponseSchema,
   requestKakaoChannelTokenResponseSchema,
-  type SingleMessageSentResponse,
-  singleMessageSentResponseSchema,
 } from './messageResponses';
 // Send Detail Response
 export {
