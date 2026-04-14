@@ -1,38 +1,5 @@
 import {Schema} from 'effect';
 
-// --- Operator Types ---
-
-/**
- * @description 검색 조건 파라미터
- * @see https://developers.solapi.com/references/#operator
- */
-export const operatorTypeSchema = Schema.Literal(
-  'eq',
-  'gte',
-  'lte',
-  'ne',
-  'in',
-  'like',
-  'gt',
-  'lt',
-);
-export type OperatorType = Schema.Schema.Type<typeof operatorTypeSchema>;
-
-/**
- * @description 날짜 검색 조건 파라미터
- * @see https://developers.solapi.com/references/#operator
- */
-export const dateOperatorTypeSchema = Schema.Literal(
-  'eq',
-  'gte',
-  'lte',
-  'gt',
-  'lt',
-);
-export type DateOperatorType = Schema.Schema.Type<
-  typeof dateOperatorTypeSchema
->;
-
 // --- Count & Charge Types ---
 
 export const countSchema = Schema.Struct({
