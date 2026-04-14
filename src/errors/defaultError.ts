@@ -154,11 +154,11 @@ Response: ${this.responseBody?.substring(0, 500) ?? '(empty)'}`;
 
 export const isErrorResponse = (value: unknown): value is ErrorResponse => {
   if (value == null || typeof value !== 'object') return false;
-  const obj = value as Record<string, unknown>;
+  if (!('errorCode' in value) || !('errorMessage' in value)) return false;
   return (
-    typeof obj.errorCode === 'string' &&
-    obj.errorCode !== '' &&
-    typeof obj.errorMessage === 'string' &&
-    obj.errorMessage !== ''
+    typeof value.errorCode === 'string' &&
+    value.errorCode !== '' &&
+    typeof value.errorMessage === 'string' &&
+    value.errorMessage !== ''
   );
 };

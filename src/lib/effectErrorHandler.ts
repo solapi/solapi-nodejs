@@ -4,16 +4,23 @@ import {
   UnhandledExitError,
 } from '../errors/defaultError';
 
+const isTaggedDefect = (
+  value: unknown,
+): value is {readonly _tag: string; readonly message?: unknown} =>
+  value !== null &&
+  typeof value === 'object' &&
+  '_tag' in value &&
+  typeof value._tag === 'string';
+
 /**
  * Defect(예측되지 않은 에러)에서 정보 추출
  */
 const extractDefectInfo = (
   defect: unknown,
 ): {summary: string; details: string} => {
-  if (defect && typeof defect === 'object' && '_tag' in defect) {
-    const tag = (defect as {_tag: string})._tag;
-    const message =
-      'message' in defect ? String((defect as {message: unknown}).message) : '';
+  if (isTaggedDefect(defect)) {
+    const tag = defect._tag;
+    const message = defect.message != null ? String(defect.message) : '';
     return {
       summary: `${tag}${message ? `: ${message}` : ''}`,
       details: `Tagged Error [${tag}]: ${JSON.stringify(defect, null, 2)}`,
