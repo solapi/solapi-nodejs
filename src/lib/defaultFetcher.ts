@@ -46,7 +46,7 @@ const handleOkResponse = <R>(res: Response) =>
 const handleClientErrorResponse = (res: Response) =>
   pipe(
     Effect.tryPromise({
-      try: () => res.json() as Promise<ErrorResponse>,
+      try: () => res.text(),
       catch: e =>
         new DefaultError({
           errorCode: 'ParseError',
@@ -57,16 +57,32 @@ const handleClientErrorResponse = (res: Response) =>
           },
         }),
     }),
-    Effect.flatMap(error =>
-      Effect.fail(
-        new ClientError({
-          errorCode: error.errorCode,
-          errorMessage: error.errorMessage,
-          httpStatus: res.status,
-          url: res.url,
-        }),
-      ),
-    ),
+    Effect.flatMap(text => {
+      const genericError = new ClientError({
+        errorCode: `HTTP_${res.status}`,
+        errorMessage: text.substring(0, 200) || 'Client error occurred',
+        httpStatus: res.status,
+        url: res.url,
+      });
+
+      let json: Partial<ErrorResponse>;
+      try {
+        json = JSON.parse(text) as Partial<ErrorResponse>;
+      } catch {
+        return Effect.fail(genericError);
+      }
+
+      return Effect.fail(
+        json != null && json.errorCode && json.errorMessage
+          ? new ClientError({
+              errorCode: json.errorCode,
+              errorMessage: json.errorMessage,
+              httpStatus: res.status,
+              url: res.url,
+            })
+          : genericError,
+      );
+    }),
   );
 
 /**
