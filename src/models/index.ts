@@ -1,5 +1,3 @@
-// Base Models - Messages
-
 // Base Models - Kakao BMS
 export * from './base/kakao/bms';
 
@@ -12,7 +10,6 @@ export {
   type KakaoAlimtalkTemplateCommentType,
   type KakaoAlimtalkTemplateEmphasizeType,
   type KakaoAlimtalkTemplateHighlightType,
-  type KakaoAlimtalkTemplateInterface,
   type KakaoAlimtalkTemplateItemType,
   type KakaoAlimtalkTemplateMessageType,
   type KakaoAlimtalkTemplateSchema,
@@ -50,7 +47,6 @@ export {
   decodeKakaoChannel,
   type KakaoChannel,
   type KakaoChannelCategory,
-  type KakaoChannelInterface,
   type KakaoChannelSchema,
   kakaoChannelCategorySchema,
   kakaoChannelSchema,

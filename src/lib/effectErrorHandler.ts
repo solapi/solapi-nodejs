@@ -10,17 +10,18 @@ import {
 const extractDefectInfo = (
   defect: unknown,
 ): {summary: string; details: string} => {
-  if (defect && typeof defect === 'object' && '_tag' in defect) {
-    const tag = (defect as {_tag: string})._tag;
-    const message =
-      'message' in defect ? String((defect as {message: unknown}).message) : '';
-    return {
-      summary: `${tag}${message ? `: ${message}` : ''}`,
-      details: `Tagged Error [${tag}]: ${JSON.stringify(defect, null, 2)}`,
-    };
-  }
-
   if (defect !== null && typeof defect === 'object') {
+    const obj = defect as Record<string, unknown>;
+
+    if ('_tag' in defect && typeof obj._tag === 'string') {
+      const tag = obj._tag;
+      const message = 'message' in defect ? String(obj.message) : '';
+      return {
+        summary: `${tag}${message ? `: ${message}` : ''}`,
+        details: `Tagged Error [${tag}]: ${JSON.stringify(defect, null, 2)}`,
+      };
+    }
+
     const keys = Object.keys(defect);
     const summary =
       keys.length > 0

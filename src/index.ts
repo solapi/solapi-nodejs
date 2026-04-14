@@ -1,5 +1,4 @@
 import CashService from '@services/cash/cashService';
-import DefaultService from '@services/defaultService';
 import IamService from '@services/iam/iamService';
 import KakaoChannelService from '@services/kakao/channels/kakaoChannelService';
 import KakaoTemplateService from '@services/kakao/templates/kakaoTemplateService';
@@ -7,8 +6,6 @@ import GroupService from '@services/messages/groupService';
 import MessageService from '@services/messages/messageService';
 import StorageService from '@services/storage/storageService';
 import {ApiKeyError} from './errors/defaultError';
-
-type Writable<T> = {-readonly [P in keyof T]: T[P]};
 
 // Errors
 export * from './errors/defaultError';
@@ -25,14 +22,6 @@ export * from './types/index';
  * @see https://developers.solapi.com/category/nodejs
  */
 export class SolapiMessageService {
-  private readonly cashService: CashService;
-  private readonly iamService: IamService;
-  private readonly kakaoChannelService: KakaoChannelService;
-  private readonly kakaoTemplateService: KakaoTemplateService;
-  private readonly groupService: GroupService;
-  private readonly messageService: MessageService;
-  private readonly storageService: StorageService;
-
   // CashService 위임
   /**
    * 잔액조회
@@ -259,43 +248,87 @@ export class SolapiMessageService {
       });
     }
 
-    this.cashService = new CashService(apiKey, apiSecret);
-    this.iamService = new IamService(apiKey, apiSecret);
-    this.kakaoChannelService = new KakaoChannelService(apiKey, apiSecret);
-    this.kakaoTemplateService = new KakaoTemplateService(apiKey, apiSecret);
-    this.groupService = new GroupService(apiKey, apiSecret);
-    this.messageService = new MessageService(apiKey, apiSecret);
-    this.storageService = new StorageService(apiKey, apiSecret);
+    const cashService = new CashService(apiKey, apiSecret);
+    const iamService = new IamService(apiKey, apiSecret);
+    const kakaoChannelService = new KakaoChannelService(apiKey, apiSecret);
+    const kakaoTemplateService = new KakaoTemplateService(apiKey, apiSecret);
+    const groupService = new GroupService(apiKey, apiSecret);
+    const messageService = new MessageService(apiKey, apiSecret);
+    const storageService = new StorageService(apiKey, apiSecret);
 
-    this.bindServices([
-      this.cashService,
-      this.iamService,
-      this.kakaoChannelService,
-      this.kakaoTemplateService,
-      this.groupService,
-      this.messageService,
-      this.storageService,
-    ]);
-  }
+    // CashService
+    this.getBalance = cashService.getBalance.bind(cashService);
 
-  private bindServices(services: DefaultService[]) {
-    for (const service of services) {
-      const proto = Object.getPrototypeOf(service);
-      const methodNames = Object.getOwnPropertyNames(proto).filter(
-        name =>
-          name !== 'constructor' &&
-          typeof (proto as Record<string, unknown>)[name] === 'function',
+    // IamService
+    this.getBlacks = iamService.getBlacks.bind(iamService);
+    this.getBlockGroups = iamService.getBlockGroups.bind(iamService);
+    this.getBlockNumbers = iamService.getBlockNumbers.bind(iamService);
+
+    // KakaoChannelService
+    this.getKakaoChannelCategories =
+      kakaoChannelService.getKakaoChannelCategories.bind(kakaoChannelService);
+    this.getKakaoChannels =
+      kakaoChannelService.getKakaoChannels.bind(kakaoChannelService);
+    this.getKakaoChannel =
+      kakaoChannelService.getKakaoChannel.bind(kakaoChannelService);
+    this.requestKakaoChannelToken =
+      kakaoChannelService.requestKakaoChannelToken.bind(kakaoChannelService);
+    this.createKakaoChannel =
+      kakaoChannelService.createKakaoChannel.bind(kakaoChannelService);
+    this.removeKakaoChannel =
+      kakaoChannelService.removeKakaoChannel.bind(kakaoChannelService);
+
+    // KakaoTemplateService
+    this.getKakaoAlimtalkTemplateCategories =
+      kakaoTemplateService.getKakaoAlimtalkTemplateCategories.bind(
+        kakaoTemplateService,
+      );
+    this.createKakaoAlimtalkTemplate =
+      kakaoTemplateService.createKakaoAlimtalkTemplate.bind(
+        kakaoTemplateService,
+      );
+    this.getKakaoAlimtalkTemplates =
+      kakaoTemplateService.getKakaoAlimtalkTemplates.bind(kakaoTemplateService);
+    this.getKakaoAlimtalkTemplate =
+      kakaoTemplateService.getKakaoAlimtalkTemplate.bind(kakaoTemplateService);
+    this.cancelInspectionKakaoAlimtalkTemplate =
+      kakaoTemplateService.cancelInspectionKakaoAlimtalkTemplate.bind(
+        kakaoTemplateService,
+      );
+    this.updateKakaoAlimtalkTemplate =
+      kakaoTemplateService.updateKakaoAlimtalkTemplate.bind(
+        kakaoTemplateService,
+      );
+    this.updateKakaoAlimtalkTemplateName =
+      kakaoTemplateService.updateKakaoAlimtalkTemplateName.bind(
+        kakaoTemplateService,
+      );
+    this.removeKakaoAlimtalkTemplate =
+      kakaoTemplateService.removeKakaoAlimtalkTemplate.bind(
+        kakaoTemplateService,
       );
 
-      for (const name of methodNames) {
-        const key = name as keyof SolapiMessageService;
-        const method = (
-          service as unknown as Record<string, (...args: unknown[]) => unknown>
-        )[name];
-        (this as Writable<SolapiMessageService>)[key] = method.bind(
-          service,
-        ) as never;
-      }
-    }
+    // GroupService
+    this.createGroup = groupService.createGroup.bind(groupService);
+    this.addMessagesToGroup =
+      groupService.addMessagesToGroup.bind(groupService);
+    this.sendGroup = groupService.sendGroup.bind(groupService);
+    this.reserveGroup = groupService.reserveGroup.bind(groupService);
+    this.removeReservationToGroup =
+      groupService.removeReservationToGroup.bind(groupService);
+    this.getGroups = groupService.getGroups.bind(groupService);
+    this.getGroup = groupService.getGroup.bind(groupService);
+    this.getGroupMessages = groupService.getGroupMessages.bind(groupService);
+    this.removeGroupMessages =
+      groupService.removeGroupMessages.bind(groupService);
+    this.removeGroup = groupService.removeGroup.bind(groupService);
+
+    // MessageService
+    this.send = messageService.send.bind(messageService);
+    this.getMessages = messageService.getMessages.bind(messageService);
+    this.getStatistics = messageService.getStatistics.bind(messageService);
+
+    // StorageService
+    this.uploadFile = storageService.uploadFile.bind(storageService);
   }
 }
