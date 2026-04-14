@@ -69,6 +69,34 @@ const handleClientErrorResponse = (res: Response) =>
     ),
   );
 
+/**
+ * JSON 파싱을 시도하여 적절한 ServerError를 결정하는 순수 함수.
+ * 모든 경로가 ServerError를 반환한다 (서버 에러 응답이므로 성공 경로 없음).
+ */
+function parseServerErrorBody(
+  text: string,
+  genericError: ServerError,
+  makeError: (errorCode: string, errorMessage: string) => ServerError,
+): ServerError {
+  let json: Partial<ErrorResponse>;
+  try {
+    json = JSON.parse(text) as Partial<ErrorResponse>;
+  } catch (parseError) {
+    if (parseError instanceof SyntaxError) {
+      return genericError;
+    }
+    return makeError(
+      'ResponseParseError',
+      parseError instanceof Error ? parseError.message : String(parseError),
+    );
+  }
+
+  if (json != null && json.errorCode && json.errorMessage) {
+    return makeError(json.errorCode, json.errorMessage);
+  }
+  return genericError;
+}
+
 const handleServerErrorResponse = (res: Response) =>
   pipe(
     Effect.tryPromise({
@@ -85,45 +113,24 @@ const handleServerErrorResponse = (res: Response) =>
     }),
     Effect.flatMap(text => {
       const isProduction = process.env.NODE_ENV === 'production';
-      const genericError = new ServerError({
-        errorCode: `HTTP_${res.status}`,
-        errorMessage: text.substring(0, 200) || 'Server error occurred',
-        httpStatus: res.status,
-        url: res.url,
-        responseBody: isProduction ? undefined : text,
-      });
+      const makeError = (
+        errorCode: string,
+        errorMessage: string,
+      ): ServerError =>
+        new ServerError({
+          errorCode,
+          errorMessage,
+          httpStatus: res.status,
+          url: res.url,
+          responseBody: isProduction ? undefined : text,
+        });
 
-      return pipe(
-        Effect.try({
-          try: () => JSON.parse(text) as Partial<ErrorResponse>,
-          catch: parseError =>
-            parseError instanceof SyntaxError
-              ? genericError
-              : new ServerError({
-                  errorCode: 'ResponseParseError',
-                  errorMessage:
-                    parseError instanceof Error
-                      ? parseError.message
-                      : String(parseError),
-                  httpStatus: res.status,
-                  url: res.url,
-                  responseBody: isProduction ? undefined : text,
-                }),
-        }),
-        Effect.flatMap(json =>
-          Effect.fail(
-            json.errorCode && json.errorMessage
-              ? new ServerError({
-                  errorCode: json.errorCode,
-                  errorMessage: json.errorMessage,
-                  httpStatus: res.status,
-                  url: res.url,
-                  responseBody: isProduction ? undefined : text,
-                })
-              : genericError,
-          ),
-        ),
+      const genericError = makeError(
+        `HTTP_${res.status}`,
+        text.substring(0, 200) || 'Server error occurred',
       );
+
+      return Effect.fail(parseServerErrorBody(text, genericError, makeError));
     }),
   );
 
