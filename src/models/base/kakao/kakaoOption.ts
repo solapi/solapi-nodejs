@@ -53,7 +53,10 @@ export type BmsChatBubbleType = Schema.Schema.Type<
  * - WIDE_ITEM_LIST: header, mainWideItem, subWideItemList 필수
  * - COMMERCE: imageId, commerce, buttons 필수
  */
-const BMS_REQUIRED_FIELDS: Record<BmsChatBubbleType, ReadonlyArray<string>> = {
+const BMS_REQUIRED_FIELDS: Record<
+  BmsChatBubbleType,
+  ReadonlyArray<keyof BaseBmsSchemaType>
+> = {
   TEXT: [],
   IMAGE: ['imageId'],
   WIDE: ['imageId'],
@@ -107,9 +110,8 @@ const validateBmsRequiredFields = (
 ): boolean | string => {
   const chatBubbleType = bms.chatBubbleType;
   const requiredFields = BMS_REQUIRED_FIELDS[chatBubbleType] ?? [];
-  const bmsRecord = bms as Record<string, unknown>;
   const missingFields = requiredFields.filter(
-    field => bmsRecord[field] === undefined || bmsRecord[field] === null,
+    field => bms[field] === undefined || bms[field] === null,
   );
 
   if (missingFields.length > 0) {

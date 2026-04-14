@@ -109,11 +109,6 @@ export class ClientError extends Data.TaggedError('ClientError')<{
   }
 }
 
-/** @deprecated Use ClientError instead */
-export const ApiError = ClientError;
-/** @deprecated Use ClientError instead */
-export type ApiError = ClientError;
-
 // Defect(예측되지 않은 예외) — Effect 경계에서 발생하는 비정상 에러
 export class UnexpectedDefectError extends Data.TaggedError(
   'UnexpectedDefectError',
@@ -156,3 +151,14 @@ URL: ${this.url}
 Response: ${this.responseBody?.substring(0, 500) ?? '(empty)'}`;
   }
 }
+
+export const isErrorResponse = (value: unknown): value is ErrorResponse => {
+  if (value == null || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
+  return (
+    typeof obj.errorCode === 'string' &&
+    obj.errorCode !== '' &&
+    typeof obj.errorMessage === 'string' &&
+    obj.errorMessage !== ''
+  );
+};

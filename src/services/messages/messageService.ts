@@ -19,15 +19,11 @@ import {
   type MultipleMessageSendingRequestSchema,
   multipleMessageSendingRequestSchema,
   type RequestSendMessagesSchema,
-  type RequestSendOneMessageSchema,
   requestSendMessageSchema,
-  type SingleMessageSendingRequestSchema,
-  singleMessageSendingRequestSchema,
 } from '@models/requests/messages/sendMessage';
 import {
   GetMessagesResponse,
   GetStatisticsResponse,
-  SingleMessageSentResponse,
 } from '@models/responses/messageResponses';
 import {DetailGroupMessageResponse} from '@models/responses/sendManyDetailResponse';
 import * as Effect from 'effect/Effect';
@@ -38,34 +34,6 @@ import {
 import DefaultService from '../defaultService';
 
 export default class MessageService extends DefaultService {
-  /**
-   * 단일 메시지 발송 기능
-   * @param message 메시지(문자, 알림톡 등)
-   * @param appId appstore용 app id
-   */
-  async sendOne(
-    message: RequestSendOneMessageSchema,
-    appId?: string,
-  ): Promise<SingleMessageSentResponse> {
-    return runSafePromise(
-      Effect.flatMap(
-        decodeWithBadRequest(singleMessageSendingRequestSchema, {
-          message,
-          ...(appId ? {agent: {appId}} : {}),
-        }),
-        parameter =>
-          this.requestEffect<
-            SingleMessageSendingRequestSchema,
-            SingleMessageSentResponse
-          >({
-            httpMethod: 'POST',
-            url: 'messages/v4/send',
-            body: parameter,
-          }),
-      ),
-    );
-  }
-
   /**
    * 메시지 발송 기능, sendMany 함수보다 개선된 오류 표시 기능등을 제공합니다.
    * 한번의 요청으로 최대 10,000건까지 발송할 수 있습니다.

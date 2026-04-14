@@ -219,14 +219,6 @@ export class SolapiMessageService {
 
   // MessageService 위임
   /**
-   * 단일 메시지 발송 기능
-   * @param message 메시지(문자, 알림톡 등)
-   * @param appId appstore용 app id
-   */
-  // TODO: temporary remove
-  readonly sendOne: typeof MessageService.prototype.sendOne;
-
-  /**
    * 메시지 발송 기능, sendMany 함수보다 개선된 오류 표시 기능등을 제공합니다.
    * 한번의 요청으로 최대 10,000건까지 발송할 수 있습니다.
    * @param messages 발송 요청할 메시지 파라미터(문자, 알림톡 등)

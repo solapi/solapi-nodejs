@@ -10,12 +10,12 @@ import type {
   ServerError,
 } from '../errors/defaultError';
 
-export type RequestConfig = {
+type RequestConfig = {
   method: string;
   url: string;
 };
 
-export type DefaultServiceParameter<T> = {
+type DefaultServiceParameter<T> = {
   httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   url: string;
   body?: T;

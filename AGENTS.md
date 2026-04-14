@@ -120,7 +120,7 @@ Schema.String.pipe(
 | `authenticator.ts` | HMAC-SHA256 auth header |
 | `stringifyQuery.ts` | URL query string builder (array handling) |
 | `fileToBase64.ts` | File/URL → Base64 |
-| `stringDateTrasnfer.ts` | Date parsing with `InvalidDateError` |
+| `stringDateTransfer.ts` | Date parsing with `InvalidDateError` |
 
 ## Anti-Patterns
 

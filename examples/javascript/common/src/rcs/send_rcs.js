@@ -8,9 +8,9 @@ const messageService = new SolapiMessageService(
   'ENTER_YOUR_API_SECRET',
 );
 
-// 단일 발송 예제, send 메소드로도 동일하게 사용가능
+// 단일 발송 예제
 messageService
-  .sendOne({
+  .send({
     to: '수신번호',
     from: '계정에서 등록한 RCS용 발신번호 입력',
     text: '한글 45자, 영자 90자 이하 입력되면 자동으로 SMS타입의 메시지가 발송됩니다.',
@@ -27,7 +27,7 @@ messageService
   })
   .then(res => console.log(res));
 
-// 단일 예약발송 예제, send 메소드로도 동일하게 사용가능
+// 단일 예약발송 예제
 messageService
   .send(
     {

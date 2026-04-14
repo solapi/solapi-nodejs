@@ -1,4 +1,4 @@
-import {formatWithTransfer} from '@lib/stringDateTrasnfer';
+import {formatWithTransfer} from '@lib/stringDateTransfer';
 import {
   type KakaoAlimtalkTemplateStatus,
   kakaoAlimtalkTemplateStatusSchema,

@@ -10,7 +10,7 @@ const messageService = new SolapiMessageService(
 
 // 단일 발송 예제
 messageService
-  .sendOne({
+  .send({
     to: '수신번호',
     from: '계정에서 등록한 발신번호 입력',
     kakaoOptions: {
@@ -32,7 +32,7 @@ messageService
 // 단일 예약 발송 예제
 // 예약발송 시 현재 시간보다 과거의 시간을 입력할 경우 즉시 발송됩니다.
 messageService
-  .sendOneFuture(
+  .send(
     {
       to: '수신번호',
       from: '계정에서 등록한 발신번호 입력',
@@ -50,7 +50,7 @@ messageService
         // disableSms: true,
       },
     },
-    '2022-12-08 00:00:00',
+    {scheduledDate: '2022-12-08 00:00:00'},
   )
   .then(res => console.log(res));
 

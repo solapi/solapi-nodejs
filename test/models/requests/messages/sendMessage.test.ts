@@ -5,7 +5,6 @@ import {
   phoneNumberSchema,
   requestSendMessageSchema,
   requestSendOneMessageSchema,
-  singleMessageSendingRequestSchema,
 } from '@/models/requests/messages/sendMessage';
 
 describe('phoneNumberSchema', () => {
@@ -228,64 +227,6 @@ describe('requestSendMessageSchema', () => {
       expect(result[1].type).toBe('LMS');
       expect(result[1].subject).toBe('LMS Subject');
     }
-  });
-});
-
-describe('singleMessageSendingRequestSchema', () => {
-  it('should validate single message sending request with default agent', () => {
-    const requestData = {
-      message: {
-        to: '010-1234-5678',
-        from: '010-9876-5432',
-        text: 'Hello, world!',
-      },
-    };
-
-    const result = Schema.decodeUnknownSync(singleMessageSendingRequestSchema)(
-      requestData,
-    );
-
-    expect(result.message.to).toBe('01012345678');
-    expect(result.message.from).toBe('01098765432');
-    expect(result.message.text).toBe('Hello, world!');
-    expect(result.agent).toBeDefined();
-    expect(result.agent.sdkVersion).toBeDefined();
-    expect(result.agent.osPlatform).toBeDefined();
-  });
-
-  it('should validate single message sending request with custom agent', () => {
-    const requestData = {
-      message: {
-        to: '010-1234-5678',
-        text: 'Hello, world!',
-      },
-      agent: {
-        sdkVersion: 'custom/1.0.0',
-        osPlatform: 'custom platform',
-        appId: 'my-app-id',
-      },
-    };
-
-    const result = Schema.decodeUnknownSync(singleMessageSendingRequestSchema)(
-      requestData,
-    );
-
-    expect(result.agent.sdkVersion).toBe('custom/1.0.0');
-    expect(result.agent.osPlatform).toBe('custom platform');
-    expect(result.agent.appId).toBe('my-app-id');
-  });
-
-  it('should fail when message field is missing', () => {
-    const requestData = {
-      agent: {
-        sdkVersion: 'custom/1.0.0',
-        osPlatform: 'custom platform',
-      },
-    };
-
-    expect(() => {
-      Schema.decodeUnknownSync(singleMessageSendingRequestSchema)(requestData);
-    }).toThrow();
   });
 });
 
