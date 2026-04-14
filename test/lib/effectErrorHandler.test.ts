@@ -33,6 +33,28 @@ describe('runSafeSync', () => {
     }
   });
 
+  it('should handle defect with non-string _tag as generic object', () => {
+    const effect = Effect.die({_tag: 42, message: 'numeric tag'});
+    try {
+      runSafeSync(effect);
+    } catch (e) {
+      const err = e as UnexpectedDefectError;
+      expect(err._tag).toBe('UnexpectedDefectError');
+      expect(err.message).not.toContain('Tagged Error');
+    }
+  });
+
+  it('should handle tagged defect without message property', () => {
+    const effect = Effect.die({_tag: 'CustomTag'});
+    try {
+      runSafeSync(effect);
+    } catch (e) {
+      const err = e as UnexpectedDefectError;
+      expect(err._tag).toBe('UnexpectedDefectError');
+      expect(err.message).toContain('CustomTag');
+    }
+  });
+
   it('should throw original Error for Error defects', () => {
     const originalError = new TypeError('type mismatch');
     const effect = Effect.die(originalError);
