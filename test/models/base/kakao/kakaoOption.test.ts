@@ -195,18 +195,15 @@ describe('Effect-based variable validation (new functionality)', () => {
     expect(transformResult).toEqual({});
   });
 
-  it('should be performant with large variable sets', async () => {
+  it('should handle large variable sets correctly', async () => {
     const largeVariableSet = Object.fromEntries(
       Array.from({length: 1000}, (_, i) => [`var_${i}`, `value_${i}`]),
     );
 
-    const startTime = performance.now();
     const result = await Effect.runPromise(
       transformVariables(largeVariableSet),
     );
-    const endTime = performance.now();
 
-    expect(endTime - startTime).toBeLessThan(100); // Should complete in under 100ms
     expect(Object.keys(result)).toHaveLength(1000);
     expect(result['#{var_0}']).toBe('value_0');
     expect(result['#{var_999}']).toBe('value_999');

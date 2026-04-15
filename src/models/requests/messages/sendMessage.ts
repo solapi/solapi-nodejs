@@ -9,18 +9,15 @@ export const phoneNumberSchema = Schema.String.pipe(
     decode: removeHyphens,
     encode: s => s,
   }),
-  // 하이픈 제거 이후 값이 비어있지 않은지 확인 (예: "---" -> "")
   Schema.filter(s => s.trim().length > 0, {
     message: () => '전화번호는 빈 문자열일 수 없습니다.',
   }),
-  // 숫자 및 하이픈만 허용하도록 강제. 하이픈 제거 후에는 숫자만 남아야 함
   Schema.filter(s => /^[0-9]+$/.test(s), {
     message: () =>
       '전화번호는 숫자 및 특수문자 - 외 문자를 포함할 수 없습니다.',
   }),
 );
 
-// 빈 배열 검증을 위한 재사용 가능한 필터
 const nonEmptyArrayFilter = <A>(schema: Schema.Schema<A>) =>
   Schema.Array(schema).pipe(
     Schema.filter(arr => arr.length > 0, {
@@ -84,10 +81,8 @@ export type RequestSendMessagesSchema = Schema.Schema.Type<
   typeof requestSendMessageSchema
 >;
 
-// 기본 Agent 객체 (sdkVersion, osPlatform 값 포함) – 빈 객체 디코딩으로 생성
 const defaultAgentValue = Schema.decodeSync(defaultAgentTypeSchema)({});
 
-// Agent 스키마의 재사용 가능한 정의
 const agentWithDefaultSchema = Schema.optional(defaultAgentTypeSchema).pipe(
   Schema.withDecodingDefault(() => defaultAgentValue),
   Schema.withConstructorDefault(() => defaultAgentValue),

@@ -1,5 +1,11 @@
-import {runSafeSync} from '@lib/effectErrorHandler';
-import {Data, Effect, Array as EffectArray, pipe, Schema} from 'effect';
+import {
+  Data,
+  Effect,
+  Array as EffectArray,
+  ParseResult,
+  pipe,
+  Schema,
+} from 'effect';
 import {
   bmsButtonSchema,
   bmsCarouselCommerceSchema,
@@ -12,7 +18,6 @@ import {
 } from './bms';
 import {kakaoButtonSchema} from './kakaoButton';
 
-// Effect Data 타입을 활용한 에러 클래스
 export class VariableValidationError extends Data.TaggedError(
   'VariableValidationError',
 )<{
@@ -146,14 +151,12 @@ export type KakaoOptionBmsSchema = Schema.Schema.Type<
 const VARIABLE_KEY_PATTERN = /^#\{.+}$/;
 const DOT_PATTERN = /\./;
 
-// Pure helper functions optimized with Effect
 const extractVariableName = (key: string): string =>
   VARIABLE_KEY_PATTERN.test(key) ? key.slice(2, -1) : key;
 
 const formatVariableKey = (key: string): string =>
   VARIABLE_KEY_PATTERN.test(key) ? key : `#{${key}}`;
 
-// Effect-based validation that returns Either instead of throwing
 export const validateVariableNames = (
   variables: Record<string, string>,
 ): Effect.Effect<Record<string, string>, VariableValidationError> =>
@@ -167,7 +170,6 @@ export const validateVariableNames = (
         : Effect.succeed(variables),
   );
 
-// Optimized transformation function using Effect pipeline
 export const transformVariables = (
   variables: Record<string, string>,
 ): Effect.Effect<Record<string, string>, VariableValidationError> =>
@@ -189,14 +191,16 @@ export const baseKakaoOptionSchema = Schema.Struct({
   templateId: Schema.optional(Schema.String),
   variables: Schema.optional(
     Schema.Record({key: Schema.String, value: Schema.String}).pipe(
-      Schema.transform(
+      Schema.transformOrFail(
         Schema.Record({key: Schema.String, value: Schema.String}),
         {
-          decode: fromU => {
-            // runSafeSync를 사용하여 깔끔한 에러 메시지 제공
-            return runSafeSync(transformVariables(fromU));
-          },
-          encode: toI => toI,
+          decode: (fromU, _, ast) =>
+            transformVariables(fromU).pipe(
+              Effect.mapError(
+                err => new ParseResult.Type(ast, fromU, err.message),
+              ),
+            ),
+          encode: toI => ParseResult.succeed(toI),
         },
       ),
     ),

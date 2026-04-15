@@ -35,12 +35,10 @@ export default function stringifyQuery(
     return '';
   }
 
-  // 빈 객체인 경우 빈 문자열 반환 (쿼리 파라미터가 없으므로 접두사도 불필요)
   if (Object.keys(obj).length === 0) {
     return '';
   }
 
-  // 값 직렬화를 위한 내부 함수 (nested object 지원)
   const processValue = (key: string, value: unknown): string[] => {
     if (Array.isArray(value)) {
       if (options.indices === false) {
@@ -79,8 +77,6 @@ export default function stringifyQuery(
 
   const queryString = pairs.join('&');
 
-  // 쿼리 스트링이 있으면 기본적으로 '?' 접두사를 붙임
-  // addQueryPrefix가 명시적으로 false로 설정된 경우에만 접두사 없이 반환
   if (queryString) {
     return options.addQueryPrefix === false ? queryString : `?${queryString}`;
   }
