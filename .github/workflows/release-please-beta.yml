@@ -75,7 +75,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          SHA=$(gh pr list --repo "$REPO" --head release-please--branches--beta --state open --json headRefOid --jq '.[0].headRefOid // empty')
+          SHA=$(gh pr list --repo "$REPO" --head release-please--branches--beta--components--solapi --state open --json headRefOid --jq '.[0].headRefOid // empty')
           echo "sha=${SHA:-}" >> "$GITHUB_OUTPUT"
 
   test-release-pr:
