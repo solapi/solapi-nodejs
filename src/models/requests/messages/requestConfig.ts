@@ -45,3 +45,8 @@ export const sendRequestConfigSchema = Schema.Struct({
 export type SendRequestConfigSchema = Schema.Schema.Type<
   typeof sendRequestConfigSchema
 >;
+
+export const defaultMessageRequestSchema = Schema.Struct({
+  allowDuplicates: Schema.optional(Schema.Boolean),
+  agent: Schema.optional(defaultAgentTypeSchema),
+});
