@@ -86,7 +86,6 @@ export const runSafeSync = <E, A>(effect: Effect.Effect<A, E>): A => {
   });
 };
 
-// Promise로 Effect 실행 — 예측된 실패는 원본 Effect 에러 그대로 reject
 export const runSafePromise = <E, A>(
   effect: Effect.Effect<A, E>,
 ): Promise<A> => {

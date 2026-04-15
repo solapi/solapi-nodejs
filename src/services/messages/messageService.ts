@@ -49,13 +49,11 @@ export default class MessageService extends DefaultService {
 
     return runSafePromise(
       Effect.gen(function* () {
-        // 1. 스키마 검증
         const messageSchema = yield* decodeWithBadRequest(
           requestSendMessageSchema,
           messages,
         );
 
-        // 2. MessageParameter -> Message 변환 및 기본 검증
         const messageParameters = Array.isArray(messageSchema)
           ? messageSchema
           : [messageSchema];
@@ -84,7 +82,6 @@ export default class MessageService extends DefaultService {
           parameterObject,
         );
 
-        // 3. API 호출
         const response = yield* reqEffect<
           MultipleMessageSendingRequestSchema,
           DetailGroupMessageResponse
@@ -94,7 +91,6 @@ export default class MessageService extends DefaultService {
           body: parameter,
         });
 
-        // 4. 모든 메시지 발송건이 실패인 경우 MessageNotReceivedError 반환
         const {count} = response.groupInfo;
         const failedAll =
           response.failedMessageList.length > 0 &&

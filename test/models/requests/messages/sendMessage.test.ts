@@ -1,5 +1,6 @@
-import {Schema} from 'effect';
+import {Either, Schema} from 'effect';
 import {describe, expect, it} from 'vitest';
+import {sendRequestConfigSchema} from '@/models/requests/messages/requestConfig';
 import {
   multipleMessageSendingRequestSchema,
   phoneNumberSchema,
@@ -533,5 +534,69 @@ describe('Effect Schema Integration Tests', () => {
         expect(result.right.agent.appId).toBe('christmas-app');
       }
     });
+  });
+});
+
+describe('sendRequestConfigSchema', () => {
+  it('should decode scheduledDate from Date to ISO string preserving time', () => {
+    const futureDate = new Date('2025-06-15T10:30:00.000Z');
+    const result = Schema.decodeUnknownSync(sendRequestConfigSchema)({
+      scheduledDate: futureDate,
+    });
+
+    expect(typeof result.scheduledDate).toBe('string');
+    expect(new Date(result.scheduledDate!).getTime()).toBe(
+      futureDate.getTime(),
+    );
+  });
+
+  it('should decode scheduledDate from string to ISO string preserving time', () => {
+    const dateString = '2025-06-15T10:30:00.000Z';
+    const inputDate = new Date(dateString);
+    const result = Schema.decodeUnknownSync(sendRequestConfigSchema)({
+      scheduledDate: dateString,
+    });
+
+    expect(typeof result.scheduledDate).toBe('string');
+    expect(new Date(result.scheduledDate!).getTime()).toBe(inputDate.getTime());
+  });
+
+  it('should fail for invalid scheduledDate string', () => {
+    const result = Schema.decodeUnknownEither(sendRequestConfigSchema)({
+      scheduledDate: 'not-a-date',
+    });
+
+    expect(Either.isLeft(result)).toBe(true);
+  });
+
+  it('should fail for empty string scheduledDate', () => {
+    const result = Schema.decodeUnknownEither(sendRequestConfigSchema)({
+      scheduledDate: '',
+    });
+
+    expect(Either.isLeft(result)).toBe(true);
+  });
+
+  it('should decode all optional fields correctly', () => {
+    const result = Schema.decodeUnknownSync(sendRequestConfigSchema)({
+      allowDuplicates: true,
+      appId: 'test-app',
+      showMessageList: true,
+    });
+
+    expect(result.scheduledDate).toBeUndefined();
+    expect(result.allowDuplicates).toBe(true);
+    expect(result.appId).toBe('test-app');
+    expect(result.showMessageList).toBe(true);
+  });
+
+  it('should encode scheduledDate back to original Date value', () => {
+    const originalDate = new Date('2025-06-15T10:30:00.000Z');
+    const decoded = Schema.decodeUnknownSync(sendRequestConfigSchema)({
+      scheduledDate: originalDate,
+    });
+    const encoded = Schema.encodeSync(sendRequestConfigSchema)(decoded);
+
+    expect(encoded.scheduledDate!.getTime()).toBe(originalDate.getTime());
   });
 });

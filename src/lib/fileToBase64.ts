@@ -3,7 +3,6 @@ import {URL} from 'node:url';
 import * as Effect from 'effect/Effect';
 import {DefaultError} from '../errors/defaultError';
 
-// 내부 유틸: 주어진 문자열이 http(s) 스킴의 URL 인지 판별
 const isHttpUrl = (value: string): boolean => {
   try {
     const url = new URL(value);
@@ -13,7 +12,6 @@ const isHttpUrl = (value: string): boolean => {
   }
 };
 
-// URL → Base64 변환
 const fromUrl = (url: string) =>
   Effect.flatMap(
     Effect.tryPromise({
@@ -49,7 +47,6 @@ const fromUrl = (url: string) =>
     Effect.map(arrayBuffer => Buffer.from(arrayBuffer).toString('base64')),
   );
 
-// 파일 경로 → Base64 변환
 const fromPath = (path: string) =>
   Effect.tryPromise({
     try: () => fs.readFile(path),

@@ -1,4 +1,4 @@
-import {describe, expect, it} from '@effect/vitest';
+import {describe, expect, it} from 'vitest';
 import stringifyQuery from '@/lib/stringifyQuery';
 
 describe('stringifyQuery', () => {

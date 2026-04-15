@@ -7,11 +7,8 @@ import MessageService from '@services/messages/messageService';
 import StorageService from '@services/storage/storageService';
 import {ApiKeyError} from './errors/defaultError';
 
-// Errors
 export * from './errors/defaultError';
-// Models (base types, request types, response types, schemas)
 export * from './models/index';
-// Common Types & Schemas
 export * from './types/index';
 
 /**
@@ -22,14 +19,12 @@ export * from './types/index';
  * @see https://developers.solapi.com/category/nodejs
  */
 export class SolapiMessageService {
-  // CashService 위임
   /**
    * 잔액조회
    * @returns GetBalanceResponse
    */
   readonly getBalance: typeof CashService.prototype.getBalance;
 
-  // IamService 위임
   /**
    * 080 수신 거부 조회
    * @param data 080 수신 거부 상세 조회용 request 데이터
@@ -51,7 +46,6 @@ export class SolapiMessageService {
    */
   readonly getBlockNumbers: typeof IamService.prototype.getBlockNumbers;
 
-  // KakaoChannelService 위임
   /**
    * 카카오 채널 카테고리 조회
    */
@@ -86,7 +80,6 @@ export class SolapiMessageService {
    */
   readonly removeKakaoChannel: typeof KakaoChannelService.prototype.removeKakaoChannel;
 
-  // KakaoTemplateService 위임
   /**
    * 카카오 템플릿 카테고리 조회
    */
@@ -137,7 +130,6 @@ export class SolapiMessageService {
    */
   readonly removeKakaoAlimtalkTemplate: typeof KakaoTemplateService.prototype.removeKakaoAlimtalkTemplate;
 
-  // GroupService 위임
   /**
    * 그룹 생성
    * @param allowDuplicates 생성할 그룹이 중복 수신번호를 허용하는지 여부를 확인합니다.
@@ -206,7 +198,6 @@ export class SolapiMessageService {
    */
   readonly removeGroup: typeof GroupService.prototype.removeGroup;
 
-  // MessageService 위임
   /**
    * 메시지 발송 기능, sendMany 함수보다 개선된 오류 표시 기능등을 제공합니다.
    * 한번의 요청으로 최대 10,000건까지 발송할 수 있습니다.
@@ -230,7 +221,6 @@ export class SolapiMessageService {
    */
   readonly getStatistics: typeof MessageService.prototype.getStatistics;
 
-  // StorageService 위임
   /**
    * 파일(이미지) 업로드
    * 카카오 친구톡 이미지는 500kb, MMS는 200kb, 발신번호 서류 인증용 파일은 2mb의 제한이 있음
@@ -256,15 +246,12 @@ export class SolapiMessageService {
     const messageService = new MessageService(apiKey, apiSecret);
     const storageService = new StorageService(apiKey, apiSecret);
 
-    // CashService
     this.getBalance = cashService.getBalance.bind(cashService);
 
-    // IamService
     this.getBlacks = iamService.getBlacks.bind(iamService);
     this.getBlockGroups = iamService.getBlockGroups.bind(iamService);
     this.getBlockNumbers = iamService.getBlockNumbers.bind(iamService);
 
-    // KakaoChannelService
     this.getKakaoChannelCategories =
       kakaoChannelService.getKakaoChannelCategories.bind(kakaoChannelService);
     this.getKakaoChannels =
@@ -278,7 +265,6 @@ export class SolapiMessageService {
     this.removeKakaoChannel =
       kakaoChannelService.removeKakaoChannel.bind(kakaoChannelService);
 
-    // KakaoTemplateService
     this.getKakaoAlimtalkTemplateCategories =
       kakaoTemplateService.getKakaoAlimtalkTemplateCategories.bind(
         kakaoTemplateService,
@@ -308,7 +294,6 @@ export class SolapiMessageService {
         kakaoTemplateService,
       );
 
-    // GroupService
     this.createGroup = groupService.createGroup.bind(groupService);
     this.addMessagesToGroup =
       groupService.addMessagesToGroup.bind(groupService);
@@ -323,12 +308,10 @@ export class SolapiMessageService {
       groupService.removeGroupMessages.bind(groupService);
     this.removeGroup = groupService.removeGroup.bind(groupService);
 
-    // MessageService
     this.send = messageService.send.bind(messageService);
     this.getMessages = messageService.getMessages.bind(messageService);
     this.getStatistics = messageService.getStatistics.bind(messageService);
 
-    // StorageService
     this.uploadFile = storageService.uploadFile.bind(storageService);
   }
 }

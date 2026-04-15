@@ -1,19 +1,16 @@
-import {formatWithTransfer} from '@lib/stringDateTransfer';
-import {Schema} from 'effect';
+import {safeFormatWithTransfer} from '@lib/schemaUtils';
+import {Effect, ParseResult, Schema} from 'effect';
 import pkg from '../../../../package.json';
 
-// SDK 및 OS 정보
 export const osPlatform = `${process.platform} | ${process.version}`;
 export const sdkVersion = `nodejs/${pkg.version}`;
 
-// Agent 정보 타입
 export type DefaultAgentType = {
   sdkVersion: string;
   osPlatform: string;
   appId?: string;
 };
 
-// Agent 정보 Effect 스키마
 export const defaultAgentTypeSchema = Schema.Struct({
   sdkVersion: Schema.optional(Schema.String).pipe(
     Schema.withDecodingDefault(() => sdkVersion),
@@ -26,13 +23,17 @@ export const defaultAgentTypeSchema = Schema.Struct({
   appId: Schema.optional(Schema.String),
 });
 
-// send 요청 시 사용되는 Config 스키마
 export const sendRequestConfigSchema = Schema.Struct({
   scheduledDate: Schema.optional(
     Schema.Union(Schema.DateFromSelf, Schema.DateFromString).pipe(
-      Schema.transform(Schema.String, {
-        decode: fromA => formatWithTransfer(fromA),
-        encode: toI => new Date(toI),
+      Schema.transformOrFail(Schema.String, {
+        decode: (fromA, _, ast) =>
+          safeFormatWithTransfer(fromA).pipe(
+            Effect.mapError(
+              err => new ParseResult.Type(ast, fromA, err.message),
+            ),
+          ),
+        encode: toI => ParseResult.succeed(new Date(toI)),
       }),
     ),
   ),
@@ -45,7 +46,6 @@ export type SendRequestConfigSchema = Schema.Schema.Type<
   typeof sendRequestConfigSchema
 >;
 
-// 메시지 요청 시 공통으로 사용하는 기본 스키마
 export const defaultMessageRequestSchema = Schema.Struct({
   allowDuplicates: Schema.optional(Schema.Boolean),
   agent: Schema.optional(defaultAgentTypeSchema),

@@ -14,7 +14,6 @@ type DefaultRequest = {
   method: string;
 };
 
-// Effect Data 타입으로 RetryableError 정의
 class RetryableError extends Data.TaggedError('RetryableError')<{
   readonly error?: unknown;
 }> {}
