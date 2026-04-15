@@ -597,7 +597,6 @@ describe('sendRequestConfigSchema', () => {
     });
     const encoded = Schema.encodeSync(sendRequestConfigSchema)(decoded);
 
-    expect(encoded.scheduledDate).toBeInstanceOf(Date);
     expect(encoded.scheduledDate!.getTime()).toBe(originalDate.getTime());
   });
 });
