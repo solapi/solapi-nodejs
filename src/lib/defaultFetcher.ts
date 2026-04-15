@@ -37,14 +37,17 @@ const handleOkResponse = <R>(res: Response) =>
     Effect.flatMap(responseText => {
       if (!responseText) {
         if (res.status === 204) {
-          return Effect.succeed({} as R);
+          return Effect.succeed({} as unknown as R);
         }
         return Effect.fail(
           makeParseError(res, 'API returned empty response body'),
         );
       }
       return Effect.try({
-        try: () => JSON.parse(responseText) as R,
+        try: (): R => {
+          const parsed: unknown = JSON.parse(responseText);
+          return parsed as R;
+        },
         catch: e => makeParseError(res, toMessage(e)),
       });
     }),

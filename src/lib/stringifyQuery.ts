@@ -52,21 +52,17 @@ export default function stringifyQuery(
           `${encodeURIComponent(key)}[${index}]=${encodeURIComponent(String(item))}`,
       );
     }
-    if (value !== null && value !== undefined) {
-      if (typeof value === 'object') {
-        const nested: string[] = [];
-        for (const [subKey, subValue] of Object.entries(
-          value as Record<string, unknown>,
-        )) {
-          nested.push(...processValue(`${key}[${subKey}]`, subValue));
-        }
-        return nested;
-      }
-      return [
-        `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
-      ];
+    if (value === null || value === undefined) {
+      return [];
     }
-    return [];
+    if (typeof value === 'object') {
+      const nested: string[] = [];
+      for (const [subKey, subValue] of Object.entries(value)) {
+        nested.push(...processValue(`${key}[${subKey}]`, subValue));
+      }
+      return nested;
+    }
+    return [`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`];
   };
 
   const pairs: string[] = [];
