@@ -89,7 +89,6 @@ export {
 export {
   type DefaultAgentType,
   defaultAgentTypeSchema,
-  defaultMessageRequestSchema,
   osPlatform,
   type SendRequestConfigSchema,
   sdkVersion,
