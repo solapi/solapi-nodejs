@@ -13,8 +13,6 @@ export {
   commonCashResponseSchema,
   countForChargeSchema,
   countSchema,
-  type DateOperatorType,
-  dateOperatorTypeSchema,
   type Group,
   type GroupId,
   groupIdSchema,
@@ -25,6 +23,4 @@ export {
   logSchema,
   type MessageTypeRecord,
   messageTypeRecordSchema,
-  type OperatorType,
-  operatorTypeSchema,
 } from './commonTypes';

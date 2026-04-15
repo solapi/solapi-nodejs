@@ -3,71 +3,123 @@ import {
   ApiKeyError,
   ClientError,
   DefaultError,
-  ErrorResponse,
+  isErrorResponse,
   NetworkError,
   ServerError,
 } from '../errors/defaultError';
 import getAuthInfo, {AuthenticationParameter} from './authenticator';
-import {runSafePromise} from './effectErrorHandler';
 
 type DefaultRequest = {
   url: string;
   method: string;
 };
 
-// Effect Data 타입으로 RetryableError 정의
 class RetryableError extends Data.TaggedError('RetryableError')<{
   readonly error?: unknown;
 }> {}
 
+const toMessage = (e: unknown): string =>
+  e instanceof Error ? e.message : String(e);
+
+const makeParseError = (res: Response, message: string) =>
+  new DefaultError({
+    errorCode: 'ParseError',
+    errorMessage: message,
+    context: {responseStatus: res.status, responseUrl: res.url},
+  });
+
 const handleOkResponse = <R>(res: Response) =>
-  Effect.tryPromise({
-    try: async (): Promise<R> => {
-      const responseText = await res.text();
+  pipe(
+    Effect.tryPromise({
+      try: () => res.text(),
+      catch: e => makeParseError(res, toMessage(e)),
+    }),
+    Effect.flatMap(responseText => {
       if (!responseText) {
         if (res.status === 204) {
-          return {} as R;
+          return Effect.succeed({} as unknown as R);
         }
-        throw new Error('API returned empty response body');
+        return Effect.fail(
+          makeParseError(res, 'API returned empty response body'),
+        );
       }
-      return JSON.parse(responseText) as R;
-    },
-    catch: e =>
-      new DefaultError({
-        errorCode: 'ParseError',
-        errorMessage: e instanceof Error ? e.message : String(e),
-        context: {
-          responseStatus: res.status,
-          responseUrl: res.url,
+      return Effect.try({
+        try: (): R => {
+          const parsed: unknown = JSON.parse(responseText);
+          return parsed as R;
         },
-      }),
-  });
+        catch: e => makeParseError(res, toMessage(e)),
+      });
+    }),
+  );
 
 const handleClientErrorResponse = (res: Response) =>
   pipe(
     Effect.tryPromise({
-      try: () => res.json() as Promise<ErrorResponse>,
-      catch: e =>
-        new DefaultError({
-          errorCode: 'ParseError',
-          errorMessage: e instanceof Error ? e.message : String(e),
-          context: {
-            responseStatus: res.status,
-            responseUrl: res.url,
-          },
-        }),
+      try: () => res.text(),
+      catch: e => makeParseError(res, toMessage(e)),
     }),
-    Effect.flatMap(error =>
-      Effect.fail(
-        new ClientError({
-          errorCode: error.errorCode,
-          errorMessage: error.errorMessage,
-          httpStatus: res.status,
-          url: res.url,
+    Effect.flatMap(text => {
+      const genericError = new ClientError({
+        errorCode: `HTTP_${res.status}`,
+        errorMessage: text.substring(0, 200) || 'Client error occurred',
+        httpStatus: res.status,
+        url: res.url,
+      });
+
+      return Effect.flatMap(
+        Effect.try({
+          try: () => JSON.parse(text) as unknown,
+          catch: (e: unknown) =>
+            e instanceof SyntaxError
+              ? genericError
+              : new ClientError({
+                  errorCode: 'ResponseParseError',
+                  errorMessage: toMessage(e),
+                  httpStatus: res.status,
+                  url: res.url,
+                }),
         }),
-      ),
-    ),
+        json =>
+          Effect.fail(
+            isErrorResponse(json)
+              ? new ClientError({
+                  errorCode: json.errorCode,
+                  errorMessage: json.errorMessage,
+                  httpStatus: res.status,
+                  url: res.url,
+                })
+              : genericError,
+          ),
+      );
+    }),
   );
+
+/**
+ * JSON 파싱을 시도하여 적절한 ServerError로 실패하는 Effect를 반환.
+ * 모든 경로가 ServerError로 실패한다 (서버 에러 응답이므로 성공 경로 없음).
+ */
+function parseServerErrorBody(
+  text: string,
+  genericError: ServerError,
+  makeError: (errorCode: string, errorMessage: string) => ServerError,
+): Effect.Effect<never, ServerError> {
+  return Effect.flatMap(
+    Effect.try({
+      try: () => JSON.parse(text) as unknown,
+      catch: (e: unknown) =>
+        e instanceof SyntaxError
+          ? genericError
+          : makeError('ResponseParseError', toMessage(e)),
+    }),
+    json =>
+      Effect.fail(
+        isErrorResponse(json)
+          ? makeError(json.errorCode, json.errorMessage)
+          : genericError,
+      ),
+  );
+}
 
 const handleServerErrorResponse = (res: Response) =>
   pipe(
@@ -76,58 +128,30 @@ const handleServerErrorResponse = (res: Response) =>
       catch: e =>
         new DefaultError({
           errorCode: 'ResponseReadError',
-          errorMessage: e instanceof Error ? e.message : String(e),
-          context: {
-            responseStatus: res.status,
-            responseUrl: res.url,
-          },
+          errorMessage: toMessage(e),
+          context: {responseStatus: res.status, responseUrl: res.url},
         }),
     }),
     Effect.flatMap(text => {
       const isProduction = process.env.NODE_ENV === 'production';
-
-      // JSON 파싱 시도
-      try {
-        const json = JSON.parse(text) as Partial<ErrorResponse>;
-        if (json.errorCode && json.errorMessage) {
-          return Effect.fail(
-            new ServerError({
-              errorCode: json.errorCode,
-              errorMessage: json.errorMessage,
-              httpStatus: res.status,
-              url: res.url,
-              responseBody: isProduction ? undefined : text,
-            }),
-          );
-        }
-      } catch (parseError) {
-        // SyntaxError(JSON 파싱 실패)는 fallback으로 진행, 그 외 예외는 즉시 반환
-        if (!(parseError instanceof SyntaxError)) {
-          return Effect.fail(
-            new ServerError({
-              errorCode: 'ResponseParseError',
-              errorMessage:
-                parseError instanceof Error
-                  ? parseError.message
-                  : String(parseError),
-              httpStatus: res.status,
-              url: res.url,
-              responseBody: isProduction ? undefined : text,
-            }),
-          );
-        }
-      }
-
-      // JSON이 아니거나 필드가 없는 경우
-      return Effect.fail(
+      const makeError = (
+        errorCode: string,
+        errorMessage: string,
+      ): ServerError =>
         new ServerError({
-          errorCode: `HTTP_${res.status}`,
-          errorMessage: text.substring(0, 200) || 'Server error occurred',
+          errorCode,
+          errorMessage,
           httpStatus: res.status,
           url: res.url,
           responseBody: isProduction ? undefined : text,
-        }),
+        });
+
+      const genericError = makeError(
+        `HTTP_${res.status}`,
+        text.substring(0, 200) || 'Server error occurred',
       );
+
+      return parseServerErrorBody(text, genericError, makeError);
     }),
   );
 
@@ -150,10 +174,8 @@ export function defaultFetcherEffect<T, R>(
       catch: e =>
         new DefaultError({
           errorCode: 'JSONStringifyError',
-          errorMessage: e instanceof Error ? e.message : String(e),
-          context: {
-            data,
-          },
+          errorMessage: toMessage(e),
+          context: {data},
         }),
     });
 
@@ -239,22 +261,5 @@ export function defaultFetcherEffect<T, R>(
         }),
       ),
     ),
-  );
-}
-
-/**
- * 공용 API 클라이언트 함수 (Promise 반환)
- * @throws DefaultError 발송 실패 등 API 상의 다양한 오류를 표시합니다.
- * @param authParameter API 인증을 위한 파라미터
- * @param request API URI, HTTP method 정의
- * @param data API에 요청할 request body 데이터
- */
-export default async function defaultFetcher<T, R>(
-  authParameter: AuthenticationParameter,
-  request: DefaultRequest,
-  data?: T,
-): Promise<R> {
-  return runSafePromise(
-    defaultFetcherEffect<T, R>(authParameter, request, data),
   );
 }

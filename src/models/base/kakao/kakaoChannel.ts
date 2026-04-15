@@ -34,11 +34,6 @@ export const kakaoChannelSchema = Schema.Struct({
 export type KakaoChannelSchema = Schema.Schema.Type<typeof kakaoChannelSchema>;
 
 /**
- * @deprecated v6.0.0에서 KakaoChannelSchema를 사용하세요
- */
-export type KakaoChannelInterface = KakaoChannelSchema;
-
-/**
  * 날짜 필드가 Date로 변환된 카카오 채널 타입
  */
 export type KakaoChannel = {

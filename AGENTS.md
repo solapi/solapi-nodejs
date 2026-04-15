@@ -120,7 +120,7 @@ Schema.String.pipe(
 | `authenticator.ts` | HMAC-SHA256 auth header |
 | `stringifyQuery.ts` | URL query string builder (array handling) |
 | `fileToBase64.ts` | File/URL → Base64 |
-| `stringDateTrasnfer.ts` | Date parsing with `InvalidDateError` |
+| `stringDateTransfer.ts` | Date parsing with `InvalidDateError` |
 
 ## Anti-Patterns
 
@@ -141,7 +141,7 @@ Schema.String.pipe(
 
 ## Architecture Notes
 
-**Service Facade**: `SolapiMessageService`가 7개 도메인 서비스를 `bindServices()`로 동적 바인딩.
+**Service Facade**: `SolapiMessageService`가 7개 도메인 서비스를 명시적 `.bind()`로 위임.
 
 **Error Flow**:
 ```

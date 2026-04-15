@@ -17,10 +17,11 @@ export type BmsCommerce = {
  * - string 타입: parseFloat로 변환, 유효하지 않으면 검증 실패
  *
  * API 호환성: 기존 number 입력 및 string 입력 모두 허용
- * 출력 타입: number
+ * 출력 타입: number, 입력 타입: number | string
  *
- * Note: 타입 어설션을 사용하여 Encoded 타입을 number로 강제합니다.
- * 이는 기존 API 타입 호환성을 유지하면서 런타임에서 문자열 입력도 허용하기 위함입니다.
+ * Why: Encoded 타입을 number로 강제하여 공개 API 타입 호환성 유지.
+ * transformOrFail의 추론 Encoded 타입은 number | string이지만,
+ * downstream 스키마 체인(kakaoOption → sendMessage)에서 number를 기대함.
  */
 const NumberOrNumericString: Schema.Schema<number, number> =
   Schema.transformOrFail(

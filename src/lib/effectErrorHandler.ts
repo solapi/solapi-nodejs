@@ -4,16 +4,23 @@ import {
   UnhandledExitError,
 } from '../errors/defaultError';
 
+const isTaggedDefect = (
+  value: unknown,
+): value is {readonly _tag: string; readonly message?: unknown} =>
+  value !== null &&
+  typeof value === 'object' &&
+  '_tag' in value &&
+  typeof value._tag === 'string';
+
 /**
  * Defect(예측되지 않은 에러)에서 정보 추출
  */
 const extractDefectInfo = (
   defect: unknown,
 ): {summary: string; details: string} => {
-  if (defect && typeof defect === 'object' && '_tag' in defect) {
-    const tag = (defect as {_tag: string})._tag;
-    const message =
-      'message' in defect ? String((defect as {message: unknown}).message) : '';
+  if (isTaggedDefect(defect)) {
+    const tag = defect._tag;
+    const message = defect.message != null ? String(defect.message) : '';
     return {
       summary: `${tag}${message ? `: ${message}` : ''}`,
       details: `Tagged Error [${tag}]: ${JSON.stringify(defect, null, 2)}`,
@@ -79,7 +86,6 @@ export const runSafeSync = <E, A>(effect: Effect.Effect<A, E>): A => {
   });
 };
 
-// Promise로 Effect 실행 — 예측된 실패는 원본 Effect 에러 그대로 reject
 export const runSafePromise = <E, A>(
   effect: Effect.Effect<A, E>,
 ): Promise<A> => {

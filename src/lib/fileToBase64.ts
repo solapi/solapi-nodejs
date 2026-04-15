@@ -2,9 +2,7 @@ import {promises as fs} from 'node:fs';
 import {URL} from 'node:url';
 import * as Effect from 'effect/Effect';
 import {DefaultError} from '../errors/defaultError';
-import {runSafePromise} from './effectErrorHandler';
 
-// 내부 유틸: 주어진 문자열이 http(s) 스킴의 URL 인지 판별
 const isHttpUrl = (value: string): boolean => {
   try {
     const url = new URL(value);
@@ -14,7 +12,6 @@ const isHttpUrl = (value: string): boolean => {
   }
 };
 
-// URL → Base64 변환
 const fromUrl = (url: string) =>
   Effect.flatMap(
     Effect.tryPromise({
@@ -50,7 +47,6 @@ const fromUrl = (url: string) =>
     Effect.map(arrayBuffer => Buffer.from(arrayBuffer).toString('base64')),
   );
 
-// 파일 경로 → Base64 변환
 const fromPath = (path: string) =>
   Effect.tryPromise({
     try: () => fs.readFile(path),
@@ -70,15 +66,4 @@ export function fileToBase64Effect(
   path: string,
 ): Effect.Effect<string, DefaultError> {
   return isHttpUrl(path) ? fromUrl(path) : fromPath(path);
-}
-
-/**
- * 주어진 경로(URL 또는 로컬 경로)의 파일을 Base64 문자열로 변환합니다.
- * – http(s) URL 인 경우 네트워크로 가져오고, 그 외는 로컬 파일로 처리합니다.
- * – 오류는 명확하게 구분하여 반환합니다.
- * @param path 파일의 로컬 경로 또는 접근 가능한 URL
- * @returns Base64 문자열
- */
-export default async function fileToBase64(path: string): Promise<string> {
-  return runSafePromise(fileToBase64Effect(path));
 }

@@ -35,7 +35,7 @@ pnpm docs             # Generate TypeDoc documentation
 ## Architecture
 
 ### Entry Point & Service Facade
-`SolapiMessageService` (src/index.ts)가 모든 도메인 서비스를 `bindServices()`로 위임.
+`SolapiMessageService` (src/index.ts)가 모든 도메인 서비스 메서드를 명시적 `.bind()`로 위임.
 
 ### Service Layer
 모든 서비스는 `DefaultService` (src/services/defaultService.ts) 상속:

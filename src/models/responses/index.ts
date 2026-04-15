@@ -1,5 +1,3 @@
-// Message Responses
-
 // IAM Responses
 export {
   type GetBlacksResponse,
@@ -52,8 +50,6 @@ export {
   type RequestKakaoChannelTokenResponse,
   removeGroupMessagesResponseSchema,
   requestKakaoChannelTokenResponseSchema,
-  type SingleMessageSentResponse,
-  singleMessageSentResponseSchema,
 } from './messageResponses';
 // Send Detail Response
 export {

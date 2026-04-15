@@ -44,6 +44,16 @@
     /* Additional Type Checking */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+
+    /* Effect Language Service */
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "diagnosticSeverity": {
+          "preferSchemaOverJson": "off"
+        }
+      }
+    ]
   }
 }

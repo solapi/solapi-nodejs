@@ -1,6 +1,11 @@
-import {runSafeSync} from '@lib/effectErrorHandler';
-import {Data, Effect, Array as EffectArray, pipe, Schema} from 'effect';
-import {type KakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
+import {
+  Data,
+  Effect,
+  Array as EffectArray,
+  ParseResult,
+  pipe,
+  Schema,
+} from 'effect';
 import {
   bmsButtonSchema,
   bmsCarouselCommerceSchema,
@@ -11,9 +16,8 @@ import {
   bmsSubWideItemSchema,
   bmsVideoSchema,
 } from './bms';
-import {KakaoButton, kakaoButtonSchema} from './kakaoButton';
+import {kakaoButtonSchema} from './kakaoButton';
 
-// Effect Data 타입을 활용한 에러 클래스
 export class VariableValidationError extends Data.TaggedError(
   'VariableValidationError',
 )<{
@@ -54,7 +58,10 @@ export type BmsChatBubbleType = Schema.Schema.Type<
  * - WIDE_ITEM_LIST: header, mainWideItem, subWideItemList 필수
  * - COMMERCE: imageId, commerce, buttons 필수
  */
-const BMS_REQUIRED_FIELDS: Record<BmsChatBubbleType, ReadonlyArray<string>> = {
+const BMS_REQUIRED_FIELDS: Record<
+  BmsChatBubbleType,
+  ReadonlyArray<keyof BaseBmsSchemaType>
+> = {
   TEXT: [],
   IMAGE: ['imageId'],
   WIDE: ['imageId'],
@@ -108,9 +115,8 @@ const validateBmsRequiredFields = (
 ): boolean | string => {
   const chatBubbleType = bms.chatBubbleType;
   const requiredFields = BMS_REQUIRED_FIELDS[chatBubbleType] ?? [];
-  const bmsRecord = bms as Record<string, unknown>;
   const missingFields = requiredFields.filter(
-    field => bmsRecord[field] === undefined || bmsRecord[field] === null,
+    field => bms[field] === undefined || bms[field] === null,
   );
 
   if (missingFields.length > 0) {
@@ -141,18 +147,15 @@ export type KakaoOptionBmsSchema = Schema.Schema.Type<
   typeof kakaoOptionBmsSchema
 >;
 
-// Constants for variable validation
 const VARIABLE_KEY_PATTERN = /^#\{.+}$/;
 const DOT_PATTERN = /\./;
 
-// Pure helper functions optimized with Effect
 const extractVariableName = (key: string): string =>
   VARIABLE_KEY_PATTERN.test(key) ? key.slice(2, -1) : key;
 
 const formatVariableKey = (key: string): string =>
   VARIABLE_KEY_PATTERN.test(key) ? key : `#{${key}}`;
 
-// Effect-based validation that returns Either instead of throwing
 export const validateVariableNames = (
   variables: Record<string, string>,
 ): Effect.Effect<Record<string, string>, VariableValidationError> =>
@@ -166,7 +169,6 @@ export const validateVariableNames = (
         : Effect.succeed(variables),
   );
 
-// Optimized transformation function using Effect pipeline
 export const transformVariables = (
   variables: Record<string, string>,
 ): Effect.Effect<Record<string, string>, VariableValidationError> =>
@@ -188,14 +190,16 @@ export const baseKakaoOptionSchema = Schema.Struct({
   templateId: Schema.optional(Schema.String),
   variables: Schema.optional(
     Schema.Record({key: Schema.String, value: Schema.String}).pipe(
-      Schema.transform(
+      Schema.transformOrFail(
         Schema.Record({key: Schema.String, value: Schema.String}),
         {
-          decode: fromU => {
-            // runSafeSync를 사용하여 깔끔한 에러 메시지 제공
-            return runSafeSync(transformVariables(fromU));
-          },
-          encode: toI => toI,
+          decode: (fromU, _, ast) =>
+            transformVariables(fromU).pipe(
+              Effect.mapError(
+                err => new ParseResult.Type(ast, fromU, err.message),
+              ),
+            ),
+          encode: toI => ParseResult.succeed(toI),
         },
       ),
     ),
@@ -206,23 +210,3 @@ export const baseKakaoOptionSchema = Schema.Struct({
   buttons: Schema.optional(Schema.Array(kakaoButtonSchema)),
   bms: Schema.optional(kakaoOptionBmsSchema),
 });
-
-export class KakaoOption {
-  pfId: string;
-  templateId?: string;
-  variables?: Record<string, string>;
-  disableSms?: boolean;
-  adFlag?: boolean;
-  buttons?: ReadonlyArray<KakaoButton>;
-  imageId?: string;
-
-  constructor(parameter: KakaoOptionRequest) {
-    this.pfId = parameter.pfId;
-    this.templateId = parameter.templateId;
-    this.variables = parameter.variables;
-    this.disableSms = parameter.disableSms;
-    this.adFlag = parameter.adFlag;
-    this.buttons = parameter.buttons;
-    this.imageId = parameter.imageId;
-  }
-}
