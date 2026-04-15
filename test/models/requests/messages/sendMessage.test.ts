@@ -538,24 +538,27 @@ describe('Effect Schema Integration Tests', () => {
 });
 
 describe('sendRequestConfigSchema', () => {
-  it('should decode scheduledDate from Date to ISO string', () => {
+  it('should decode scheduledDate from Date to ISO string preserving time', () => {
     const futureDate = new Date('2025-06-15T10:30:00.000Z');
     const result = Schema.decodeUnknownSync(sendRequestConfigSchema)({
       scheduledDate: futureDate,
     });
 
     expect(typeof result.scheduledDate).toBe('string');
-    expect(result.scheduledDate).toContain('2025-06-15');
+    expect(new Date(result.scheduledDate!).getTime()).toBe(
+      futureDate.getTime(),
+    );
   });
 
-  it('should decode scheduledDate from string to ISO string', () => {
+  it('should decode scheduledDate from string to ISO string preserving time', () => {
     const dateString = '2025-06-15T10:30:00.000Z';
+    const inputDate = new Date(dateString);
     const result = Schema.decodeUnknownSync(sendRequestConfigSchema)({
       scheduledDate: dateString,
     });
 
     expect(typeof result.scheduledDate).toBe('string');
-    expect(result.scheduledDate).toContain('2025-06-15');
+    expect(new Date(result.scheduledDate!).getTime()).toBe(inputDate.getTime());
   });
 
   it('should fail for invalid scheduledDate string', () => {
@@ -566,23 +569,35 @@ describe('sendRequestConfigSchema', () => {
     expect(Either.isLeft(result)).toBe(true);
   });
 
-  it('should decode without scheduledDate', () => {
+  it('should fail for empty string scheduledDate', () => {
+    const result = Schema.decodeUnknownEither(sendRequestConfigSchema)({
+      scheduledDate: '',
+    });
+
+    expect(Either.isLeft(result)).toBe(true);
+  });
+
+  it('should decode all optional fields correctly', () => {
     const result = Schema.decodeUnknownSync(sendRequestConfigSchema)({
       allowDuplicates: true,
       appId: 'test-app',
+      showMessageList: true,
     });
 
     expect(result.scheduledDate).toBeUndefined();
     expect(result.allowDuplicates).toBe(true);
     expect(result.appId).toBe('test-app');
+    expect(result.showMessageList).toBe(true);
   });
 
-  it('should encode scheduledDate string back to Date', () => {
+  it('should encode scheduledDate back to original Date value', () => {
+    const originalDate = new Date('2025-06-15T10:30:00.000Z');
     const decoded = Schema.decodeUnknownSync(sendRequestConfigSchema)({
-      scheduledDate: new Date('2025-06-15T10:30:00.000Z'),
+      scheduledDate: originalDate,
     });
     const encoded = Schema.encodeSync(sendRequestConfigSchema)(decoded);
 
     expect(encoded.scheduledDate).toBeInstanceOf(Date);
+    expect(encoded.scheduledDate!.getTime()).toBe(originalDate.getTime());
   });
 });
