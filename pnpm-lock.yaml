@@ -13,14 +13,14 @@ importers:
         version: 4.1.0
       effect:
         specifier: ^3.19.14
-        version: 3.19.14
+        version: 3.21.0
     devDependencies:
       '@biomejs/biome':
         specifier: 2.3.11
         version: 2.3.11
       '@effect/vitest':
         specifier: ^0.27.0
-        version: 0.27.0(effect@3.19.14)(vitest@4.0.17(@types/node@25.0.9)(yaml@2.8.1))
+        version: 0.27.0(effect@3.21.0)(vitest@4.0.17(@types/node@25.0.9)(yaml@2.8.1))
       '@types/node':
         specifier: ^25.0.9
         version: 25.0.9
@@ -560,9 +560,6 @@ packages:
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
 
-  '@standard-schema/spec@1.0.0':
-    resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
-
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
@@ -709,8 +706,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  effect@3.19.14:
-    resolution: {integrity: sha512-3vwdq0zlvQOxXzXNKRIPKTqZNMyGCdaFUBfMPqpsyzZDre67kgC1EEHDV4EoQTovJ4w5fmJW756f86kkuz7WFA==}
+  effect@3.21.0:
+    resolution: {integrity: sha512-PPN80qRokCd1f015IANNhrwOnLO7GrrMQfk4/lnZRE/8j7UPWrNNjPV0uBrZutI/nHzernbW+J0hdqQysHiSnQ==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -769,6 +766,7 @@ packages:
 
   glob@10.4.5:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   globrex@0.1.2:
@@ -1194,9 +1192,9 @@ snapshots:
   '@biomejs/cli-win32-x64@2.3.11':
     optional: true
 
-  '@effect/vitest@0.27.0(effect@3.19.14)(vitest@4.0.17(@types/node@25.0.9)(yaml@2.8.1))':
+  '@effect/vitest@0.27.0(effect@3.21.0)(vitest@4.0.17(@types/node@25.0.9)(yaml@2.8.1))':
     dependencies:
-      effect: 3.19.14
+      effect: 3.21.0
       vitest: 4.0.17(@types/node@25.0.9)(yaml@2.8.1)
 
   '@esbuild/aix-ppc64@0.25.9':
@@ -1472,8 +1470,6 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
-  '@standard-schema/spec@1.0.0': {}
-
   '@standard-schema/spec@1.1.0': {}
 
   '@types/chai@5.2.3':
@@ -1599,9 +1595,9 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  effect@3.19.14:
+  effect@3.21.0:
     dependencies:
-      '@standard-schema/spec': 1.0.0
+      '@standard-schema/spec': 1.1.0
       fast-check: 3.23.2
 
   emoji-regex@8.0.0: {}
