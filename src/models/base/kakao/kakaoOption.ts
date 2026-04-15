@@ -147,7 +147,6 @@ export type KakaoOptionBmsSchema = Schema.Schema.Type<
   typeof kakaoOptionBmsSchema
 >;
 
-// Constants for variable validation
 const VARIABLE_KEY_PATTERN = /^#\{.+}$/;
 const DOT_PATTERN = /\./;
 

@@ -1,5 +1,6 @@
-import {Schema} from 'effect';
+import {Either, Schema} from 'effect';
 import {describe, expect, it} from 'vitest';
+import {sendRequestConfigSchema} from '@/models/requests/messages/requestConfig';
 import {
   multipleMessageSendingRequestSchema,
   phoneNumberSchema,
@@ -533,5 +534,55 @@ describe('Effect Schema Integration Tests', () => {
         expect(result.right.agent.appId).toBe('christmas-app');
       }
     });
+  });
+});
+
+describe('sendRequestConfigSchema', () => {
+  it('should decode scheduledDate from Date to ISO string', () => {
+    const futureDate = new Date('2025-06-15T10:30:00.000Z');
+    const result = Schema.decodeUnknownSync(sendRequestConfigSchema)({
+      scheduledDate: futureDate,
+    });
+
+    expect(typeof result.scheduledDate).toBe('string');
+    expect(result.scheduledDate).toContain('2025-06-15');
+  });
+
+  it('should decode scheduledDate from string to ISO string', () => {
+    const dateString = '2025-06-15T10:30:00.000Z';
+    const result = Schema.decodeUnknownSync(sendRequestConfigSchema)({
+      scheduledDate: dateString,
+    });
+
+    expect(typeof result.scheduledDate).toBe('string');
+    expect(result.scheduledDate).toContain('2025-06-15');
+  });
+
+  it('should fail for invalid scheduledDate string', () => {
+    const result = Schema.decodeUnknownEither(sendRequestConfigSchema)({
+      scheduledDate: 'not-a-date',
+    });
+
+    expect(Either.isLeft(result)).toBe(true);
+  });
+
+  it('should decode without scheduledDate', () => {
+    const result = Schema.decodeUnknownSync(sendRequestConfigSchema)({
+      allowDuplicates: true,
+      appId: 'test-app',
+    });
+
+    expect(result.scheduledDate).toBeUndefined();
+    expect(result.allowDuplicates).toBe(true);
+    expect(result.appId).toBe('test-app');
+  });
+
+  it('should encode scheduledDate string back to Date', () => {
+    const decoded = Schema.decodeUnknownSync(sendRequestConfigSchema)({
+      scheduledDate: new Date('2025-06-15T10:30:00.000Z'),
+    });
+    const encoded = Schema.encodeSync(sendRequestConfigSchema)(decoded);
+
+    expect(encoded.scheduledDate).toBeInstanceOf(Date);
   });
 });
