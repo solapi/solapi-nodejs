@@ -6,73 +6,7 @@ import {
   UnexpectedDefectError,
   UnhandledExitError,
 } from '../../src/errors/defaultError';
-import {runSafePromise, runSafeSync} from '../../src/lib/effectErrorHandler';
-
-describe('runSafeSync', () => {
-  it('should return value on success', () => {
-    const result = runSafeSync(Effect.succeed(42));
-    expect(result).toBe(42);
-  });
-
-  it('should throw original TaggedError on expected failure', () => {
-    const effect = Effect.fail(new BadRequestError({message: '잘못된 요청'}));
-    expect(() => runSafeSync(effect)).toThrow('잘못된 요청');
-    try {
-      runSafeSync(effect);
-    } catch (e) {
-      expect((e as BadRequestError)._tag).toBe('BadRequestError');
-    }
-  });
-
-  it('should throw UnexpectedDefectError for non-Error defects', () => {
-    const effect = Effect.die('unexpected string defect');
-    try {
-      runSafeSync(effect);
-    } catch (e) {
-      expect((e as UnexpectedDefectError)._tag).toBe('UnexpectedDefectError');
-    }
-  });
-
-  it('should handle defect with non-string _tag as generic object', () => {
-    expect.assertions(2);
-    const effect = Effect.die({_tag: 42, message: 'numeric tag'});
-    try {
-      runSafeSync(effect);
-    } catch (e) {
-      const err = e as UnexpectedDefectError;
-      expect(err._tag).toBe('UnexpectedDefectError');
-      expect(err.message).not.toContain('Tagged Error');
-    }
-  });
-
-  it('should handle tagged defect without message property', () => {
-    expect.assertions(2);
-    const effect = Effect.die({_tag: 'CustomTag'});
-    try {
-      runSafeSync(effect);
-    } catch (e) {
-      const err = e as UnexpectedDefectError;
-      expect(err._tag).toBe('UnexpectedDefectError');
-      expect(err.message).toContain('CustomTag');
-    }
-  });
-
-  it('should throw original Error for Error defects', () => {
-    const originalError = new TypeError('type mismatch');
-    const effect = Effect.die(originalError);
-    expect(() => runSafeSync(effect)).toThrow(originalError);
-  });
-
-  it('should throw UnhandledExitError for interrupted effects', () => {
-    const effect = Effect.interrupt;
-    try {
-      runSafeSync(effect);
-    } catch (e) {
-      expect((e as UnhandledExitError)._tag).toBe('UnhandledExitError');
-      expect(e).toBeInstanceOf(Error);
-    }
-  });
-});
+import {runSafePromise} from '../../src/lib/effectErrorHandler';
 
 describe('runSafePromise', () => {
   it('should resolve on success', async () => {
@@ -91,12 +25,47 @@ describe('runSafePromise', () => {
     }
   });
 
+  it('should reject with BadRequestError preserving original fields', async () => {
+    const effect = Effect.fail(new BadRequestError({message: '잘못된 요청'}));
+    try {
+      await runSafePromise(effect);
+    } catch (e) {
+      const err = e as BadRequestError;
+      expect(err._tag).toBe('BadRequestError');
+      expect(err.message).toBe('잘못된 요청');
+    }
+  });
+
   it('should reject with UnexpectedDefectError for non-Error defects', async () => {
     const effect = Effect.die({weird: 'object'});
     try {
       await runSafePromise(effect);
     } catch (e) {
       expect((e as UnexpectedDefectError)._tag).toBe('UnexpectedDefectError');
+    }
+  });
+
+  it('should handle defect with non-string _tag as generic object', async () => {
+    expect.assertions(2);
+    const effect = Effect.die({_tag: 42, message: 'numeric tag'});
+    try {
+      await runSafePromise(effect);
+    } catch (e) {
+      const err = e as UnexpectedDefectError;
+      expect(err._tag).toBe('UnexpectedDefectError');
+      expect(err.message).not.toContain('Tagged Error');
+    }
+  });
+
+  it('should handle tagged defect without message property', async () => {
+    expect.assertions(2);
+    const effect = Effect.die({_tag: 'CustomTag'});
+    try {
+      await runSafePromise(effect);
+    } catch (e) {
+      const err = e as UnexpectedDefectError;
+      expect(err._tag).toBe('UnexpectedDefectError');
+      expect(err.message).toContain('CustomTag');
     }
   });
 

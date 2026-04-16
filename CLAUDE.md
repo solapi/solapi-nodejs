@@ -49,7 +49,7 @@ pnpm docs             # Generate TypeDoc documentation
 - 에러: `Data.TaggedError` + environment-aware `toString()`
 - 비동기: `Effect.gen` + `Effect.tryPromise`
 - 검증: Effect Schema (`Schema.filter`, `Schema.transform`)
-- Promise 변환: `runSafePromise()` / `runSafeSync()`
+- Promise 변환: `runSafePromise()`
 
 ### Path Aliases
 ```

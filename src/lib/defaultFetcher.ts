@@ -14,12 +14,30 @@ type DefaultRequest = {
   method: string;
 };
 
+const ERROR_MESSAGE_PREVIEW_LENGTH = 200;
+const RETRYABLE_ERROR_KEYWORDS = [
+  'aborted',
+  'refused',
+  'reset',
+  'econn',
+] as const;
+
 class RetryableError extends Data.TaggedError('RetryableError')<{
   readonly error?: unknown;
 }> {}
 
 const toMessage = (e: unknown): string =>
   e instanceof Error ? e.message : String(e);
+
+const isRetryableNetworkError = (error: Error): boolean => {
+  const cause = error.cause;
+  const causeCode =
+    cause && typeof cause === 'object' && 'code' in cause
+      ? String(cause.code)
+      : '';
+  const message = `${error.message} ${causeCode}`.toLowerCase();
+  return RETRYABLE_ERROR_KEYWORDS.some(keyword => message.includes(keyword));
+};
 
 const makeParseError = (res: Response, message: string) =>
   new DefaultError({
@@ -62,7 +80,9 @@ const handleClientErrorResponse = (res: Response) =>
     Effect.flatMap(text => {
       const genericError = new ClientError({
         errorCode: `HTTP_${res.status}`,
-        errorMessage: text.substring(0, 200) || 'Client error occurred',
+        errorMessage:
+          text.substring(0, ERROR_MESSAGE_PREVIEW_LENGTH) ||
+          'Client error occurred',
         httpStatus: res.status,
         url: res.url,
       });
@@ -148,7 +168,8 @@ const handleServerErrorResponse = (res: Response) =>
 
       const genericError = makeError(
         `HTTP_${res.status}`,
-        text.substring(0, 200) || 'Server error occurred',
+        text.substring(0, ERROR_MESSAGE_PREVIEW_LENGTH) ||
+          'Server error occurred',
       );
 
       return parseServerErrorBody(text, genericError, makeError);
@@ -191,18 +212,7 @@ export function defaultFetcherEffect<T, R>(
         }),
       catch: (error: unknown) => {
         if (error instanceof Error) {
-          const cause = error.cause;
-          const causeCode =
-            cause && typeof cause === 'object' && 'code' in cause
-              ? String(cause.code)
-              : '';
-          const message = (error.message + ' ' + causeCode).toLowerCase();
-          const isRetryable =
-            message.includes('aborted') ||
-            message.includes('refused') ||
-            message.includes('reset') ||
-            message.includes('econn');
-          if (isRetryable) {
+          if (isRetryableNetworkError(error)) {
             return new RetryableError({error});
           }
           return new NetworkError({

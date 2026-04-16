@@ -1,7 +1,7 @@
+import {type InvalidDateError} from '@errors/defaultError';
 import {safeDateTransfer} from '@lib/schemaUtils';
 import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
-import {type InvalidDateError} from '@/errors/defaultError';
 import {kakaoAlimtalkTemplateQuickReplySchema} from './kakaoAlimtalkTemplateQuickReply';
 import {kakaoButtonSchema} from './kakaoButton';
 import {type KakaoChannelCategory} from './kakaoChannel';

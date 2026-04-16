@@ -1,8 +1,8 @@
 import {baseKakaoOptionSchema} from '@models/base/kakao/kakaoOption';
 import {naverOptionSchema} from '@models/base/naver/naverOption';
 import {rcsOptionSchema} from '@models/base/rcs/rcsOption';
+import {voiceOptionSchema} from '@models/requests/voice/voiceOption';
 import {Schema} from 'effect';
-import {voiceOptionSchema} from '@/models/requests/voice/voiceOption';
 
 export const messageTypeSchema = Schema.Literal(
   'SMS',

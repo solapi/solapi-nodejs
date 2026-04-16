@@ -116,7 +116,7 @@ Schema.String.pipe(
 | File | Purpose |
 |------|---------|
 | `defaultFetcher.ts` | HTTP client — Effect.gen, retry 3x exponential backoff, Match |
-| `effectErrorHandler.ts` | `runSafePromise`, `runSafeSync`, `unwrapCause` |
+| `effectErrorHandler.ts` | `runSafePromise`, `unwrapCause` |
 | `authenticator.ts` | HMAC-SHA256 auth header |
 | `stringifyQuery.ts` | URL query string builder (array handling) |
 | `fileToBase64.ts` | File/URL → Base64 |
