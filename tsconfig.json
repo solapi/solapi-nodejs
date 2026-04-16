@@ -38,7 +38,8 @@
       "@models/requests/messages/*": ["src/models/requests/messages/*"],
       "@lib/*": ["src/lib/*"],
       "@internal-types/*": ["src/types/*"],
-      "@services/*": ["src/services/*"]
+      "@services/*": ["src/services/*"],
+      "@errors/*": ["src/errors/*"]
     },
 
     /* Additional Type Checking */
