@@ -1,5 +1,18 @@
 # Changelog
 
+## [6.0.0-beta.1](https://github.com/solapi/solapi-nodejs/compare/solapi-v6.0.0-beta.0...solapi-v6.0.0-beta.1) (2026-04-16)
+
+
+### Bug Fixes
+
+* handleClientErrorResponse에 동일한 null/비정형 JSON 방어 적용 ([e33df23](https://github.com/solapi/solapi-nodejs/commit/e33df239765a443ef094543c718977d2818e1a33))
+* handleServerErrorResponse null JSON 방어 및 코드 간결화 ([6e149ef](https://github.com/solapi/solapi-nodejs/commit/6e149efd6377a156c2b16d092701bb7ddf3c9530))
+* restore default message schema export ([e8d5e9c](https://github.com/solapi/solapi-nodejs/commit/e8d5e9cd3c83520aff5299889bb67d615bbc402c))
+* 리뷰 피드백 반영 — isErrorResponse 강화, 에러 처리 일관성, examples 업데이트 ([0d9d7b4](https://github.com/solapi/solapi-nodejs/commit/0d9d7b45184f8cd81474f19b1e72beb5b9d63bfd))
+* 리뷰 피드백 반영 — 문서 업데이트, 테스트 보강 ([233bb6b](https://github.com/solapi/solapi-nodejs/commit/233bb6b1984b9f8f0f16551148b6015e2a8d1724))
+* 리뷰 피드백 반영 — 주석 누락 제거 및 sendRequestConfigSchema 테스트 추가 ([3635405](https://github.com/solapi/solapi-nodejs/commit/36354052621e6246906b4c17510c1f620f531ef8))
+* 테스트에 expect.assertions() 추가로 false-green 방지 ([1f3fc8a](https://github.com/solapi/solapi-nodejs/commit/1f3fc8aa45a722998c8b4d8de9dc08ce9042b624))
+
 ## [6.0.0-beta.0](https://github.com/solapi/solapi-nodejs/compare/solapi-v5.5.4...solapi-v6.0.0-beta.0) (2026-04-08)
 
 
