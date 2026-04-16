@@ -1,6 +1,5 @@
 import {Schema} from 'effect';
 
-// 네이버 스마트 알림 naverOptions 버튼 스키마
 const naverOptionButtonSchema = Schema.Struct({
   buttonName: Schema.String,
   buttonType: Schema.String,
@@ -10,7 +9,6 @@ const naverOptionButtonSchema = Schema.Struct({
   linkIos: Schema.optional(Schema.String),
 });
 
-// naverOptions 최상위 스키마
 export const naverOptionSchema = Schema.Struct({
   talkId: Schema.String,
   templateId: Schema.String,

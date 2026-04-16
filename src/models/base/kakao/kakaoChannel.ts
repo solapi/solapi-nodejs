@@ -1,7 +1,7 @@
+import {type InvalidDateError} from '@errors/defaultError';
 import {safeDateTransfer} from '@lib/schemaUtils';
 import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
-import {type InvalidDateError} from '@/errors/defaultError';
 
 /**
  * @description 카카오 채널 카테고리 타입

@@ -1,7 +1,5 @@
-// Base Models - Kakao BMS
 export * from './base/kakao/bms';
 
-// Base Models - Kakao
 export {
   decodeKakaoAlimtalkTemplate,
   type KakaoAlimtalkTemplate,
@@ -67,12 +65,10 @@ export {
   messageSchema,
   messageTypeSchema,
 } from './base/messages/message';
-// Base Models - Naver
 export {
   type NaverOptionSchema,
   naverOptionSchema,
 } from './base/naver/naverOption';
-// Base Models - RCS
 export {
   type RcsButton,
   type RcsButtonSchema,
@@ -88,8 +84,5 @@ export {
   rcsOptionSchema,
 } from './base/rcs/rcsOption';
 
-// Requests
 export * from './requests/index';
-
-// Responses
 export * from './responses/index';

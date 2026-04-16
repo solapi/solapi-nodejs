@@ -20,7 +20,6 @@ const baseGetMessagesRequestSchema = Schema.Struct({
   endDate: Schema.optional(Schema.Union(Schema.String, Schema.DateFromSelf)),
 });
 
-// dateType은 startDate 또는 endDate가 함께 제공될 때만 유효
 export const getMessagesRequestSchema = baseGetMessagesRequestSchema.pipe(
   Schema.filter(data => {
     const hasDate = data.startDate != null || data.endDate != null;
@@ -59,7 +58,6 @@ export type GetMessagesRequest =
   | GetMessagesRequestWithStartDate
   | GetMessagesRequestWithEndDate;
 
-// 스키마 디코딩 결과 타입 (런타임 검증 후 내부에서 사용)
 type GetMessagesRequestDecoded = Schema.Schema.Type<
   typeof getMessagesRequestSchema
 >;
