@@ -249,7 +249,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
-          node-version: 18
+          node-version: 24
           registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
@@ -261,7 +261,7 @@ jobs:
       - name: Publish
         env:
           NPM_TAG: ${{ github.ref_name == 'beta' && 'beta' || 'latest' }}
-        run: npm publish --tag "$NPM_TAG"
+        run: npm publish --provenance --access public --tag "$NPM_TAG"
 
       - name: Report publish failure
         if: failure()
