@@ -16,6 +16,10 @@ import {
 } from '@models/requests/messages/groupMessageRequest';
 import {osPlatform, sdkVersion} from '@models/requests/messages/requestConfig';
 import {
+  type RequestSendMessagesSchema,
+  requestSendMessageSchema,
+} from '@models/requests/messages/sendMessage';
+import {
   AddMessageResponse,
   GetGroupsResponse,
   GetMessagesResponse,
@@ -23,10 +27,6 @@ import {
   RemoveGroupMessagesResponse,
 } from '@models/responses/messageResponses';
 import * as Effect from 'effect/Effect';
-import {
-  type RequestSendMessagesSchema,
-  requestSendMessageSchema,
-} from '@/models/requests/messages/sendMessage';
 import DefaultService from '../defaultService';
 
 /**

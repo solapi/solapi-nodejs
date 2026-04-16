@@ -1,7 +1,5 @@
 import {Schema} from 'effect';
 
-// --- Count & Charge Types ---
-
 export const countSchema = Schema.Struct({
   total: Schema.Number,
   sentTotal: Schema.Number,
@@ -62,8 +60,6 @@ export type MessageTypeRecord = Schema.Schema.Type<
   typeof messageTypeRecordSchema
 >;
 
-// --- App & Log ---
-
 export const appSchema = Schema.Struct({
   profit: messageTypeRecordSchema,
   appId: Schema.NullishOr(Schema.String),
@@ -74,8 +70,6 @@ export const logSchema = Schema.Array(
   Schema.Record({key: Schema.String, value: Schema.Unknown}),
 );
 export type Log = Schema.Schema.Type<typeof logSchema>;
-
-// --- Group ---
 
 export const groupIdSchema = Schema.String;
 export type GroupId = Schema.Schema.Type<typeof groupIdSchema>;
@@ -101,12 +95,8 @@ export const groupSchema = Schema.Struct({
 });
 export type Group = Schema.Schema.Type<typeof groupSchema>;
 
-// --- Handle Key ---
-
 export const handleKeySchema = Schema.String;
 export type HandleKey = Schema.Schema.Type<typeof handleKeySchema>;
-
-// --- Black (080 수신거부) ---
 
 export const blackSchema = Schema.Struct({
   handleKey: handleKeySchema,
@@ -117,8 +107,6 @@ export const blackSchema = Schema.Struct({
   dateUpdated: Schema.String,
 });
 export type Black = Schema.Schema.Type<typeof blackSchema>;
-
-// --- Block Group ---
 
 export const blockGroupSchema = Schema.Struct({
   blockGroupId: Schema.String,
@@ -131,8 +119,6 @@ export const blockGroupSchema = Schema.Struct({
   dateUpdated: Schema.String,
 });
 export type BlockGroup = Schema.Schema.Type<typeof blockGroupSchema>;
-
-// --- Block Number ---
 
 export const blockNumberSchema = Schema.Struct({
   blockNumberId: Schema.String,

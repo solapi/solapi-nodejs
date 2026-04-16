@@ -76,16 +76,6 @@ const unwrapCause = (cause: Cause.Cause<unknown>): unknown => {
   return new UnhandledExitError({message});
 };
 
-export const runSafeSync = <E, A>(effect: Effect.Effect<A, E>): A => {
-  const exit = Effect.runSyncExit(effect);
-  return Exit.match(exit, {
-    onFailure: cause => {
-      throw unwrapCause(cause);
-    },
-    onSuccess: value => value,
-  });
-};
-
 export const runSafePromise = <E, A>(
   effect: Effect.Effect<A, E>,
 ): Promise<A> => {

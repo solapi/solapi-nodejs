@@ -1,4 +1,4 @@
-import {Schema} from 'effect';
+import {ParseResult, Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import {BadRequestError, InvalidDateError} from '../errors/defaultError';
 import stringDateTransfer, {formatWithTransfer} from './stringDateTransfer';
@@ -6,6 +6,8 @@ import stringDateTransfer, {formatWithTransfer} from './stringDateTransfer';
 /**
  * Schema 디코딩 + BadRequestError 변환을 결합한 Effect 헬퍼.
  * 서비스 레이어에서 반복되는 검증 패턴을 통일합니다.
+ * Effect 공식 ParseResult 포맷터(TreeFormatter/ArrayFormatter)로
+ * 에러 경로를 구조화하여 디버깅 가능성을 높입니다.
  */
 export const decodeWithBadRequest = <A, I>(
   schema: Schema.Schema<A, I>,
@@ -15,7 +17,11 @@ export const decodeWithBadRequest = <A, I>(
     Schema.decodeUnknown(schema)(data),
     error =>
       new BadRequestError({
-        message: error.message,
+        message: ParseResult.TreeFormatter.formatErrorSync(error),
+        validationErrors: ParseResult.ArrayFormatter.formatErrorSync(error).map(
+          issue =>
+            `${issue.path.length > 0 ? issue.path.join('.') : '(root)'}: ${issue.message}`,
+        ),
       }),
   );
 
