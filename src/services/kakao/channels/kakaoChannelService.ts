@@ -6,6 +6,8 @@ import {
   type KakaoChannel,
   type KakaoChannelCategory,
   type KakaoChannelSchema,
+  kakaoChannelCategorySchema,
+  kakaoChannelSchema,
 } from '@models/base/kakao/kakaoChannel';
 import {
   type CreateKakaoChannelRequest,
@@ -18,22 +20,29 @@ import {
 } from '@models/requests/kakao/getKakaoChannelsRequest';
 import {
   type GetKakaoChannelsFinalizeResponse,
-  type GetKakaoChannelsResponse,
+  getKakaoChannelsResponseSchema,
 } from '@models/responses/kakao/getKakaoChannelsResponse';
 import {
   type CreateKakaoChannelResponse,
   type RequestKakaoChannelTokenResponse,
 } from '@models/responses/messageResponses';
+import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import DefaultService from '../../defaultService';
+
+const kakaoChannelCategoryListSchema = Schema.Array(kakaoChannelCategorySchema);
 
 export default class KakaoChannelService extends DefaultService {
   async getKakaoChannelCategories(): Promise<Array<KakaoChannelCategory>> {
     return runSafePromise(
-      this.requestEffect<never, Array<KakaoChannelCategory>>({
-        httpMethod: 'GET',
-        url: 'kakao/v2/channels/categories',
-      }),
+      Effect.map(
+        this.requestEffect({
+          httpMethod: 'GET',
+          url: 'kakao/v2/channels/categories',
+          responseSchema: kakaoChannelCategoryListSchema,
+        }),
+        list => [...list],
+      ),
     );
   }
 
@@ -53,9 +62,10 @@ export default class KakaoChannelService extends DefaultService {
           indices: false,
           addQueryPrefix: true,
         });
-        const response = yield* reqEffect<never, GetKakaoChannelsResponse>({
-          httpMethod: 'GET',
+        const response = yield* reqEffect({
+          httpMethod: 'GET' as const,
           url: `kakao/v2/channels${parameter}`,
+          responseSchema: getKakaoChannelsResponseSchema,
         });
         return {
           limit: response.limit,
@@ -72,9 +82,10 @@ export default class KakaoChannelService extends DefaultService {
   async getKakaoChannel(channelId: string): Promise<KakaoChannel> {
     return runSafePromise(
       Effect.flatMap(
-        this.requestEffect<never, KakaoChannelSchema>({
+        this.requestEffect({
           httpMethod: 'GET',
           url: `kakao/v2/channels/${channelId}`,
+          responseSchema: kakaoChannelSchema,
         }),
         decodeKakaoChannel,
       ),

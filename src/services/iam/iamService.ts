@@ -14,9 +14,18 @@ import {
   type GetBlockNumbersRequest,
   getBlockNumbersRequestSchema,
 } from '@models/requests/iam/getBlockNumbersRequest';
-import {GetBlacksResponse} from '@models/responses/iam/getBlacksResponse';
-import {GetBlockGroupsResponse} from '@models/responses/iam/getBlockGroupsResponse';
-import {GetBlockNumbersResponse} from '@models/responses/iam/getBlockNumbersResponse';
+import {
+  GetBlacksResponse,
+  getBlacksResponseSchema,
+} from '@models/responses/iam/getBlacksResponse';
+import {
+  GetBlockGroupsResponse,
+  getBlockGroupsResponseSchema,
+} from '@models/responses/iam/getBlockGroupsResponse';
+import {
+  GetBlockNumbersResponse,
+  getBlockNumbersResponseSchema,
+} from '@models/responses/iam/getBlockNumbersResponse';
 import DefaultService from '../defaultService';
 
 export default class IamService extends DefaultService {
@@ -32,6 +41,7 @@ export default class IamService extends DefaultService {
         finalize: finalizeGetBlacksRequest,
         url: 'iam/v1/black',
         data,
+        responseSchema: getBlacksResponseSchema,
       }),
     );
   }
@@ -50,6 +60,7 @@ export default class IamService extends DefaultService {
         finalize: finalizeGetBlockGroupsRequest,
         url: 'iam/v1/block/groups',
         data,
+        responseSchema: getBlockGroupsResponseSchema,
       }),
     );
   }
@@ -68,6 +79,7 @@ export default class IamService extends DefaultService {
         finalize: finalizeGetBlockNumbersRequest,
         url: 'iam/v1/block/numbers',
         data,
+        responseSchema: getBlockNumbersResponseSchema,
       }),
     );
   }

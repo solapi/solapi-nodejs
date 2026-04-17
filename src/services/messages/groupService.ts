@@ -24,6 +24,9 @@ import {
   GetGroupsResponse,
   GetMessagesResponse,
   GroupMessageResponse,
+  getGroupsResponseSchema,
+  getMessagesResponseSchema,
+  groupMessageResponseSchema,
   RemoveGroupMessagesResponse,
 } from '@models/responses/messageResponses';
 import * as Effect from 'effect/Effect';
@@ -151,6 +154,7 @@ export default class GroupService extends DefaultService {
         finalize: finalizeGetGroupsRequest,
         url: 'messages/v4/groups',
         data,
+        responseSchema: getGroupsResponseSchema,
       }),
     );
   }
@@ -161,9 +165,10 @@ export default class GroupService extends DefaultService {
    */
   async getGroup(groupId: GroupId): Promise<GroupMessageResponse> {
     return runSafePromise(
-      this.requestEffect<never, GroupMessageResponse>({
+      this.requestEffect({
         httpMethod: 'GET',
         url: `messages/v4/groups/${groupId}`,
+        responseSchema: groupMessageResponseSchema,
       }),
     );
   }
@@ -182,9 +187,10 @@ export default class GroupService extends DefaultService {
       addQueryPrefix: true,
     });
     return runSafePromise(
-      this.requestEffect<never, GetMessagesResponse>({
+      this.requestEffect({
         httpMethod: 'GET',
         url: `messages/v4/groups/${groupId}/messages${parameter}`,
+        responseSchema: getMessagesResponseSchema,
       }),
     );
   }

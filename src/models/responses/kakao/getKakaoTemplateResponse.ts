@@ -9,7 +9,7 @@ export const getKakaoTemplateResponseSchema = kakaoAlimtalkTemplateSchema.pipe(
   Schema.extend(
     Schema.Struct({
       assignType: kakaoAlimtalkTemplateAssignTypeSchema,
-      accountId: Schema.String,
+      accountId: Schema.NullishOr(Schema.String),
       commentable: Schema.Boolean,
       dateCreated: Schema.String,
       dateUpdated: Schema.String,

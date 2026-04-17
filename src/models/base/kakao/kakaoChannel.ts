@@ -21,7 +21,7 @@ export const kakaoChannelSchema = Schema.Struct({
   channelId: Schema.String,
   searchId: Schema.String,
   accountId: Schema.String,
-  phoneNumber: Schema.String,
+  phoneNumber: Schema.optional(Schema.String),
   sharedAccountIds: Schema.Array(Schema.String),
   dateCreated: Schema.optional(
     Schema.Union(Schema.String, Schema.DateFromSelf),
@@ -40,7 +40,7 @@ export type KakaoChannel = {
   channelId: string;
   searchId: string;
   accountId: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   sharedAccountIds: ReadonlyArray<string>;
   dateCreated?: Date;
   dateUpdated?: Date;
@@ -63,6 +63,6 @@ export function decodeKakaoChannel(
       sharedAccountIds: data.sharedAccountIds,
       dateCreated,
       dateUpdated,
-    };
+    } satisfies KakaoChannel;
   });
 }

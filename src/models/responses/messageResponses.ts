@@ -6,10 +6,10 @@ import {
   groupIdSchema,
   groupSchema,
   logSchema,
-  messageTypeRecordSchema,
+  partialMessageTypeRecordSchema,
 } from '@internal-types/commonTypes';
 import {Schema} from 'effect';
-import {messageSchema} from '../base/messages/message';
+import {storedMessageSchema} from '../base/messages/storedMessage';
 
 export const groupMessageResponseSchema = Schema.Struct({
   count: countSchema,
@@ -28,9 +28,9 @@ export const groupMessageResponseSchema = Schema.Struct({
   price: Schema.Record({key: Schema.String, value: Schema.Unknown}),
   dateCreated: Schema.String,
   dateUpdated: Schema.String,
-  scheduledDate: Schema.optional(Schema.String),
-  dateSent: Schema.optional(Schema.String),
-  dateCompleted: Schema.optional(Schema.String),
+  scheduledDate: Schema.NullishOr(Schema.String),
+  dateSent: Schema.NullishOr(Schema.String),
+  dateCompleted: Schema.NullishOr(Schema.String),
 });
 export type GroupMessageResponse = Schema.Schema.Type<
   typeof groupMessageResponseSchema
@@ -62,10 +62,10 @@ export type AddMessageResponse = Schema.Schema.Type<
 >;
 
 export const getMessagesResponseSchema = Schema.Struct({
-  startKey: Schema.NullOr(Schema.String),
-  nextKey: Schema.NullOr(Schema.String),
+  startKey: Schema.optional(Schema.NullOr(Schema.String)),
+  nextKey: Schema.optional(Schema.NullOr(Schema.String)),
   limit: Schema.Number,
-  messageList: Schema.Record({key: Schema.String, value: messageSchema}),
+  messageList: Schema.Record({key: Schema.String, value: storedMessageSchema}),
 });
 export type GetMessagesResponse = Schema.Schema.Type<
   typeof getMessagesResponseSchema
@@ -108,21 +108,37 @@ const statisticsPeriodResultSchema = Schema.Struct({
   rcs_lms: Schema.Number,
   rcs_mms: Schema.Number,
   rcs_tpl: Schema.Number,
+  rcs_itpl: Schema.optional(Schema.Number),
+  rcs_ltpl: Schema.optional(Schema.Number),
+  fax: Schema.optional(Schema.Number),
+  voice: Schema.optional(Schema.Number),
+  bms_text: Schema.optional(Schema.Number),
+  bms_image: Schema.optional(Schema.Number),
+  bms_wide: Schema.optional(Schema.Number),
+  bms_wide_item_list: Schema.optional(Schema.Number),
+  bms_carousel_feed: Schema.optional(Schema.Number),
+  bms_premium_video: Schema.optional(Schema.Number),
+  bms_commerce: Schema.optional(Schema.Number),
+  bms_carousel_commerce: Schema.optional(Schema.Number),
+  bms_free: Schema.optional(Schema.Number),
 });
 
 const refundSchema = Schema.Struct({
   balance: Schema.Number,
   point: Schema.Number,
+  deposit: Schema.optional(Schema.Number),
 });
 
 const dayPeriodSchema = Schema.Struct({
   _id: Schema.String,
   month: Schema.String,
+  date: Schema.optional(Schema.String),
   balance: Schema.Number,
   point: Schema.Number,
+  deposit: Schema.optional(Schema.Number),
   statusCode: Schema.Record({
     key: Schema.String,
-    value: messageTypeRecordSchema,
+    value: partialMessageTypeRecordSchema,
   }),
   refund: refundSchema,
   total: statisticsPeriodResultSchema,
@@ -135,6 +151,8 @@ const monthPeriodRefundSchema = Schema.Struct({
   balanceAvg: Schema.Number,
   point: Schema.Number,
   pointAvg: Schema.Number,
+  deposit: Schema.optional(Schema.Number),
+  depositAvg: Schema.optional(Schema.Number),
 });
 
 const monthPeriodSchema = Schema.Struct({
@@ -143,8 +161,10 @@ const monthPeriodSchema = Schema.Struct({
   balanceAvg: Schema.Number,
   point: Schema.Number,
   pointAvg: Schema.Number,
+  deposit: Schema.optional(Schema.Number),
+  depositAvg: Schema.optional(Schema.Number),
   dayPeriod: Schema.Array(dayPeriodSchema),
-  refund: monthPeriodRefundSchema,
+  refund: Schema.optional(monthPeriodRefundSchema),
   total: statisticsPeriodResultSchema,
   successed: statisticsPeriodResultSchema,
   failed: statisticsPeriodResultSchema,
@@ -153,25 +173,44 @@ const monthPeriodSchema = Schema.Struct({
 export const getStatisticsResponseSchema = Schema.Struct({
   balance: Schema.Number,
   point: Schema.Number,
+  deposit: Schema.optional(Schema.Number),
   monthlyBalanceAvg: Schema.Number,
   monthlyPointAvg: Schema.Number,
+  monthlyDepositAvg: Schema.optional(Schema.Number),
   monthPeriod: Schema.Array(monthPeriodSchema),
   total: statisticsPeriodResultSchema,
   successed: statisticsPeriodResultSchema,
   failed: statisticsPeriodResultSchema,
-  dailyBalanceAvg: Schema.Number,
-  dailyPointAvg: Schema.Number,
-  dailyTotalCountAvg: Schema.Number,
-  dailyFailedCountAvg: Schema.Number,
-  dailySuccessedCountAvg: Schema.Number,
+  dailyBalanceAvg: Schema.optional(Schema.Number),
+  dailyPointAvg: Schema.optional(Schema.Number),
+  dailyTotalCountAvg: Schema.optional(Schema.Number),
+  dailyFailedCountAvg: Schema.optional(Schema.Number),
+  dailySuccessedCountAvg: Schema.optional(Schema.Number),
 });
 export type GetStatisticsResponse = Schema.Schema.Type<
   typeof getStatisticsResponseSchema
 >;
 
+const lowBalanceAlertSchema = Schema.Struct({
+  notificationBalance: Schema.String,
+  currentBalance: Schema.String,
+  balances: Schema.Array(Schema.Number),
+  channels: Schema.Array(Schema.String),
+  enabled: Schema.Boolean,
+});
+export type LowBalanceAlert = Schema.Schema.Type<typeof lowBalanceAlertSchema>;
+
 export const getBalanceResponseSchema = Schema.Struct({
-  balance: Schema.Number,
+  lowBalanceAlert: Schema.optional(lowBalanceAlertSchema),
   point: Schema.Number,
+  minimumCash: Schema.optional(Schema.Number),
+  rechargeTo: Schema.optional(Schema.Number),
+  rechargeTryCount: Schema.optional(Schema.Number),
+  autoRecharge: Schema.optional(Schema.Number),
+  accountId: Schema.optional(Schema.String),
+  balance: Schema.Number,
+  deposit: Schema.optional(Schema.Number),
+  balanceOnly: Schema.optional(Schema.Number),
 });
 export type GetBalanceResponse = Schema.Schema.Type<
   typeof getBalanceResponseSchema
