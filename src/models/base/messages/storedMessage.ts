@@ -1,16 +1,29 @@
-import {Schema} from 'effect';
+import {ParseResult, Schema} from 'effect';
 import {messageTypeSchema} from './message';
 
 /**
  * 서버가 동일 필드를 boolean 또는 0/1 정수로 섞어 내려주는 경우가 있어
  * 소비자에게는 boolean으로만 노출되도록 wire 단계에서 정규화한다.
+ * 0/1 외의 숫자(NaN, 2, -1 등)는 drift 신호이므로 silent 처리하지 않고
+ * ResponseSchemaMismatchError로 전파되도록 transformOrFail을 사용한다.
  */
-const booleanOrZeroOne = Schema.transform(
+const booleanOrZeroOne = Schema.transformOrFail(
   Schema.Union(Schema.Boolean, Schema.Number),
   Schema.Boolean,
   {
-    decode: value => (typeof value === 'boolean' ? value : value !== 0),
-    encode: value => value,
+    decode: (value, _opts, ast) => {
+      if (typeof value === 'boolean') return ParseResult.succeed(value);
+      if (value === 0) return ParseResult.succeed(false);
+      if (value === 1) return ParseResult.succeed(true);
+      return ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          value,
+          `Expected boolean, 0, or 1 but received ${String(value)}`,
+        ),
+      );
+    },
+    encode: value => ParseResult.succeed(value),
     strict: true,
   },
 );

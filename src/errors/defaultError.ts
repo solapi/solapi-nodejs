@@ -142,19 +142,21 @@ export class ResponseSchemaMismatchError extends Data.TaggedError(
   readonly responseBody?: string;
 }> {
   toString(): string {
-    const isProduction = process.env.NODE_ENV === 'production';
     const header = `ResponseSchemaMismatchError: ${this.message}`;
-    if (isProduction) {
-      return header;
-    }
+    const url = this.url ? `\nURL: ${this.url}` : '';
     const issues =
       this.validationErrors.length > 0
         ? `\nIssues:\n- ${this.validationErrors.join('\n- ')}`
         : '';
+    // url과 validationErrors는 민감 정보가 아니고 운영 디버깅에 필수적이므로 production에서도 유지.
+    // responseBody만 민감 페이로드일 수 있어 production에서 제외.
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (isProduction) {
+      return `${header}${url}${issues}`;
+    }
     const body = this.responseBody
       ? `\nResponse: ${this.responseBody.substring(0, 500)}`
       : '';
-    const url = this.url ? `\nURL: ${this.url}` : '';
     return `${header}${url}${issues}${body}`;
   }
 }

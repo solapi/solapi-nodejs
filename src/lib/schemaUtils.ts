@@ -80,11 +80,15 @@ export const safeFinalize = <T>(
   });
 
 const stringifyResponseBody = (data: unknown): string | undefined => {
+  if (data === undefined) return undefined;
   if (typeof data === 'string') return data;
   try {
     return JSON.stringify(data);
-  } catch {
-    return undefined;
+  } catch (err) {
+    // circular / BigInt 등 직렬화 실패를 silent 하게 버리지 않고
+    // 최소한 실패 사유와 타입 태그를 운영 로그에서 확인할 수 있도록 둔다.
+    const reason = err instanceof Error ? err.message : String(err);
+    return `[unserializable: ${reason}] ${Object.prototype.toString.call(data)}`;
   }
 };
 

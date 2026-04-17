@@ -62,6 +62,17 @@ describe('decodeServerResponse', () => {
     expect(body).toContain('bogus');
   });
 
+  it('JSON.stringify 실패 시 responseBody에 사유 메타데이터를 기록한다', () => {
+    const circular: Record<string, unknown> = {foo: 1};
+    circular.self = circular;
+    const result = Effect.runSync(
+      Effect.either(decodeServerResponse(getBalanceResponseSchema, circular)),
+    );
+    expect(result._tag).toBe('Left');
+    if (result._tag !== 'Left') return;
+    expect(result.left.responseBody).toMatch(/unserializable/);
+  });
+
   it('context.url이 있으면 에러에 반영된다', () => {
     const result = Effect.runSync(
       Effect.either(
@@ -109,6 +120,25 @@ describe('storedMessageSchema boolean|number 정규화', () => {
     );
     expect(result.autoTypeDetect).toBe(true);
     expect(result.replacement).toBe(false);
+  });
+
+  it.each([
+    2,
+    -1,
+    0.5,
+    Number.NaN,
+  ])('0/1 외의 숫자(%s)는 drift로 간주되어 ResponseSchemaMismatchError로 실패', invalid => {
+    const result = Effect.runSync(
+      Effect.either(
+        decodeServerResponse(storedMessageSchema, {
+          autoTypeDetect: invalid,
+        }),
+      ),
+    );
+    expect(result._tag).toBe('Left');
+    if (result._tag !== 'Left') return;
+    expect(result.left).toBeInstanceOf(ResponseSchemaMismatchError);
+    expect(result.left.validationErrors.length).toBeGreaterThan(0);
   });
 
   it('미선언 필드(dateReceived 등)를 응답에서 strip 하지 않는다', () => {
