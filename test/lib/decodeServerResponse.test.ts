@@ -75,7 +75,8 @@ describe('decodeServerResponse', () => {
 
   it('production 환경에서 PII가 실릴 수 있는 모든 경로를 redact 한다', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    // redact 정책은 safe-by-default: development/test 외에는 모두 redact
+    process.env.NODE_ENV = 'staging';
     const piiPhone = '01012345678';
     try {
       const result = Effect.runSync(

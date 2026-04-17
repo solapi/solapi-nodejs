@@ -93,15 +93,29 @@ const stringifyResponseBody = (data: unknown): string | undefined => {
 };
 
 /**
- * query string은 SOLAPI 조회 API에서 `to`, `from`, `startDate` 등 PII를 포함할 수 있으므로
- * production에서는 path 만 남기고 쿼리 부분을 redact 한다.
+ * query string 및 fragment는 SOLAPI 조회 API에서 `to`, `from`, `startDate` 등 PII를
+ * 포함할 수 있으므로 redact 경로에서는 path만 남기고 둘 다 마스킹한다.
  */
 const redactUrlForProduction = (
   url: string | undefined,
 ): string | undefined => {
   if (!url) return url;
-  const queryIndex = url.indexOf('?');
-  return queryIndex === -1 ? url : `${url.slice(0, queryIndex)}?[redacted]`;
+  const hashIndex = url.indexOf('#');
+  const fragmentStripped = hashIndex === -1 ? url : url.slice(0, hashIndex);
+  const queryIndex = fragmentStripped.indexOf('?');
+  return queryIndex === -1
+    ? fragmentStripped
+    : `${fragmentStripped.slice(0, queryIndex)}?[redacted]`;
+};
+
+/**
+ * PII 보호 gate는 safe-by-default: 명시적으로 개발자 환경(development/test)일 때만
+ * 상세 정보를 노출한다. 운영/스테이징/NODE_ENV 미설정 환경은 모두 redact 경로를 탄다 —
+ * 원본 값이 로그/Sentry 등으로 유출되지 않도록 하기 위함.
+ */
+const shouldRedactSensitive = (): boolean => {
+  const env = process.env.NODE_ENV;
+  return env !== 'development' && env !== 'test';
 };
 
 /**
@@ -123,25 +137,25 @@ export const decodeServerResponse = <A, I>(
   Effect.mapError(
     Schema.decodeUnknown(schema, {onExcessProperty: 'preserve'})(data),
     err => {
-      // production에서는 PII 누출을 차단한다:
+      // PII 누출을 차단한다 (safe-by-default: development/test 외에는 모두 redact):
       // - responseBody: 원본 payload에 전화번호/계정 데이터가 실릴 수 있음
       // - validationErrors 메시지: ParseResult 포맷터는 기대치와 함께 *실제 값*을 문자열로 삽입함
       // - url: getMessages 등 조회 API는 to/from 등 전화번호를 query string에 실음
       // Sentry 등은 toString() 대신 enumerable 필드를 직렬화하므로 creation 단계에서 제거해야 안전.
-      const isProduction = process.env.NODE_ENV === 'production';
+      const redact = shouldRedactSensitive();
       const issues = ParseResult.ArrayFormatter.formatErrorSync(err);
       return new ResponseSchemaMismatchError({
-        message: isProduction
+        message: redact
           ? `Response schema mismatch on ${issues.length} field(s)`
           : ParseResult.TreeFormatter.formatErrorSync(err),
         validationErrors: issues.map(issue => {
           const path = issue.path.length > 0 ? issue.path.join('.') : '(root)';
-          return isProduction
+          return redact
             ? `${path}: [${issue._tag}]`
             : `${path}: ${issue.message}`;
         }),
-        url: isProduction ? redactUrlForProduction(context?.url) : context?.url,
-        responseBody: isProduction ? undefined : stringifyResponseBody(data),
+        url: redact ? redactUrlForProduction(context?.url) : context?.url,
+        responseBody: redact ? undefined : stringifyResponseBody(data),
       });
     },
   );

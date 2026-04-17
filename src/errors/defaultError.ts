@@ -148,12 +148,9 @@ export class ResponseSchemaMismatchError extends Data.TaggedError(
       this.validationErrors.length > 0
         ? `\nIssues:\n- ${this.validationErrors.join('\n- ')}`
         : '';
-    // url과 validationErrors는 민감 정보가 아니고 운영 디버깅에 필수적이므로 production에서도 유지.
-    // responseBody만 민감 페이로드일 수 있어 production에서 제외.
-    const isProduction = process.env.NODE_ENV === 'production';
-    if (isProduction) {
-      return `${header}${url}${issues}`;
-    }
+    // creation 시점에서 이미 redact 정책이 적용된 값들이 들어와 있으므로
+    // toString은 추가 가드 없이 보유 중인 필드를 그대로 렌더링한다.
+    // responseBody는 dev/test에만 존재하므로 자동으로 그 경우에만 출력됨.
     const body = this.responseBody
       ? `\nResponse: ${this.responseBody.substring(0, 500)}`
       : '';
