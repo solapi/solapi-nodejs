@@ -86,6 +86,18 @@ export type MessageTypeRecord = Schema.Schema.Type<
   typeof messageTypeRecordSchema
 >;
 
+/**
+ * 통계 dayPeriod.statusCode 같이 status code 별로 **일부 메시지 타입만** 카운트를 내려주는
+ * sparse 응답용. MessageTypeRecord의 타입 정보(`sms`/`lms` 등 개별 키)를 유지하면서도
+ * 모든 키를 optional로 풀어 서버가 한두 필드만 내려줘도 decode가 통과하도록 한다.
+ */
+export const partialMessageTypeRecordSchema = Schema.partial(
+  messageTypeRecordSchema,
+);
+export type PartialMessageTypeRecord = Schema.Schema.Type<
+  typeof partialMessageTypeRecordSchema
+>;
+
 export const appSchema = Schema.Struct({
   profit: messageTypeRecordSchema,
   appId: Schema.NullishOr(Schema.String),

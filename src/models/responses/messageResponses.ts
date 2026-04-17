@@ -6,6 +6,7 @@ import {
   groupIdSchema,
   groupSchema,
   logSchema,
+  partialMessageTypeRecordSchema,
 } from '@internal-types/commonTypes';
 import {Schema} from 'effect';
 import {storedMessageSchema} from '../base/messages/storedMessage';
@@ -137,7 +138,7 @@ const dayPeriodSchema = Schema.Struct({
   deposit: Schema.optional(Schema.Number),
   statusCode: Schema.Record({
     key: Schema.String,
-    value: Schema.Record({key: Schema.String, value: Schema.Number}),
+    value: partialMessageTypeRecordSchema,
   }),
   refund: refundSchema,
   total: statisticsPeriodResultSchema,
