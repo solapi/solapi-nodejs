@@ -6,8 +6,8 @@ import {
 
 export const getKakaoChannelsResponseSchema = Schema.Struct({
   limit: Schema.Number,
-  startKey: Schema.String,
-  nextKey: Schema.NullOr(Schema.String),
+  startKey: Schema.NullishOr(Schema.String),
+  nextKey: Schema.NullishOr(Schema.String),
   channelList: Schema.Array(kakaoChannelSchema),
 });
 
@@ -17,7 +17,7 @@ export type GetKakaoChannelsResponse = Schema.Schema.Type<
 
 export type GetKakaoChannelsFinalizeResponse = {
   limit: number;
-  startKey: string;
-  nextKey: string | null;
+  startKey: string | null | undefined;
+  nextKey: string | null | undefined;
   channelList: Array<KakaoChannel>;
 };

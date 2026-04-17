@@ -5,8 +5,8 @@ import {getKakaoTemplateResponseSchema} from './getKakaoTemplateResponse';
 export const getKakaoAlimtalkTemplatesResponseSchema = Schema.Struct({
   limit: Schema.Number,
   templateList: Schema.Array(getKakaoTemplateResponseSchema),
-  startKey: Schema.String,
-  nextKey: Schema.NullOr(Schema.String),
+  startKey: Schema.NullishOr(Schema.String),
+  nextKey: Schema.NullishOr(Schema.String),
 });
 export type GetKakaoAlimtalkTemplatesResponseSchema = Schema.Schema.Type<
   typeof getKakaoAlimtalkTemplatesResponseSchema
@@ -17,6 +17,6 @@ export type GetKakaoAlimtalkTemplatesResponse =
 export type GetKakaoAlimtalkTemplatesFinalizeResponse = {
   limit: number;
   templateList: Array<KakaoAlimtalkTemplate>;
-  startKey: string;
-  nextKey: string | null;
+  startKey: string | null | undefined;
+  nextKey: string | null | undefined;
 };
