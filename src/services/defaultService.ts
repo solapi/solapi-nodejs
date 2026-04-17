@@ -16,6 +16,7 @@ import type {
   DefaultError,
   InvalidDateError,
   NetworkError,
+  ResponseSchemaMismatchError,
   ServerError,
 } from '../errors/defaultError';
 
@@ -24,11 +25,16 @@ type RequestConfig = {
   url: string;
 };
 
-type DefaultServiceParameter<T, R = unknown, I = R> = {
+type DefaultServiceParameter<T, R = unknown, I = unknown> = {
   httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   url: string;
   body?: T;
-  responseSchema?: Schema.Schema<R, I>;
+  /**
+   * 2xx 응답 body에 대해 실행되는 런타임 검증 스키마.
+   * Schema.decodeUnknown은 requirement 채널을 요구하지 않도록 never로 고정 —
+   * 외부 의존성이 필요한 transform은 허용하지 않아 디코딩 결과가 항상 pure해진다.
+   */
+  responseSchema?: Schema.Schema<R, I, never>;
 };
 
 export default class DefaultService {
@@ -42,40 +48,44 @@ export default class DefaultService {
     };
   }
 
-  protected requestEffect<T, R, I = R>(
+  protected requestEffect<T, R, I = unknown>(
     parameter: DefaultServiceParameter<T, R, I>,
   ): Effect.Effect<
     R,
-    ApiKeyError | ClientError | ServerError | NetworkError | DefaultError
+    | ApiKeyError
+    | ClientError
+    | ServerError
+    | NetworkError
+    | DefaultError
+    | ResponseSchemaMismatchError
   > {
     const {httpMethod, url, body, responseSchema} = parameter;
     const requestConfig: RequestConfig = {
       method: httpMethod,
       url: `${this.baseUrl}/${url}`,
     };
-    const fullUrl = requestConfig.url;
     if (responseSchema) {
-      const schema = responseSchema;
       return Effect.flatMap(
         defaultFetcherEffect<T, unknown>(this.authInfo, requestConfig, body),
-        data => decodeServerResponse(schema, data, {url: fullUrl}),
+        data =>
+          decodeServerResponse(responseSchema, data, {url: requestConfig.url}),
       );
     }
     return defaultFetcherEffect<T, R>(this.authInfo, requestConfig, body);
   }
 
-  protected async request<T, R, I = R>(
+  protected async request<T, R, I = unknown>(
     parameter: DefaultServiceParameter<T, R, I>,
   ): Promise<R> {
     return runSafePromise(this.requestEffect<T, R, I>(parameter));
   }
 
-  protected getWithQuery<A, R, I = R>(config: {
+  protected getWithQuery<A, R, I = unknown>(config: {
     schema: Schema.Schema<A>;
     finalize: (validated?: A) => object;
     url: string;
     data?: unknown;
-    responseSchema?: Schema.Schema<R, I>;
+    responseSchema?: Schema.Schema<R, I, never>;
   }): Effect.Effect<
     R,
     | ApiKeyError
@@ -85,6 +95,7 @@ export default class DefaultService {
     | DefaultError
     | BadRequestError
     | InvalidDateError
+    | ResponseSchemaMismatchError
   > {
     const reqEffect = this.requestEffect.bind(this);
     return Effect.gen(function* () {

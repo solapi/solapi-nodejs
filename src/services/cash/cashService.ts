@@ -12,7 +12,7 @@ export default class CashService extends DefaultService {
    */
   async getBalance(): Promise<GetBalanceResponse> {
     return runSafePromise(
-      this.requestEffect<never, GetBalanceResponse>({
+      this.requestEffect({
         httpMethod: 'GET',
         url: 'cash/v1/balance',
         responseSchema: getBalanceResponseSchema,

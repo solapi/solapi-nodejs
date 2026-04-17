@@ -18,13 +18,9 @@ import {
 import {type UpdateKakaoAlimtalkTemplateRequest} from '@models/requests/kakao/updateKakaoAlimtalkTemplateRequest';
 import {
   type GetKakaoAlimtalkTemplatesFinalizeResponse,
-  type GetKakaoAlimtalkTemplatesResponseSchema,
   getKakaoAlimtalkTemplatesResponseSchema,
 } from '@models/responses/kakao/getKakaoAlimtalkTemplatesResponse';
-import {
-  type GetKakaoTemplateResponse,
-  getKakaoTemplateResponseSchema,
-} from '@models/responses/kakao/getKakaoTemplateResponse';
+import {getKakaoTemplateResponseSchema} from '@models/responses/kakao/getKakaoTemplateResponse';
 import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import DefaultService from '../../defaultService';
@@ -42,13 +38,11 @@ export default class KakaoTemplateService extends DefaultService {
   > {
     return runSafePromise(
       Effect.map(
-        this.requestEffect<never, ReadonlyArray<KakaoAlimtalkTemplateCategory>>(
-          {
-            httpMethod: 'GET',
-            url: 'kakao/v2/templates/categories',
-            responseSchema: kakaoAlimtalkTemplateCategoryListSchema,
-          },
-        ),
+        this.requestEffect({
+          httpMethod: 'GET',
+          url: 'kakao/v2/templates/categories',
+          responseSchema: kakaoAlimtalkTemplateCategoryListSchema,
+        }),
         list => [...list],
       ),
     );
@@ -97,11 +91,8 @@ export default class KakaoTemplateService extends DefaultService {
           indices: false,
           addQueryPrefix: true,
         });
-        const response = yield* reqEffect<
-          never,
-          GetKakaoAlimtalkTemplatesResponseSchema
-        >({
-          httpMethod: 'GET',
+        const response = yield* reqEffect({
+          httpMethod: 'GET' as const,
           url: `kakao/v2/templates${parameter}`,
           responseSchema: getKakaoAlimtalkTemplatesResponseSchema,
         });
@@ -133,7 +124,7 @@ export default class KakaoTemplateService extends DefaultService {
   ): Promise<KakaoAlimtalkTemplate> {
     return runSafePromise(
       Effect.flatMap(
-        this.requestEffect<never, GetKakaoTemplateResponse>({
+        this.requestEffect({
           httpMethod: 'GET',
           url: `kakao/v2/templates/${templateId}`,
           responseSchema: getKakaoTemplateResponseSchema,

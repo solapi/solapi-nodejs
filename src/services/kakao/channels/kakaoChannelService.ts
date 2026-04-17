@@ -20,7 +20,6 @@ import {
 } from '@models/requests/kakao/getKakaoChannelsRequest';
 import {
   type GetKakaoChannelsFinalizeResponse,
-  type GetKakaoChannelsResponse,
   getKakaoChannelsResponseSchema,
 } from '@models/responses/kakao/getKakaoChannelsResponse';
 import {
@@ -37,7 +36,7 @@ export default class KakaoChannelService extends DefaultService {
   async getKakaoChannelCategories(): Promise<Array<KakaoChannelCategory>> {
     return runSafePromise(
       Effect.map(
-        this.requestEffect<never, ReadonlyArray<KakaoChannelCategory>>({
+        this.requestEffect({
           httpMethod: 'GET',
           url: 'kakao/v2/channels/categories',
           responseSchema: kakaoChannelCategoryListSchema,
@@ -63,8 +62,8 @@ export default class KakaoChannelService extends DefaultService {
           indices: false,
           addQueryPrefix: true,
         });
-        const response = yield* reqEffect<never, GetKakaoChannelsResponse>({
-          httpMethod: 'GET',
+        const response = yield* reqEffect({
+          httpMethod: 'GET' as const,
           url: `kakao/v2/channels${parameter}`,
           responseSchema: getKakaoChannelsResponseSchema,
         });
@@ -83,7 +82,7 @@ export default class KakaoChannelService extends DefaultService {
   async getKakaoChannel(channelId: string): Promise<KakaoChannel> {
     return runSafePromise(
       Effect.flatMap(
-        this.requestEffect<never, KakaoChannelSchema>({
+        this.requestEffect({
           httpMethod: 'GET',
           url: `kakao/v2/channels/${channelId}`,
           responseSchema: kakaoChannelSchema,
