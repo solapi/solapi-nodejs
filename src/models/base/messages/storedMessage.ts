@@ -65,14 +65,37 @@ export const storedMessageSchema = Schema.Struct({
   dateProcessed: Schema.NullishOr(Schema.String),
   dateReceived: Schema.NullishOr(Schema.String),
   dateReported: Schema.NullishOr(Schema.String),
-  kakaoOptions: Schema.optional(Schema.NullishOr(Schema.Unknown)),
-  rcsOptions: Schema.optional(Schema.NullishOr(Schema.Unknown)),
-  naverOptions: Schema.optional(Schema.NullishOr(Schema.Unknown)),
-  faxOptions: Schema.optional(Schema.NullishOr(Schema.Unknown)),
-  voiceOptions: Schema.optional(Schema.NullishOr(Schema.Unknown)),
-  replacements: Schema.optional(Schema.NullishOr(Schema.Unknown)),
-  log: Schema.optional(Schema.NullishOr(Schema.Unknown)),
-  queues: Schema.optional(Schema.NullishOr(Schema.Unknown)),
+  // 옵션 객체는 서버 정규화 포맷(저장 형태)으로 발송 요청용 스키마와 필드가 다르다.
+  // 상세 타이핑을 확정하려면 각 옵션별 별도 조회 스키마 정의가 필요하지만 본 PR 범위를
+  // 벗어나므로, 최소한 "object"임을 보장해 원시 값이 섞이는 drift를 감지할 수 있게 한다.
+  kakaoOptions: Schema.optional(
+    Schema.NullishOr(
+      Schema.Record({key: Schema.String, value: Schema.Unknown}),
+    ),
+  ),
+  rcsOptions: Schema.optional(
+    Schema.NullishOr(
+      Schema.Record({key: Schema.String, value: Schema.Unknown}),
+    ),
+  ),
+  naverOptions: Schema.optional(
+    Schema.NullishOr(
+      Schema.Record({key: Schema.String, value: Schema.Unknown}),
+    ),
+  ),
+  faxOptions: Schema.optional(
+    Schema.NullishOr(
+      Schema.Record({key: Schema.String, value: Schema.Unknown}),
+    ),
+  ),
+  voiceOptions: Schema.optional(
+    Schema.NullishOr(
+      Schema.Record({key: Schema.String, value: Schema.Unknown}),
+    ),
+  ),
+  replacements: Schema.optional(Schema.NullishOr(Schema.Array(Schema.Unknown))),
+  log: Schema.optional(Schema.NullishOr(Schema.Array(Schema.Unknown))),
+  queues: Schema.optional(Schema.NullishOr(Schema.Array(Schema.Unknown))),
   currentQueue: Schema.optional(Schema.NullishOr(Schema.Unknown)),
   clusterKey: Schema.NullishOr(Schema.String),
   unavailableSenderNumber: Schema.optional(Schema.NullishOr(booleanOrZeroOne)),

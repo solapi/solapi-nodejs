@@ -148,12 +148,14 @@ export class ResponseSchemaMismatchError extends Data.TaggedError(
       this.validationErrors.length > 0
         ? `\nIssues:\n- ${this.validationErrors.join('\n- ')}`
         : '';
-    // creation 시점에서 이미 redact 정책이 적용된 값들이 들어와 있으므로
-    // toString은 추가 가드 없이 보유 중인 필드를 그대로 렌더링한다.
-    // responseBody는 dev/test에만 존재하므로 자동으로 그 경우에만 출력됨.
-    const body = this.responseBody
-      ? `\nResponse: ${this.responseBody.substring(0, 500)}`
-      : '';
+    // defense-in-depth: 이 클래스는 public이라 외부에서 직접 생성될 수 있으므로,
+    // creation 시점 정책과 무관하게 redact 환경에서는 responseBody를 출력하지 않는다.
+    const env = process.env.NODE_ENV?.trim().toLowerCase();
+    const isVerbose = env === 'development' || env === 'test';
+    const body =
+      isVerbose && this.responseBody
+        ? `\nResponse: ${this.responseBody.substring(0, 500)}`
+        : '';
     return `${header}${url}${issues}${body}`;
   }
 }

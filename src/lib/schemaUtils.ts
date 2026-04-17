@@ -93,28 +93,39 @@ const stringifyResponseBody = (data: unknown): string | undefined => {
 };
 
 /**
- * query string 및 fragment는 SOLAPI 조회 API에서 `to`, `from`, `startDate` 등 PII를
- * 포함할 수 있으므로 redact 경로에서는 path만 남기고 둘 다 마스킹한다.
+ * URL에서 PII가 실릴 수 있는 모든 부분(query, fragment, userinfo)을 redact 한다.
+ * SOLAPI 조회 API는 `to`, `from`, `startDate` 등을 query string에 싣고,
+ * 소비자가 전달한 URL에 userinfo가 포함될 여지도 있으므로 모두 제거한다.
  */
-const redactUrlForProduction = (
+export const redactUrlForProduction = (
   url: string | undefined,
 ): string | undefined => {
   if (!url) return url;
-  const hashIndex = url.indexOf('#');
-  const fragmentStripped = hashIndex === -1 ? url : url.slice(0, hashIndex);
-  const queryIndex = fragmentStripped.indexOf('?');
-  return queryIndex === -1
-    ? fragmentStripped
-    : `${fragmentStripped.slice(0, queryIndex)}?[redacted]`;
+  try {
+    const parsed = new URL(url);
+    const hadQuery = parsed.search.length > 0;
+    parsed.search = hadQuery ? '?[redacted]' : '';
+    parsed.hash = '';
+    parsed.username = '';
+    parsed.password = '';
+    return parsed.toString();
+  } catch {
+    // 파싱 불가한 상대/비정상 URL은 보수적으로 첫 구분자 이후 전부 마스킹
+    const cut = url.search(/[?#;]/);
+    return cut === -1 ? url : `${url.slice(0, cut)}?[redacted]`;
+  }
 };
 
 /**
  * PII 보호 gate는 safe-by-default: 명시적으로 개발자 환경(development/test)일 때만
  * 상세 정보를 노출한다. 운영/스테이징/NODE_ENV 미설정 환경은 모두 redact 경로를 탄다 —
  * 원본 값이 로그/Sentry 등으로 유출되지 않도록 하기 위함.
+ *
+ * NODE_ENV는 `.trim().toLowerCase()`로 정규화해 Windows PowerShell 등에서 흔한
+ * `Development` 오타를 verbose 모드로 인식하도록 한다.
  */
-const shouldRedactSensitive = (): boolean => {
-  const env = process.env.NODE_ENV;
+export const shouldRedactSensitive = (): boolean => {
+  const env = process.env.NODE_ENV?.trim().toLowerCase();
   return env !== 'development' && env !== 'test';
 };
 

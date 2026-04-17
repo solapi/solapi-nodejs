@@ -73,42 +73,87 @@ describe('decodeServerResponse', () => {
     expect(result.left.responseBody).toMatch(/unserializable/);
   });
 
-  it('production 환경에서 PII가 실릴 수 있는 모든 경로를 redact 한다', () => {
-    const originalEnv = process.env.NODE_ENV;
-    // redact 정책은 safe-by-default: development/test 외에는 모두 redact
-    process.env.NODE_ENV = 'staging';
+  describe('safe-by-default redact gate', () => {
     const piiPhone = '01012345678';
-    try {
-      const result = Effect.runSync(
+    const withEnv = <T>(env: string | undefined, fn: () => T): T => {
+      const original = process.env.NODE_ENV;
+      if (env === undefined) {
+        delete process.env.NODE_ENV;
+      } else {
+        process.env.NODE_ENV = env;
+      }
+      try {
+        return fn();
+      } finally {
+        if (original === undefined) {
+          delete process.env.NODE_ENV;
+        } else {
+          process.env.NODE_ENV = original;
+        }
+      }
+    };
+
+    const runDecode = () =>
+      Effect.runSync(
         Effect.either(
           decodeServerResponse(
             getBalanceResponseSchema,
-            {balance: piiPhone, leakingField: piiPhone},
+            // balance는 number 기대이므로 PII 전화번호를 주입하면 formatter 메시지에 값이 노출됨
+            {...balanceFixture, balance: piiPhone},
             {
-              url: `https://api.example.com/messages/v4/list?to=${piiPhone}&from=02`,
+              url: `https://user:secret@api.example.com/messages/v4/list?to=${piiPhone}&from=02#section-${piiPhone}`,
             },
           ),
         ),
       );
+
+    it.each([
+      'production',
+      'staging',
+      'PRODUCTION',
+      '',
+      undefined,
+    ])('NODE_ENV=%s 환경은 PII를 redact 한다', envValue => {
+      const result = withEnv(envValue, runDecode);
       expect(result._tag).toBe('Left');
       if (result._tag !== 'Left') return;
       const err = result.left;
-      // responseBody는 완전 제거
       expect(err.responseBody).toBeUndefined();
-      // validationErrors 메시지와 message 필드에 원본 PII 값이 포함되면 안 됨
       expect(err.message).not.toContain(piiPhone);
       for (const ve of err.validationErrors) {
         expect(ve).not.toContain(piiPhone);
       }
-      // url은 query string이 redact 된 형태만 유지
       expect(err.url).not.toContain(piiPhone);
+      expect(err.url).not.toContain('secret');
       expect(err.url).toContain('/messages/v4/list');
-      expect(err.url).toContain('[redacted]');
-      // 디버깅용 구조 정보(경로, 개수)는 유지
       expect(err.validationErrors.length).toBeGreaterThan(0);
-    } finally {
-      process.env.NODE_ENV = originalEnv;
-    }
+    });
+
+    it.each([
+      'development',
+      'test',
+    ])('NODE_ENV=%s 환경은 상세 정보를 유지해 디버깅에 활용 가능하다', envValue => {
+      const result = withEnv(envValue, runDecode);
+      expect(result._tag).toBe('Left');
+      if (result._tag !== 'Left') return;
+      const err = result.left;
+      expect(err.responseBody).toBeDefined();
+      expect(err.responseBody).toContain(piiPhone);
+      expect(err.validationErrors.join(' ')).toContain(piiPhone);
+      expect(err.url).toContain(piiPhone);
+    });
+
+    it.each([
+      ' DEVELOPMENT ',
+      'Development',
+      ' test ',
+      'TEST',
+    ])('대소문자/공백이 섞인 %s는 정규화되어 verbose로 인식된다', envValue => {
+      const result = withEnv(envValue, runDecode);
+      expect(result._tag).toBe('Left');
+      if (result._tag !== 'Left') return;
+      expect(result.left.responseBody).toBeDefined();
+    });
   });
 
   it('context.url이 있으면 에러에 반영된다', () => {
