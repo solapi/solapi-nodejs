@@ -8,7 +8,7 @@ const messageService = new SolapiMessageService(
   'ENTER_YOUR_API_SECRET',
 );
 
-// 단일 발송 예제, send 메소드로도 동일하게 사용가능
+// 단일 발송 예제
 messageService
   .send({
     to: '수신번호',
