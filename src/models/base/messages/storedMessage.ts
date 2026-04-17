@@ -75,10 +75,10 @@ export const storedMessageSchema = Schema.Struct({
   queues: Schema.optional(Schema.NullishOr(Schema.Unknown)),
   currentQueue: Schema.optional(Schema.NullishOr(Schema.Unknown)),
   clusterKey: Schema.NullishOr(Schema.String),
-  unavailableSenderNumber: Schema.optional(booleanOrZeroOne),
-  faxPageCount: Schema.optional(Schema.Number),
-  voiceDuration: Schema.optional(Schema.Number),
-  voiceReplied: Schema.optional(booleanOrZeroOne),
+  unavailableSenderNumber: Schema.optional(Schema.NullishOr(booleanOrZeroOne)),
+  faxPageCount: Schema.optional(Schema.NullishOr(Schema.Number)),
+  voiceDuration: Schema.optional(Schema.NullishOr(Schema.Number)),
+  voiceReplied: Schema.optional(Schema.NullishOr(booleanOrZeroOne)),
   _id: Schema.optional(Schema.String),
 });
 export type StoredMessage = Schema.Schema.Type<typeof storedMessageSchema>;

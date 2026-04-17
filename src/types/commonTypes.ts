@@ -30,6 +30,19 @@ export const countForChargeSchema = Schema.Struct({
   rcs_lms: countryChargeStatusSchema,
   rcs_mms: countryChargeStatusSchema,
   rcs_tpl: countryChargeStatusSchema,
+  rcs_itpl: Schema.optional(countryChargeStatusSchema),
+  rcs_ltpl: Schema.optional(countryChargeStatusSchema),
+  fax: Schema.optional(countryChargeStatusSchema),
+  voice: Schema.optional(countryChargeStatusSchema),
+  bms_text: Schema.optional(countryChargeStatusSchema),
+  bms_image: Schema.optional(countryChargeStatusSchema),
+  bms_wide: Schema.optional(countryChargeStatusSchema),
+  bms_wide_item_list: Schema.optional(countryChargeStatusSchema),
+  bms_carousel_feed: Schema.optional(countryChargeStatusSchema),
+  bms_premium_video: Schema.optional(countryChargeStatusSchema),
+  bms_commerce: Schema.optional(countryChargeStatusSchema),
+  bms_carousel_commerce: Schema.optional(countryChargeStatusSchema),
+  bms_free: Schema.optional(countryChargeStatusSchema),
 });
 export type CountForCharge = Schema.Schema.Type<typeof countForChargeSchema>;
 
