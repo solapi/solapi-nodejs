@@ -93,6 +93,18 @@ const stringifyResponseBody = (data: unknown): string | undefined => {
 };
 
 /**
+ * query string은 SOLAPI 조회 API에서 `to`, `from`, `startDate` 등 PII를 포함할 수 있으므로
+ * production에서는 path 만 남기고 쿼리 부분을 redact 한다.
+ */
+const redactUrlForProduction = (
+  url: string | undefined,
+): string | undefined => {
+  if (!url) return url;
+  const queryIndex = url.indexOf('?');
+  return queryIndex === -1 ? url : `${url.slice(0, queryIndex)}?[redacted]`;
+};
+
+/**
  * API 응답 body를 Effect Schema로 런타임 검증하고 실패 시 ResponseSchemaMismatchError로 래핑.
  * 서버가 예고 없이 응답 구조를 바꾼 경우 소비자 측에서 조용히 undefined로 터지는 대신
  * 스키마 불일치 위치(ArrayFormatter issue path)와 원본 responseBody를 함께 보존하여
@@ -111,17 +123,24 @@ export const decodeServerResponse = <A, I>(
   Effect.mapError(
     Schema.decodeUnknown(schema, {onExcessProperty: 'preserve'})(data),
     err => {
-      // production에서는 responseBody에 PII가 실릴 수 있으므로 creation 단계에서 제외.
-      // 대부분의 에러 리포터(Sentry/Slack 등)는 toString() 대신 enumerable 필드를 직렬화하므로
-      // toString() 가드만으로는 누출을 막지 못한다. ServerError와 동일한 정책을 따른다.
+      // production에서는 PII 누출을 차단한다:
+      // - responseBody: 원본 payload에 전화번호/계정 데이터가 실릴 수 있음
+      // - validationErrors 메시지: ParseResult 포맷터는 기대치와 함께 *실제 값*을 문자열로 삽입함
+      // - url: getMessages 등 조회 API는 to/from 등 전화번호를 query string에 실음
+      // Sentry 등은 toString() 대신 enumerable 필드를 직렬화하므로 creation 단계에서 제거해야 안전.
       const isProduction = process.env.NODE_ENV === 'production';
+      const issues = ParseResult.ArrayFormatter.formatErrorSync(err);
       return new ResponseSchemaMismatchError({
-        message: ParseResult.TreeFormatter.formatErrorSync(err),
-        validationErrors: ParseResult.ArrayFormatter.formatErrorSync(err).map(
-          issue =>
-            `${issue.path.length > 0 ? issue.path.join('.') : '(root)'}: ${issue.message}`,
-        ),
-        url: context?.url,
+        message: isProduction
+          ? `Response schema mismatch on ${issues.length} field(s)`
+          : ParseResult.TreeFormatter.formatErrorSync(err),
+        validationErrors: issues.map(issue => {
+          const path = issue.path.length > 0 ? issue.path.join('.') : '(root)';
+          return isProduction
+            ? `${path}: [${issue._tag}]`
+            : `${path}: ${issue.message}`;
+        }),
+        url: isProduction ? redactUrlForProduction(context?.url) : context?.url,
         responseBody: isProduction ? undefined : stringifyResponseBody(data),
       });
     },

@@ -73,22 +73,38 @@ describe('decodeServerResponse', () => {
     expect(result.left.responseBody).toMatch(/unserializable/);
   });
 
-  it('production 환경에서는 responseBody를 저장하지 않는다 (PII 보호)', () => {
+  it('production 환경에서 PII가 실릴 수 있는 모든 경로를 redact 한다', () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
+    const piiPhone = '01012345678';
     try {
       const result = Effect.runSync(
         Effect.either(
-          decodeServerResponse(getBalanceResponseSchema, {
-            secretPayload: 'sensitive-data-01073246890',
-          }),
+          decodeServerResponse(
+            getBalanceResponseSchema,
+            {balance: piiPhone, leakingField: piiPhone},
+            {
+              url: `https://api.example.com/messages/v4/list?to=${piiPhone}&from=02`,
+            },
+          ),
         ),
       );
       expect(result._tag).toBe('Left');
       if (result._tag !== 'Left') return;
-      expect(result.left.responseBody).toBeUndefined();
-      // validationErrors와 url은 운영 디버깅에 필요하므로 production에서도 유지
-      expect(result.left.validationErrors.length).toBeGreaterThan(0);
+      const err = result.left;
+      // responseBody는 완전 제거
+      expect(err.responseBody).toBeUndefined();
+      // validationErrors 메시지와 message 필드에 원본 PII 값이 포함되면 안 됨
+      expect(err.message).not.toContain(piiPhone);
+      for (const ve of err.validationErrors) {
+        expect(ve).not.toContain(piiPhone);
+      }
+      // url은 query string이 redact 된 형태만 유지
+      expect(err.url).not.toContain(piiPhone);
+      expect(err.url).toContain('/messages/v4/list');
+      expect(err.url).toContain('[redacted]');
+      // 디버깅용 구조 정보(경로, 개수)는 유지
+      expect(err.validationErrors.length).toBeGreaterThan(0);
     } finally {
       process.env.NODE_ENV = originalEnv;
     }
