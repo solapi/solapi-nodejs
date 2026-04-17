@@ -66,6 +66,10 @@ export {
   messageTypeSchema,
 } from './base/messages/message';
 export {
+  type StoredMessage,
+  storedMessageSchema,
+} from './base/messages/storedMessage';
+export {
   type NaverOptionSchema,
   naverOptionSchema,
 } from './base/naver/naverOption';

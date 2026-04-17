@@ -1,6 +1,10 @@
 import {ParseResult, Schema} from 'effect';
 import * as Effect from 'effect/Effect';
-import {BadRequestError, InvalidDateError} from '../errors/defaultError';
+import {
+  BadRequestError,
+  InvalidDateError,
+  ServerError,
+} from '../errors/defaultError';
 import stringDateTransfer, {formatWithTransfer} from './stringDateTransfer';
 
 /**
@@ -74,3 +78,24 @@ export const safeFinalize = <T>(
             message: error instanceof Error ? error.message : String(error),
           }),
   });
+
+/**
+ * API 응답 body를 Effect Schema로 런타임 검증하고 실패 시 ServerError로 래핑.
+ * 서버가 예고 없이 응답 구조를 바꾼 경우 소비자 측에서 조용히 undefined로 터지는 대신
+ * 스키마 불일치 위치를 즉시 파악할 수 있도록 한다.
+ */
+export const decodeServerResponse = <A, I>(
+  schema: Schema.Schema<A, I>,
+  data: unknown,
+  context?: {url?: string; httpStatus?: number},
+): Effect.Effect<A, ServerError> =>
+  Effect.mapError(
+    Schema.decodeUnknown(schema)(data),
+    err =>
+      new ServerError({
+        errorCode: 'ResponseSchemaMismatch',
+        errorMessage: ParseResult.TreeFormatter.formatErrorSync(err),
+        httpStatus: context?.httpStatus ?? 200,
+        url: context?.url,
+      }),
+  );

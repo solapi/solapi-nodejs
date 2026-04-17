@@ -1,5 +1,8 @@
 import {runSafePromise} from '@lib/effectErrorHandler';
-import {type GetBalanceResponse} from '@models/responses/messageResponses';
+import {
+  type GetBalanceResponse,
+  getBalanceResponseSchema,
+} from '@models/responses/messageResponses';
 import DefaultService from '../defaultService';
 
 export default class CashService extends DefaultService {
@@ -12,6 +15,7 @@ export default class CashService extends DefaultService {
       this.requestEffect<never, GetBalanceResponse>({
         httpMethod: 'GET',
         url: 'cash/v1/balance',
+        responseSchema: getBalanceResponseSchema,
       }),
     );
   }

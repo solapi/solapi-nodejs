@@ -6,6 +6,8 @@ import {
   type KakaoChannel,
   type KakaoChannelCategory,
   type KakaoChannelSchema,
+  kakaoChannelCategorySchema,
+  kakaoChannelSchema,
 } from '@models/base/kakao/kakaoChannel';
 import {
   type CreateKakaoChannelRequest,
@@ -19,21 +21,29 @@ import {
 import {
   type GetKakaoChannelsFinalizeResponse,
   type GetKakaoChannelsResponse,
+  getKakaoChannelsResponseSchema,
 } from '@models/responses/kakao/getKakaoChannelsResponse';
 import {
   type CreateKakaoChannelResponse,
   type RequestKakaoChannelTokenResponse,
 } from '@models/responses/messageResponses';
+import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import DefaultService from '../../defaultService';
+
+const kakaoChannelCategoryListSchema = Schema.Array(kakaoChannelCategorySchema);
 
 export default class KakaoChannelService extends DefaultService {
   async getKakaoChannelCategories(): Promise<Array<KakaoChannelCategory>> {
     return runSafePromise(
-      this.requestEffect<never, Array<KakaoChannelCategory>>({
-        httpMethod: 'GET',
-        url: 'kakao/v2/channels/categories',
-      }),
+      Effect.map(
+        this.requestEffect<never, ReadonlyArray<KakaoChannelCategory>>({
+          httpMethod: 'GET',
+          url: 'kakao/v2/channels/categories',
+          responseSchema: kakaoChannelCategoryListSchema,
+        }),
+        list => [...list],
+      ),
     );
   }
 
@@ -56,6 +66,7 @@ export default class KakaoChannelService extends DefaultService {
         const response = yield* reqEffect<never, GetKakaoChannelsResponse>({
           httpMethod: 'GET',
           url: `kakao/v2/channels${parameter}`,
+          responseSchema: getKakaoChannelsResponseSchema,
         });
         return {
           limit: response.limit,
@@ -75,6 +86,7 @@ export default class KakaoChannelService extends DefaultService {
         this.requestEffect<never, KakaoChannelSchema>({
           httpMethod: 'GET',
           url: `kakao/v2/channels/${channelId}`,
+          responseSchema: kakaoChannelSchema,
         }),
         decodeKakaoChannel,
       ),

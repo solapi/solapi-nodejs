@@ -23,6 +23,8 @@ import {
 import {
   GetMessagesResponse,
   GetStatisticsResponse,
+  getMessagesResponseSchema,
+  getStatisticsResponseSchema,
 } from '@models/responses/messageResponses';
 import {DetailGroupMessageResponse} from '@models/responses/sendManyDetailResponse';
 import * as Effect from 'effect/Effect';
@@ -121,6 +123,7 @@ export default class MessageService extends DefaultService {
         finalize: finalizeGetMessagesRequest,
         url: 'messages/v4/list',
         data,
+        responseSchema: getMessagesResponseSchema,
       }),
     );
   }
@@ -139,6 +142,7 @@ export default class MessageService extends DefaultService {
         finalize: finalizeGetStatisticsRequest,
         url: 'messages/v4/statistics',
         data,
+        responseSchema: getStatisticsResponseSchema,
       }),
     );
   }

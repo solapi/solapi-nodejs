@@ -24,6 +24,9 @@ import {
   GetGroupsResponse,
   GetMessagesResponse,
   GroupMessageResponse,
+  getGroupsResponseSchema,
+  getMessagesResponseSchema,
+  groupMessageResponseSchema,
   RemoveGroupMessagesResponse,
 } from '@models/responses/messageResponses';
 import * as Effect from 'effect/Effect';
@@ -151,6 +154,7 @@ export default class GroupService extends DefaultService {
         finalize: finalizeGetGroupsRequest,
         url: 'messages/v4/groups',
         data,
+        responseSchema: getGroupsResponseSchema,
       }),
     );
   }
@@ -164,6 +168,7 @@ export default class GroupService extends DefaultService {
       this.requestEffect<never, GroupMessageResponse>({
         httpMethod: 'GET',
         url: `messages/v4/groups/${groupId}`,
+        responseSchema: groupMessageResponseSchema,
       }),
     );
   }
@@ -185,6 +190,7 @@ export default class GroupService extends DefaultService {
       this.requestEffect<never, GetMessagesResponse>({
         httpMethod: 'GET',
         url: `messages/v4/groups/${groupId}/messages${parameter}`,
+        responseSchema: getMessagesResponseSchema,
       }),
     );
   }

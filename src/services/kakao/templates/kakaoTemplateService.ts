@@ -8,6 +8,7 @@ import {
   type KakaoAlimtalkTemplateSchema,
   kakaoAlimtalkTemplateSchema,
 } from '@models/base/kakao/kakaoAlimtalkTemplate';
+import {kakaoChannelCategorySchema} from '@models/base/kakao/kakaoChannel';
 import {type CreateKakaoAlimtalkTemplateRequest} from '@models/requests/kakao/createKakaoAlimtalkTemplateRequest';
 import {
   finalizeGetKakaoAlimtalkTemplatesRequest,
@@ -18,10 +19,19 @@ import {type UpdateKakaoAlimtalkTemplateRequest} from '@models/requests/kakao/up
 import {
   type GetKakaoAlimtalkTemplatesFinalizeResponse,
   type GetKakaoAlimtalkTemplatesResponseSchema,
+  getKakaoAlimtalkTemplatesResponseSchema,
 } from '@models/responses/kakao/getKakaoAlimtalkTemplatesResponse';
-import {type GetKakaoTemplateResponse} from '@models/responses/kakao/getKakaoTemplateResponse';
+import {
+  type GetKakaoTemplateResponse,
+  getKakaoTemplateResponseSchema,
+} from '@models/responses/kakao/getKakaoTemplateResponse';
+import {Schema} from 'effect';
 import * as Effect from 'effect/Effect';
 import DefaultService from '../../defaultService';
+
+const kakaoAlimtalkTemplateCategoryListSchema = Schema.Array(
+  kakaoChannelCategorySchema,
+);
 
 export default class KakaoTemplateService extends DefaultService {
   /**
@@ -31,10 +41,16 @@ export default class KakaoTemplateService extends DefaultService {
     Array<KakaoAlimtalkTemplateCategory>
   > {
     return runSafePromise(
-      this.requestEffect<never, Array<KakaoAlimtalkTemplateCategory>>({
-        httpMethod: 'GET',
-        url: 'kakao/v2/templates/categories',
-      }),
+      Effect.map(
+        this.requestEffect<never, ReadonlyArray<KakaoAlimtalkTemplateCategory>>(
+          {
+            httpMethod: 'GET',
+            url: 'kakao/v2/templates/categories',
+            responseSchema: kakaoAlimtalkTemplateCategoryListSchema,
+          },
+        ),
+        list => [...list],
+      ),
     );
   }
 
@@ -87,6 +103,7 @@ export default class KakaoTemplateService extends DefaultService {
         >({
           httpMethod: 'GET',
           url: `kakao/v2/templates${parameter}`,
+          responseSchema: getKakaoAlimtalkTemplatesResponseSchema,
         });
 
         const templateList = yield* Effect.all(
@@ -119,6 +136,7 @@ export default class KakaoTemplateService extends DefaultService {
         this.requestEffect<never, GetKakaoTemplateResponse>({
           httpMethod: 'GET',
           url: `kakao/v2/templates/${templateId}`,
+          responseSchema: getKakaoTemplateResponseSchema,
         }),
         decodeKakaoAlimtalkTemplate,
       ),
