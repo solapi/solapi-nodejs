@@ -110,14 +110,19 @@ export const decodeServerResponse = <A, I>(
   // 부분 스키마로 검증하는 조회 엔드포인트에서 필드 조용히 사라지는 silent data loss를 방지.
   Effect.mapError(
     Schema.decodeUnknown(schema, {onExcessProperty: 'preserve'})(data),
-    err =>
-      new ResponseSchemaMismatchError({
+    err => {
+      // production에서는 responseBody에 PII가 실릴 수 있으므로 creation 단계에서 제외.
+      // 대부분의 에러 리포터(Sentry/Slack 등)는 toString() 대신 enumerable 필드를 직렬화하므로
+      // toString() 가드만으로는 누출을 막지 못한다. ServerError와 동일한 정책을 따른다.
+      const isProduction = process.env.NODE_ENV === 'production';
+      return new ResponseSchemaMismatchError({
         message: ParseResult.TreeFormatter.formatErrorSync(err),
         validationErrors: ParseResult.ArrayFormatter.formatErrorSync(err).map(
           issue =>
             `${issue.path.length > 0 ? issue.path.join('.') : '(root)'}: ${issue.message}`,
         ),
         url: context?.url,
-        responseBody: stringifyResponseBody(data),
-      }),
+        responseBody: isProduction ? undefined : stringifyResponseBody(data),
+      });
+    },
   );

@@ -73,6 +73,27 @@ describe('decodeServerResponse', () => {
     expect(result.left.responseBody).toMatch(/unserializable/);
   });
 
+  it('production 환경에서는 responseBody를 저장하지 않는다 (PII 보호)', () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    try {
+      const result = Effect.runSync(
+        Effect.either(
+          decodeServerResponse(getBalanceResponseSchema, {
+            secretPayload: 'sensitive-data-01073246890',
+          }),
+        ),
+      );
+      expect(result._tag).toBe('Left');
+      if (result._tag !== 'Left') return;
+      expect(result.left.responseBody).toBeUndefined();
+      // validationErrors와 url은 운영 디버깅에 필요하므로 production에서도 유지
+      expect(result.left.validationErrors.length).toBeGreaterThan(0);
+    } finally {
+      process.env.NODE_ENV = originalEnv;
+    }
+  });
+
   it('context.url이 있으면 에러에 반영된다', () => {
     const result = Effect.runSync(
       Effect.either(
