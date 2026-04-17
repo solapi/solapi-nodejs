@@ -1,5 +1,23 @@
 # Changelog
 
+## [6.0.0-beta.3](https://github.com/solapi/solapi-nodejs/compare/solapi-v6.0.0-beta.2...solapi-v6.0.0-beta.3) (2026-04-17)
+
+
+### Features
+
+* **responses:** sync query API schemas and add runtime validation ([7d2979c](https://github.com/solapi/solapi-nodejs/commit/7d2979ce2e1f8db02df3cc960f060dadbb2b28dc))
+
+
+### Bug Fixes
+
+* **errors:** redact all PII channels (validationErrors/url) in production ([300d9eb](https://github.com/solapi/solapi-nodejs/commit/300d9eb0206a5129f2efb24c605c92e96b30afb8))
+* **errors:** redact responseBody in production ResponseSchemaMismatchError ([ff37fe5](https://github.com/solapi/solapi-nodejs/commit/ff37fe5f8f490894fb55a21d8a2b7e0e26fd0be7))
+* **errors:** safe-by-default redact gate; strip url fragment ([0af8ead](https://github.com/solapi/solapi-nodejs/commit/0af8eada25f44ff390d35ee831b996c8254d6e72))
+* **responses:** accept new message types in countForCharge; null feature fields ([d268c5e](https://github.com/solapi/solapi-nodejs/commit/d268c5e813bfd89dd196ffe72e10ee128b1db6d7))
+* **responses:** allow nullish startKey in kakao list responses ([61247e5](https://github.com/solapi/solapi-nodejs/commit/61247e506d3c10f7259eeb1baf7561fd318951ff))
+* **responses:** sync query API schemas and add runtime response validation ([4e4317b](https://github.com/solapi/solapi-nodejs/commit/4e4317bf1d738072a45b3af741561be69b937b3e))
+* **statistics:** keep dayPeriod.statusCode typed via partial MessageTypeRecord ([28c912c](https://github.com/solapi/solapi-nodejs/commit/28c912cdf1c54ed6a8fe2d43d83350991ecf48c4))
+
 ## [6.0.0-beta.2](https://github.com/solapi/solapi-nodejs/compare/solapi-v6.0.0-beta.1...solapi-v6.0.0-beta.2) (2026-04-16)
 
 
