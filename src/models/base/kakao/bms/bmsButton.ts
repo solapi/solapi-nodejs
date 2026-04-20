@@ -58,7 +58,11 @@ export const bmsAppButtonSchema = Schema.Struct({
   targetOut: Schema.optional(Schema.Boolean),
 }).pipe(
   Schema.filter(button => {
-    const hasLink = button.linkMobile || button.linkAndroid || button.linkIos;
+    // present-but-empty 문자열을 "제공됨"으로 간주해서는 안 되므로 trim 후 길이로 판단
+    const hasLink =
+      (button.linkMobile !== undefined && button.linkMobile.trim() !== '') ||
+      (button.linkAndroid !== undefined && button.linkAndroid.trim() !== '') ||
+      (button.linkIos !== undefined && button.linkIos.trim() !== '');
     return hasLink
       ? true
       : 'AL 타입 버튼은 linkMobile, linkAndroid, linkIos 중 하나 이상 필수입니다.';

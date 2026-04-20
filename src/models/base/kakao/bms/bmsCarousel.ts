@@ -20,8 +20,11 @@ export const bmsCarouselHeadSchema = Schema.Struct({
   linkIos: Schema.optional(Schema.String),
 }).pipe(
   Schema.filter(head => {
-    const hasOther = Boolean(head.linkPc || head.linkAndroid || head.linkIos);
-    return hasOther && !head.linkMobile
+    const hasOther =
+      head.linkPc !== undefined ||
+      head.linkAndroid !== undefined ||
+      head.linkIos !== undefined;
+    return hasOther && head.linkMobile === undefined
       ? 'linkPc, linkAndroid, linkIos 중 하나라도 있으면 linkMobile 값이 필수입니다.'
       : true;
   }),

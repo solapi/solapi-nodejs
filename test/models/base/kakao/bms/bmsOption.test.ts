@@ -1022,6 +1022,77 @@ describe('BMS Option Schema in KakaoOption', () => {
       }).toThrow('캐러셀 리스트는 최소 2개, 최대 6개까지 가능합니다.');
     });
 
+    it('should reject CAROUSEL_COMMERCE.head with empty-string linkAndroid but no linkMobile (present-but-empty silent pass)', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'M',
+          chatBubbleType: 'CAROUSEL_COMMERCE',
+          carousel: {
+            head: {
+              header: 'h',
+              content: 'c',
+              imageId: 'img-head',
+              linkAndroid: '',
+            },
+            list: [
+              {
+                commerce: {title: '상품1', regularPrice: 10000},
+                imageId: 'img-1',
+                buttons: [
+                  {
+                    name: '구매',
+                    linkType: 'WL',
+                    linkMobile: 'https://example.com/1',
+                  },
+                ],
+              },
+              {
+                commerce: {title: '상품2', regularPrice: 20000},
+                imageId: 'img-2',
+                buttons: [
+                  {
+                    name: '구매',
+                    linkType: 'WL',
+                    linkMobile: 'https://example.com/2',
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow(
+        'linkPc, linkAndroid, linkIos 중 하나라도 있으면 linkMobile 값이 필수입니다.',
+      );
+    });
+
+    it('should reject AL button with all empty-string links (present-but-empty)', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'TEXT',
+          buttons: [
+            {
+              name: 'b',
+              linkType: 'AL',
+              linkMobile: '',
+              linkAndroid: '',
+              linkIos: '',
+            },
+          ],
+        },
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow(
+        'AL 타입 버튼은 linkMobile, linkAndroid, linkIos 중 하나 이상 필수입니다.',
+      );
+    });
+
     it('should reject CAROUSEL_COMMERCE.head with linkPc but no linkMobile', () => {
       const bms = {
         pfId: 'test-pf-id',
