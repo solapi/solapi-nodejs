@@ -52,6 +52,24 @@ const NumberOrNumericString: Schema.Schema<number, number> =
   ) as Schema.Schema<number, number>;
 
 /**
+ * 커머스 가격 필드 범위 제약 (서버 검증 규칙과 일치)
+ */
+const COMMERCE_PRICE_MAX = 99_999_999;
+const DISCOUNT_RATE_MAX = 100;
+
+const numberInRange = (
+  fieldName: string,
+  min: number,
+  max: number,
+): Schema.Schema<number, number> =>
+  NumberOrNumericString.pipe(
+    Schema.filter(n => n >= min && n <= max, {
+      message: () =>
+        `${fieldName} 값이 잘못되었습니다. ${min} 이상 ${max} 이하의 숫자여야 합니다.`,
+    }),
+  ) as Schema.Schema<number, number>;
+
+/**
  * BMS 커머스 가격 조합 검증
  *
  * 카카오 BMS 커머스 타입은 다음 가격 조합만 허용합니다:
@@ -119,10 +137,16 @@ const validateCommercePricingCombination = (commerce: {
  */
 export const bmsCommerceSchema = Schema.Struct({
   title: Schema.String,
-  regularPrice: NumberOrNumericString,
-  discountPrice: Schema.optional(NumberOrNumericString),
-  discountRate: Schema.optional(NumberOrNumericString),
-  discountFixed: Schema.optional(NumberOrNumericString),
+  regularPrice: numberInRange('regularPrice', 0, COMMERCE_PRICE_MAX),
+  discountPrice: Schema.optional(
+    numberInRange('discountPrice', 0, COMMERCE_PRICE_MAX),
+  ),
+  discountRate: Schema.optional(
+    numberInRange('discountRate', 0, DISCOUNT_RATE_MAX),
+  ),
+  discountFixed: Schema.optional(
+    numberInRange('discountFixed', 0, COMMERCE_PRICE_MAX),
+  ),
 }).pipe(Schema.filter(validateCommercePricingCombination));
 
 export type BmsCommerceSchema = Schema.Schema.Type<typeof bmsCommerceSchema>;

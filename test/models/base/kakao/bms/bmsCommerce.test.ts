@@ -252,4 +252,83 @@ describe('BMS Commerce Schema', () => {
       expect(result._tag).toBe('Left');
     });
   });
+
+  describe('가격 범위 검증', () => {
+    it('should accept regularPrice at max (99999999)', () => {
+      const valid = {title: '상품', regularPrice: 99_999_999};
+      const result = Schema.decodeUnknownEither(bmsCommerceSchema)(valid);
+      expect(result._tag).toBe('Right');
+    });
+
+    it('should reject regularPrice over 99999999', () => {
+      const invalid = {title: '상품', regularPrice: 100_000_000};
+      expect(() => {
+        Schema.decodeUnknownSync(bmsCommerceSchema)(invalid);
+      }).toThrow(
+        'regularPrice 값이 잘못되었습니다. 0 이상 99999999 이하의 숫자여야 합니다.',
+      );
+    });
+
+    it('should reject regularPrice as negative', () => {
+      const invalid = {title: '상품', regularPrice: -1};
+      expect(() => {
+        Schema.decodeUnknownSync(bmsCommerceSchema)(invalid);
+      }).toThrow(
+        'regularPrice 값이 잘못되었습니다. 0 이상 99999999 이하의 숫자여야 합니다.',
+      );
+    });
+
+    it('should accept discountRate at 100 (boundary)', () => {
+      const valid = {
+        title: '상품',
+        regularPrice: 1000,
+        discountPrice: 500,
+        discountRate: 100,
+      };
+      const result = Schema.decodeUnknownEither(bmsCommerceSchema)(valid);
+      expect(result._tag).toBe('Right');
+    });
+
+    it('should reject discountRate over 100', () => {
+      const invalid = {
+        title: '상품',
+        regularPrice: 1000,
+        discountPrice: 500,
+        discountRate: 150,
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(bmsCommerceSchema)(invalid);
+      }).toThrow(
+        'discountRate 값이 잘못되었습니다. 0 이상 100 이하의 숫자여야 합니다.',
+      );
+    });
+
+    it('should reject discountFixed over 99999999', () => {
+      const invalid = {
+        title: '상품',
+        regularPrice: 1000,
+        discountPrice: 500,
+        discountFixed: 100_000_000,
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(bmsCommerceSchema)(invalid);
+      }).toThrow(
+        'discountFixed 값이 잘못되었습니다. 0 이상 99999999 이하의 숫자여야 합니다.',
+      );
+    });
+
+    it('should reject discountPrice over 99999999 via numeric string', () => {
+      const invalid = {
+        title: '상품',
+        regularPrice: 1000,
+        discountPrice: '100000000',
+        discountRate: 50,
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(bmsCommerceSchema)(invalid);
+      }).toThrow(
+        'discountPrice 값이 잘못되었습니다. 0 이상 99999999 이하의 숫자여야 합니다.',
+      );
+    });
+  });
 });
