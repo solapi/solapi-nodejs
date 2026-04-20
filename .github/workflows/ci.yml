@@ -46,6 +46,9 @@ jobs:
       - name: Lint
         run: pnpm lint:ci
 
+      - name: Typecheck
+        run: pnpm typecheck
+
   test-matrix:
     name: Test Matrix (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
