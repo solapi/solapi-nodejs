@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.0.0-beta.4](https://github.com/solapi/solapi-nodejs/compare/solapi-v6.0.0-beta.3...solapi-v6.0.0-beta.4) (2026-04-20)
+
+
+### Features
+
+* **bms:** add client-side pre-validation for BMS options ([c0ace11](https://github.com/solapi/solapi-nodejs/commit/c0ace118274fbcfbbc4875d300de91cca703e726))
+* **bms:** BMS 옵션 사전 검증 추가 (cherry-pick from master) ([0cb9a9c](https://github.com/solapi/solapi-nodejs/commit/0cb9a9c9ad10e2ae03e628109f82e10e202631a0))
+
+
+### Bug Fixes
+
+* **bms:** close empty-string/malformed URL silent pass paths ([7dc0d1f](https://github.com/solapi/solapi-nodejs/commit/7dc0d1f2023e191919737593e404df933cdafc79))
+* **bms:** close present-but-empty gap on carousel.head and AL buttons ([a73b336](https://github.com/solapi/solapi-nodejs/commit/a73b3368913f793a53738854a54b5e607eac364d))
+
 ## [6.0.0-beta.3](https://github.com/solapi/solapi-nodejs/compare/solapi-v6.0.0-beta.2...solapi-v6.0.0-beta.3) (2026-04-17)
 
 
