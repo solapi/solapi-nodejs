@@ -858,6 +858,7 @@ describe('BMS Option Schema in KakaoOption', () => {
           chatBubbleType: 'WIDE_ITEM_LIST',
           header: 'x'.repeat(21),
           mainWideItem: {
+            title: '메인',
             imageId: 'img-main',
             linkMobile: 'https://example.com/main',
           },
@@ -969,6 +970,56 @@ describe('BMS Option Schema in KakaoOption', () => {
       }).toThrow(
         'regularPrice 값이 잘못되었습니다. 0 이상 99999999 이하의 숫자여야 합니다.',
       );
+    });
+
+    it('should fail validateAcceptableFields before other validators (fail-fast order)', () => {
+      // TEXT에 header(허용X) + content 1301자(content 길이 초과)
+      // → validateAcceptableFields가 먼저 실패해야 함
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'TEXT',
+          header: '불허 필드',
+          content: 'x'.repeat(1301),
+        },
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow(
+        'TEXT타입 에서는 adult, content, buttons, coupon 값만 사용이 가능합니다.',
+      );
+    });
+
+    it('should fail CAROUSEL_FEED carousel list count before button name check', () => {
+      // 아이템 1개(min:2 위반) + button.name 9자(IMAGE 제외 8자 제한 위반)
+      // → carousel list count가 먼저 실패해야 함 (재정렬 후)
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'CAROUSEL_FEED',
+          carousel: {
+            list: [
+              {
+                header: 'h',
+                content: 'c',
+                imageId: 'img',
+                buttons: [
+                  {
+                    name: 'x'.repeat(9),
+                    linkType: 'WL',
+                    linkMobile: 'https://example.com',
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow('캐러셀 리스트는 최소 2개, 최대 6개까지 가능합니다.');
     });
 
     it('should reject CAROUSEL_COMMERCE.head with linkPc but no linkMobile', () => {

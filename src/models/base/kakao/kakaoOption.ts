@@ -131,13 +131,13 @@ const validateBmsRequiredFields = (bms: BaseBmsSchemaType): true | string => {
 
 /**
  * 사전 접수 전 BMS 옵션 전체 제약 검증
- * - 기존 필수 필드 검증 → 쿠폰/버튼/텍스트/캐러셀 제약 순으로 fail-fast
- * - 서버 검증 규칙과 동일 에러 문구 사용 (서버 왕복 없이 즉시 실패)
+ * - 서버 왕복 없이 동일 에러 문구로 즉시 실패 (fail-fast, 싼 체크 우선)
  */
 const validateBmsConstraints = (bms: BaseBmsSchemaType): true | string => {
-  const input = bms as unknown as BmsConstraintInput;
+  const input: BmsConstraintInput = bms;
   const validators: ReadonlyArray<(b: BmsConstraintInput) => true | string> = [
     validateAcceptableFields,
+    validateCarouselListCount,
     validateCouponDescription,
     validateAllowedLinkTypes,
     validateButtonCount,
@@ -147,7 +147,6 @@ const validateBmsConstraints = (bms: BaseBmsSchemaType): true | string => {
     validateNewlineLimits,
     validateForbiddenVariables,
     validateLinks,
-    validateCarouselListCount,
   ];
 
   const requiredResult = validateBmsRequiredFields(bms);

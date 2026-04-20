@@ -14,23 +14,16 @@ const freeCouponPattern = /^\S{1,7} 무료 쿠폰$/;
 const upCouponPattern = /^\S{1,7} UP 쿠폰$/;
 
 const isValidCouponTitle = (title: string): boolean => {
-  // 1. 배송비 할인 쿠폰 (고정)
   if (title === '배송비 할인 쿠폰') return true;
 
-  // 2. 숫자원 할인 쿠폰
   const wonMatch = title.match(wonDiscountPattern);
   if (wonMatch) {
     const num = parseInt(wonMatch[1], 10);
     return num >= 1 && num <= 99_999_999;
   }
 
-  // 3. 퍼센트 할인 쿠폰
   if (percentDiscountPattern.test(title)) return true;
-
-  // 4. 무료 쿠폰
   if (freeCouponPattern.test(title)) return true;
-
-  // 5. UP 쿠폰
   return upCouponPattern.test(title);
 };
 

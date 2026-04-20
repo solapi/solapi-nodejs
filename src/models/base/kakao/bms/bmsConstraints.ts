@@ -19,8 +19,8 @@ export const BMS_COUPON_DESCRIPTION_MAX: Record<BmsChatBubbleType, number> = {
 };
 
 /**
- * 버튼 최대 개수 (쿠폰 미사용 / 사용 시)
- * 최소 개수는 별도로 관리 — 레퍼런스는 일부 타입에서 버튼 필수
+ * 버튼 최대/최소 개수 (쿠폰 미사용/사용 시)
+ * COMMERCE·CAROUSEL_FEED·CAROUSEL_COMMERCE는 버튼이 최소 1개 이상 필수
  */
 export const BMS_BUTTON_COUNT: Record<
   BmsChatBubbleType,
@@ -53,9 +53,9 @@ export const BMS_BUTTON_NAME_MAX: Record<BmsChatBubbleType, number> = {
 };
 
 /**
- * chatBubbleType별 허용 linkType
- * - undefined: 전체 허용 (AC, WL, AL, BK, MD, BC, BT, BF)
- * - array: 해당 타입만 허용 (CAROUSEL/COMMERCE는 WL/AL 전용)
+ * chatBubbleType별 허용 linkType (추가 제약)
+ * - 키가 없는 타입: bmsButtonSchema의 Literal Union이 이미 8종으로 제한(AC/WL/AL/BK/MD/BC/BT/BF). 여기서는 추가 제약 없음
+ * - 지정된 타입: 지정된 값만 허용 (CAROUSEL_FEED/CAROUSEL_COMMERCE/COMMERCE는 WL/AL 전용)
  */
 export const BMS_ALLOWED_LINK_TYPES: Partial<
   Record<BmsChatBubbleType, ReadonlyArray<LinkType>>
@@ -98,7 +98,7 @@ export const BMS_CONTENT_MAX: Partial<Record<BmsChatBubbleType, number>> = {
 export const BMS_CAROUSEL_LIST_RANGE = {
   withHead: {min: 1, max: 5},
   withoutHead: {min: 2, max: 6},
-};
+} as const;
 
 type LinkFields = {
   readonly linkPc?: string;
@@ -108,8 +108,12 @@ type LinkFields = {
 };
 
 /**
- * 검증 함수 입력 타입 — baseBmsSchema의 decoded shape과 구조적으로 호환
+ * 검증 함수 입력 타입 — baseBmsSchema의 decoded shape과 구조적으로 호환되어야 함
  * 개별 필드를 optional로 선언하여 모든 chatBubbleType을 포괄
+ *
+ * NOTE: baseBmsSchema에 필드가 추가/변경되면 이 타입도 반드시 동기화할 것.
+ * 현재는 구조적 호환으로 kakaoOption.ts에서 직접 대입이 가능하지만,
+ * 필드가 누락되면 validator가 해당 필드를 읽지 못한 채 silent pass 가능.
  */
 export type BmsConstraintInput = {
   readonly chatBubbleType: BmsChatBubbleType;
@@ -502,27 +506,39 @@ export const validateNewlineLimits = (
   return true;
 };
 
-// 서버 URL 검증 regex와 일치 — domain.tld 구조 요구
+// 서버 URL 검증 regex와 일치 — domain.tld 구조 요구 (whole-string anchor)
 const HTTP_URL_PATTERN =
-  /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,64}\.[a-z0-9]{1,64}\b([-a-zA-Z0-9@:%~_~+.~#?&//=]*)/i;
-const HTTP_PREFIX_PATTERN = /^https?:\/\//i;
-const VARIABLE_IN_LINK_PATTERN = /#\{((?!(#{|})).)+\}/;
+  /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,64}\.[a-z0-9]{1,64}\b([-a-zA-Z0-9@:%~_~+.~#?&//=]*)$/i;
+const VARIABLE_PLACEHOLDER_PATTERN = /#\{[^{}]+\}/;
+const VARIABLE_PLACEHOLDER_GLOBAL = /#\{[^{}]+\}/g;
+const WHITESPACE_IN_LINK_PATTERN = /\s/;
 
 /**
  * 링크 URL 형식 검증
- * - 정상 http(s) URL이거나, http(s):// 시작 + `#{변수}` 포함 시 통과
+ * - 공백/제어문자 포함 시 거부
+ * - 정상 http(s) URL이면 통과
+ * - `#{변수}` 치환형은 변수를 placeholder로 바꿔 HTTP_URL_PATTERN을 다시 검사
+ *   (prefix만 체크하면 `https:///#{var}` 같은 malformed URL이 통과하는 문제 방지)
  */
 const isValidLink = (link: string): boolean => {
+  if (WHITESPACE_IN_LINK_PATTERN.test(link)) return false;
   if (HTTP_URL_PATTERN.test(link)) return true;
-  return HTTP_PREFIX_PATTERN.test(link) && VARIABLE_IN_LINK_PATTERN.test(link);
+  if (!VARIABLE_PLACEHOLDER_PATTERN.test(link)) return false;
+  const normalized = link.replace(VARIABLE_PLACEHOLDER_GLOBAL, 'x');
+  return HTTP_URL_PATTERN.test(normalized);
 };
 
+/**
+ * 빈 문자열은 present-but-empty로 간주해 검증 대상에 포함시킨다
+ * - Schema.String 레벨에서 required 필드는 빈 문자열도 통과시키므로
+ *   link validator가 truthy gate만 쓰면 서버에서 거부될 값이 SDK에선 통과
+ */
 const checkLinkPair = (obj: LinkFields | undefined): true | string => {
   if (!obj) return true;
-  if (obj.linkPc && !isValidLink(obj.linkPc)) {
+  if (obj.linkPc !== undefined && !isValidLink(obj.linkPc)) {
     return 'linkPc 값이 잘못되었습니다. 올바른 형식은 웹 링크 형식이어야 합니다.';
   }
-  if (obj.linkMobile && !isValidLink(obj.linkMobile)) {
+  if (obj.linkMobile !== undefined && !isValidLink(obj.linkMobile)) {
     return 'linkMobile 값이 잘못되었습니다. 올바른 형식은 웹 링크 형식이어야 합니다.';
   }
   return true;
@@ -532,7 +548,7 @@ const IMAGE_LINK_ERROR =
   'imageLink 값이 잘못되었습니다. http:// 또는 https:// 로 시작하는 정상적인 주소를 올려주세요.';
 
 const checkImageLink = (imageLink: string | undefined): true | string => {
-  if (!imageLink) return true;
+  if (imageLink === undefined) return true;
   return isValidLink(imageLink) ? true : IMAGE_LINK_ERROR;
 };
 
@@ -636,10 +652,7 @@ export const validateForbiddenVariables = (
  * - 여기 없는 필드는 서버가 거부하므로 SDK도 사전 차단
  * - targeting, chatBubbleType은 schema 필수라 별도 제외
  */
-export const BMS_ACCEPTABLE_FIELDS: Record<
-  BmsChatBubbleType,
-  ReadonlyArray<string>
-> = {
+export const BMS_ACCEPTABLE_FIELDS = {
   TEXT: ['adult', 'content', 'buttons', 'coupon'],
   IMAGE: ['adult', 'content', 'imageId', 'imageLink', 'buttons', 'coupon'],
   WIDE: ['adult', 'content', 'imageId', 'buttons', 'coupon'],
@@ -662,12 +675,16 @@ export const BMS_ACCEPTABLE_FIELDS: Record<
   CAROUSEL_FEED: ['adult', 'carousel'],
   CAROUSEL_COMMERCE: ['adult', 'additionalContent', 'carousel'],
   PREMIUM_VIDEO: ['adult', 'header', 'content', 'video', 'buttons', 'coupon'],
-};
+} as const satisfies Record<BmsChatBubbleType, ReadonlyArray<string>>;
 
+// baseBmsSchema 필수 필드 — acceptable 목록에 없어도 reject하면 안 됨
 const RESERVED_FIELDS: ReadonlyArray<string> = ['targeting', 'chatBubbleType'];
 
 /**
  * chatBubbleType별 허용 필드 외 reject
+ * - baseBmsSchema에 선언된 필드만 검사 대상. Schema.Struct가 기본적으로 스키마 미정의 필드를 strip하므로
+ *   진짜 알 수 없는 필드(오타 등)는 이 validator보다 먼저 schema 단계에서 제거됨
+ * - 따라서 "chatBubbleType에 부적합한 공용 필드" 감지에 특화됨 (예: TEXT에 mainWideItem)
  */
 export const validateAcceptableFields = (
   bms: BmsConstraintInput,

@@ -195,6 +195,24 @@ describe('validateButtonCount', () => {
       'CAROUSEL_FEED 타입에서는 최대 2개의 버튼만 사용할 수 있습니다.',
     );
   });
+
+  it('should reject empty buttons on COMMERCE (min=1)', () => {
+    const result = validateButtonCount({
+      chatBubbleType: 'COMMERCE',
+      buttons: [],
+    });
+    expect(result).toBe('COMMERCE 타입에서는 최소 1개의 버튼이 필요합니다.');
+  });
+
+  it('should reject empty buttons inside CAROUSEL_FEED list item (min=1)', () => {
+    const result = validateButtonCount({
+      chatBubbleType: 'CAROUSEL_FEED',
+      carousel: {list: [{buttons: []}]},
+    });
+    expect(result).toBe(
+      'CAROUSEL_FEED 타입에서는 최소 1개의 버튼이 필요합니다.',
+    );
+  });
 });
 
 describe('validateButtonNames', () => {
@@ -638,6 +656,68 @@ describe('validateLinks', () => {
     );
   });
 
+  it('should reject empty-string linkMobile (present-but-empty silent pass regression)', () => {
+    const result = validateLinks(
+      baseTextBms({
+        buttons: [{name: 'b', linkType: 'WL', linkMobile: ''}],
+      }),
+    );
+    expect(result).toBe(
+      'linkMobile 값이 잘못되었습니다. 올바른 형식은 웹 링크 형식이어야 합니다.',
+    );
+  });
+
+  it('should reject empty-string imageLink', () => {
+    const result = validateLinks(baseTextBms({imageLink: ''}));
+    expect(result).toBe(
+      'imageLink 값이 잘못되었습니다. http:// 또는 https:// 로 시작하는 정상적인 주소를 올려주세요.',
+    );
+  });
+
+  it('should reject https URL with whitespace/control char', () => {
+    const result = validateLinks(
+      baseTextBms({
+        buttons: [
+          {
+            name: 'b',
+            linkType: 'WL',
+            linkMobile: 'https://example.com\nalert(1)',
+          },
+        ],
+      }),
+    );
+    expect(result).toBe(
+      'linkMobile 값이 잘못되었습니다. 올바른 형식은 웹 링크 형식이어야 합니다.',
+    );
+  });
+
+  it('should reject malformed https://host#{var} without domain', () => {
+    const result = validateLinks(
+      baseTextBms({
+        buttons: [
+          {
+            name: 'b',
+            linkType: 'WL',
+            linkMobile: 'https:///#{var}',
+          },
+        ],
+      }),
+    );
+    expect(result).toBe(
+      'linkMobile 값이 잘못되었습니다. 올바른 형식은 웹 링크 형식이어야 합니다.',
+    );
+  });
+
+  it('should reject empty-string linkMobile on subWideItem', () => {
+    const result = validateLinks({
+      chatBubbleType: 'WIDE_ITEM_LIST',
+      subWideItemList: [{title: 's', linkMobile: ''}],
+    });
+    expect(result).toBe(
+      'linkMobile 값이 잘못되었습니다. 올바른 형식은 웹 링크 형식이어야 합니다.',
+    );
+  });
+
   it('should reject invalid linkMobile on per-item coupon (ultrareview merged_bug_002)', () => {
     const result = validateLinks({
       chatBubbleType: 'CAROUSEL_FEED',
@@ -726,6 +806,26 @@ describe('validateForbiddenVariables', () => {
       },
     });
     expect(result).toBe('linkPc에는 변수를 사용할 수 없습니다.');
+  });
+
+  it('should reject variable in carousel.tail.linkAndroid', () => {
+    const result = validateForbiddenVariables({
+      chatBubbleType: 'CAROUSEL_FEED',
+      carousel: {
+        tail: {linkAndroid: 'intent://app/#{param}'},
+      },
+    });
+    expect(result).toBe('linkAndroid에는 변수를 사용할 수 없습니다.');
+  });
+
+  it('should reject variable in carousel.tail.linkIos', () => {
+    const result = validateForbiddenVariables({
+      chatBubbleType: 'CAROUSEL_COMMERCE',
+      carousel: {
+        tail: {linkIos: 'app://open/#{param}'},
+      },
+    });
+    expect(result).toBe('linkIos에는 변수를 사용할 수 없습니다.');
   });
 });
 
