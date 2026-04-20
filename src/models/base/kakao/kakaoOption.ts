@@ -1,48 +1,51 @@
-import {runSafeSync} from '@lib/effectErrorHandler';
-import {Data, Effect, Array as EffectArray, pipe, Schema} from 'effect';
-import {kakaoOptionRequest} from '../../requests/kakao/kakaoOptionRequest';
 import {
+  Data,
+  Effect,
+  Array as EffectArray,
+  ParseResult,
+  pipe,
+  Schema,
+} from 'effect';
+import {
+  type BmsChatBubbleType,
+  type BmsConstraintInput,
   bmsButtonSchema,
   bmsCarouselCommerceSchema,
   bmsCarouselFeedSchema,
+  bmsChatBubbleTypeSchema,
   bmsCommerceSchema,
   bmsCouponSchema,
   bmsMainWideItemSchema,
   bmsSubWideItemSchema,
   bmsVideoSchema,
+  validateAcceptableFields,
+  validateAllowedLinkTypes,
+  validateButtonCount,
+  validateButtonNames,
+  validateCarouselListCount,
+  validateCouponDescription,
+  validateForbiddenVariables,
+  validateImageIdLength,
+  validateLinks,
+  validateNewlineLimits,
+  validateTextLengths,
 } from './bms';
-import {KakaoButton, kakaoButtonSchema} from './kakaoButton';
+import {kakaoButtonSchema} from './kakaoButton';
 
-// Effect Data 타입을 활용한 에러 클래스
 export class VariableValidationError extends Data.TaggedError(
   'VariableValidationError',
 )<{
   readonly invalidVariables: ReadonlyArray<string>;
 }> {
-  toString(): string {
+  get message(): string {
     const variableList = this.invalidVariables.map(v => `\`${v}\``).join(', ');
     return `변수명 ${variableList}에 점(.)을 포함할 수 없습니다. 언더스코어(_)나 다른 문자를 사용해주세요.`;
   }
+
+  toString(): string {
+    return `VariableValidationError: ${this.message}`;
+  }
 }
-
-/**
- * BMS chatBubbleType 스키마
- * 지원하는 8가지 말풍선 타입
- */
-export const bmsChatBubbleTypeSchema = Schema.Literal(
-  'TEXT',
-  'IMAGE',
-  'WIDE',
-  'WIDE_ITEM_LIST',
-  'COMMERCE',
-  'CAROUSEL_FEED',
-  'CAROUSEL_COMMERCE',
-  'PREMIUM_VIDEO',
-);
-
-export type BmsChatBubbleType = Schema.Schema.Type<
-  typeof bmsChatBubbleTypeSchema
->;
 
 /**
  * chatBubbleType별 필수 필드 정의
@@ -50,7 +53,10 @@ export type BmsChatBubbleType = Schema.Schema.Type<
  * - WIDE_ITEM_LIST: header, mainWideItem, subWideItemList 필수
  * - COMMERCE: imageId, commerce, buttons 필수
  */
-const BMS_REQUIRED_FIELDS: Record<BmsChatBubbleType, ReadonlyArray<string>> = {
+const BMS_REQUIRED_FIELDS: Record<
+  BmsChatBubbleType,
+  ReadonlyArray<keyof BaseBmsSchemaType>
+> = {
   TEXT: [],
   IMAGE: ['imageId'],
   WIDE: ['imageId'],
@@ -99,14 +105,11 @@ type BaseBmsSchemaType = Schema.Schema.Type<typeof baseBmsSchema>;
 
 const WIDE_ITEM_LIST_MIN_SUB_ITEMS = 3;
 
-const validateBmsRequiredFields = (
-  bms: BaseBmsSchemaType,
-): boolean | string => {
+const validateBmsRequiredFields = (bms: BaseBmsSchemaType): true | string => {
   const chatBubbleType = bms.chatBubbleType;
   const requiredFields = BMS_REQUIRED_FIELDS[chatBubbleType] ?? [];
-  const bmsRecord = bms as Record<string, unknown>;
   const missingFields = requiredFields.filter(
-    field => bmsRecord[field] === undefined || bmsRecord[field] === null,
+    field => bms[field] === undefined || bms[field] === null,
   );
 
   if (missingFields.length > 0) {
@@ -127,28 +130,55 @@ const validateBmsRequiredFields = (
 };
 
 /**
- * BMS 옵션 스키마 (chatBubbleType별 필수 필드 검증 포함)
+ * 사전 접수 전 BMS 옵션 전체 제약 검증
+ * - 서버 왕복 없이 동일 에러 문구로 즉시 실패 (fail-fast, 싼 체크 우선)
+ */
+const validateBmsConstraints = (bms: BaseBmsSchemaType): true | string => {
+  const input: BmsConstraintInput = bms;
+  const validators: ReadonlyArray<(b: BmsConstraintInput) => true | string> = [
+    validateAcceptableFields,
+    validateCarouselListCount,
+    validateCouponDescription,
+    validateAllowedLinkTypes,
+    validateButtonCount,
+    validateButtonNames,
+    validateImageIdLength,
+    validateTextLengths,
+    validateNewlineLimits,
+    validateForbiddenVariables,
+    validateLinks,
+  ];
+
+  const requiredResult = validateBmsRequiredFields(bms);
+  if (requiredResult !== true) return requiredResult;
+
+  for (const validator of validators) {
+    const result = validator(input);
+    if (result !== true) return result;
+  }
+  return true;
+};
+
+/**
+ * BMS 옵션 스키마 (chatBubbleType별 필수 필드 + 전체 제약 검증 포함)
  */
 const kakaoOptionBmsSchema = baseBmsSchema.pipe(
-  Schema.filter(validateBmsRequiredFields),
+  Schema.filter(validateBmsConstraints),
 );
 
 export type KakaoOptionBmsSchema = Schema.Schema.Type<
   typeof kakaoOptionBmsSchema
 >;
 
-// Constants for variable validation
 const VARIABLE_KEY_PATTERN = /^#\{.+}$/;
 const DOT_PATTERN = /\./;
 
-// Pure helper functions optimized with Effect
 const extractVariableName = (key: string): string =>
   VARIABLE_KEY_PATTERN.test(key) ? key.slice(2, -1) : key;
 
 const formatVariableKey = (key: string): string =>
   VARIABLE_KEY_PATTERN.test(key) ? key : `#{${key}}`;
 
-// Effect-based validation that returns Either instead of throwing
 export const validateVariableNames = (
   variables: Record<string, string>,
 ): Effect.Effect<Record<string, string>, VariableValidationError> =>
@@ -162,7 +192,6 @@ export const validateVariableNames = (
         : Effect.succeed(variables),
   );
 
-// Optimized transformation function using Effect pipeline
 export const transformVariables = (
   variables: Record<string, string>,
 ): Effect.Effect<Record<string, string>, VariableValidationError> =>
@@ -184,14 +213,16 @@ export const baseKakaoOptionSchema = Schema.Struct({
   templateId: Schema.optional(Schema.String),
   variables: Schema.optional(
     Schema.Record({key: Schema.String, value: Schema.String}).pipe(
-      Schema.transform(
+      Schema.transformOrFail(
         Schema.Record({key: Schema.String, value: Schema.String}),
         {
-          decode: fromU => {
-            // runSafeSync를 사용하여 깔끔한 에러 메시지 제공
-            return runSafeSync(transformVariables(fromU));
-          },
-          encode: toI => toI,
+          decode: (fromU, _, ast) =>
+            transformVariables(fromU).pipe(
+              Effect.mapError(
+                err => new ParseResult.Type(ast, fromU, err.message),
+              ),
+            ),
+          encode: toI => ParseResult.succeed(toI),
         },
       ),
     ),
@@ -202,23 +233,3 @@ export const baseKakaoOptionSchema = Schema.Struct({
   buttons: Schema.optional(Schema.Array(kakaoButtonSchema)),
   bms: Schema.optional(kakaoOptionBmsSchema),
 });
-
-export class KakaoOption {
-  pfId: string;
-  templateId?: string;
-  variables?: Record<string, string>;
-  disableSms?: boolean;
-  adFlag?: boolean;
-  buttons?: ReadonlyArray<KakaoButton>;
-  imageId?: string;
-
-  constructor(parameter: kakaoOptionRequest) {
-    this.pfId = parameter.pfId;
-    this.templateId = parameter.templateId;
-    this.variables = parameter.variables;
-    this.disableSms = parameter.disableSms;
-    this.adFlag = parameter.adFlag;
-    this.buttons = parameter.buttons;
-    this.imageId = parameter.imageId;
-  }
-}

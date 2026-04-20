@@ -15,7 +15,7 @@ messageService
   .then(fileId => {
     // 단일 발송 예제
     messageService
-      .sendOne({
+      .send({
         imageId: fileId,
         to: '수신번호',
         from: '계정에서 등록한 발신번호 입력',
@@ -27,7 +27,7 @@ messageService
     // 단일 예약 발송 예제
     // 예약발송 시 현재 시간보다 과거의 시간을 입력할 경우 즉시 발송됩니다.
     messageService
-      .sendOneFuture(
+      .send(
         {
           imageId: fileId,
           to: '수신번호',
@@ -35,7 +35,7 @@ messageService
           text: 'imageId가 있으면 자동으로 MMS타입의 문자메시지가 발송됩니다. 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ',
           subject: '문자 제목', // LMS, MMS 전용 옵션, SMS에서 해당 파라미터 추가될 경우 자동으로 LMS 변경처리 됨
         },
-        '2022-12-08 00:00:00',
+        {scheduledDate: '2022-12-08 00:00:00'},
       )
       .then(res => console.log(res));
 

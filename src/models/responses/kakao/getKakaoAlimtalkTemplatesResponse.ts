@@ -1,31 +1,22 @@
-import {
-  KakaoAlimtalkTemplateSchema,
-  kakaoAlimtalkTemplateSchema,
-} from '@models/base/kakao/kakaoAlimtalkTemplate';
+import {type KakaoAlimtalkTemplate} from '@models/base/kakao/kakaoAlimtalkTemplate';
 import {Schema} from 'effect';
-import {GetKakaoTemplateResponse} from './getKakaoTemplateResponse';
+import {getKakaoTemplateResponseSchema} from './getKakaoTemplateResponse';
 
 export const getKakaoAlimtalkTemplatesResponseSchema = Schema.Struct({
   limit: Schema.Number,
-  templateList: Schema.Array(kakaoAlimtalkTemplateSchema),
-  startKey: Schema.String,
-  nextKey: Schema.NullOr(Schema.String),
+  templateList: Schema.Array(getKakaoTemplateResponseSchema),
+  startKey: Schema.NullishOr(Schema.String),
+  nextKey: Schema.NullishOr(Schema.String),
 });
-
 export type GetKakaoAlimtalkTemplatesResponseSchema = Schema.Schema.Type<
   typeof getKakaoAlimtalkTemplatesResponseSchema
 >;
+export type GetKakaoAlimtalkTemplatesResponse =
+  GetKakaoAlimtalkTemplatesResponseSchema;
 
-export interface GetKakaoAlimtalkTemplatesResponse {
+export type GetKakaoAlimtalkTemplatesFinalizeResponse = {
   limit: number;
-  templateList: Array<GetKakaoTemplateResponse>;
-  startKey: string;
-  nextKey: string | null;
-}
-
-export interface GetKakaoAlimtalkTemplatesFinalizeResponse {
-  limit: number;
-  templateList: Array<KakaoAlimtalkTemplateSchema>;
-  startKey: string;
-  nextKey: string | null;
-}
+  templateList: Array<KakaoAlimtalkTemplate>;
+  startKey: string | null | undefined;
+  nextKey: string | null | undefined;
+};

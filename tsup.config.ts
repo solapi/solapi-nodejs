@@ -22,11 +22,18 @@ export default defineConfig(({watch}) => {
     // 타입 선언 파일(.d.ts) 생성
     dts: true,
 
-    // 디버그 모드에서는 minify 비활성화
-    minify: isProd && !enableDebug,
-    treeshake: isProd && !enableDebug,
+    // minify는 tsup 레벨에서 비활성화하고, esbuild 세부 옵션으로 제어
+    minify: false,
+    treeshake: isProd,
 
-    // 디버그 모드이거나 개발 환경에서는 소스맵 생성
+    // 구문만 단순화 — 식별자 원본 유지(에러 스택 가독성)·줄바꿈 유지(해당 줄만 표시)
+    esbuildOptions(options) {
+      if (isProd && !enableDebug) {
+        options.minifySyntax = true;
+      }
+    },
+
+    // 디버그 모드이거나 개발 환경에서만 소스맵 생성
     sourcemap: !isProd || enableDebug,
 
     // 빌드 전 dist 폴더 정리

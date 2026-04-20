@@ -29,11 +29,15 @@ export class DefaultError extends Data.TaggedError('DefaultError')<{
   readonly errorMessage: string;
   readonly context?: Record<string, unknown>;
 }> {
+  get message(): string {
+    return `${this.errorCode}: ${this.errorMessage}`;
+  }
+
   toString(): string {
     if (process.env.NODE_ENV === 'production') {
-      return `${this.errorCode}: ${this.errorMessage}`;
+      return this.message;
     }
-    return `${this.errorCode}: ${this.errorMessage}${
+    return `${this.message}${
       this.context ? `\nContext: ${JSON.stringify(this.context, null, 2)}` : ''
     }`;
   }
@@ -77,8 +81,12 @@ export class NetworkError extends Data.TaggedError('NetworkError')<{
   readonly cause: unknown;
   readonly isRetryable?: boolean;
 }> {
+  get message(): string {
+    return `${this.method} ${this.url} 요청 실패 - ${this.cause}`;
+  }
+
   toString(): string {
-    return `NetworkError: ${this.method} ${this.url} 요청 실패 - ${this.cause}`;
+    return `NetworkError: ${this.message}`;
   }
 }
 
@@ -89,18 +97,68 @@ export class ClientError extends Data.TaggedError('ClientError')<{
   readonly httpStatus: number;
   readonly url?: string;
 }> {
+  get message(): string {
+    return `${this.errorCode}: ${this.errorMessage}`;
+  }
+
   toString(): string {
     if (process.env.NODE_ENV === 'production') {
-      return `${this.errorCode}: ${this.errorMessage}`;
+      return this.message;
     }
     return `ClientError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}\nURL: ${this.url}`;
   }
 }
 
-/** @deprecated Use ClientError instead */
-export const ApiError = ClientError;
-/** @deprecated Use ClientError instead */
-export type ApiError = ClientError;
+// Defect(예측되지 않은 예외) — Effect 경계에서 발생하는 비정상 에러
+export class UnexpectedDefectError extends Data.TaggedError(
+  'UnexpectedDefectError',
+)<{
+  readonly message: string;
+}> {
+  toString(): string {
+    return `UnexpectedDefectError: ${this.message}`;
+  }
+}
+
+// Effect 실행 실패 (중단 등)
+export class UnhandledExitError extends Data.TaggedError('UnhandledExitError')<{
+  readonly message: string;
+}> {
+  toString(): string {
+    return `UnhandledExitError: ${this.message}`;
+  }
+}
+
+/**
+ * @description 서버가 2xx로 응답했으나 body가 SDK가 기대하는 스키마를 만족하지 못할 때 발생.
+ * 5xx를 의미하지 않으므로 ServerError와 분리하여 소비자의 재시도/알림 분기가 오염되지 않게 한다.
+ */
+export class ResponseSchemaMismatchError extends Data.TaggedError(
+  'ResponseSchemaMismatchError',
+)<{
+  readonly message: string;
+  readonly url?: string;
+  readonly validationErrors: ReadonlyArray<string>;
+  readonly responseBody?: string;
+}> {
+  toString(): string {
+    const header = `ResponseSchemaMismatchError: ${this.message}`;
+    const url = this.url ? `\nURL: ${this.url}` : '';
+    const issues =
+      this.validationErrors.length > 0
+        ? `\nIssues:\n- ${this.validationErrors.join('\n- ')}`
+        : '';
+    // defense-in-depth: 이 클래스는 public이라 외부에서 직접 생성될 수 있으므로,
+    // creation 시점 정책과 무관하게 redact 환경에서는 responseBody를 출력하지 않는다.
+    const env = process.env.NODE_ENV?.trim().toLowerCase();
+    const isVerbose = env === 'development' || env === 'test';
+    const body =
+      isVerbose && this.responseBody
+        ? `\nResponse: ${this.responseBody.substring(0, 500)}`
+        : '';
+    return `${header}${url}${issues}${body}`;
+  }
+}
 
 // 5xx 서버 에러용
 export class ServerError extends Data.TaggedError('ServerError')<{
@@ -110,13 +168,28 @@ export class ServerError extends Data.TaggedError('ServerError')<{
   readonly url?: string;
   readonly responseBody?: string;
 }> {
+  get message(): string {
+    return `${this.errorCode} - ${this.errorMessage}`;
+  }
+
   toString(): string {
     const isProduction = process.env.NODE_ENV === 'production';
     if (isProduction) {
-      return `ServerError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}`;
+      return `ServerError(${this.httpStatus}): ${this.message}`;
     }
-    return `ServerError(${this.httpStatus}): ${this.errorCode} - ${this.errorMessage}
+    return `ServerError(${this.httpStatus}): ${this.message}
 URL: ${this.url}
 Response: ${this.responseBody?.substring(0, 500) ?? '(empty)'}`;
   }
 }
+
+export const isErrorResponse = (value: unknown): value is ErrorResponse => {
+  if (value == null || typeof value !== 'object') return false;
+  if (!('errorCode' in value) || !('errorMessage' in value)) return false;
+  return (
+    typeof value.errorCode === 'string' &&
+    value.errorCode !== '' &&
+    typeof value.errorMessage === 'string' &&
+    value.errorMessage !== ''
+  );
+};

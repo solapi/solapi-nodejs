@@ -35,33 +35,34 @@ export default function stringifyQuery(
     return '';
   }
 
-  // 빈 객체인 경우 빈 문자열 반환
   if (Object.keys(obj).length === 0) {
-    return options.addQueryPrefix ? '?' : '';
+    return '';
   }
 
-  // 배열 처리를 위한 내부 함수
   const processValue = (key: string, value: unknown): string[] => {
     if (Array.isArray(value)) {
       if (options.indices === false) {
-        // indices: false인 경우 배열 인덱스 없이 처리
         return value.map(
           item =>
             `${encodeURIComponent(key)}=${encodeURIComponent(String(item))}`,
         );
-      } else {
-        // 기본값: 배열 인덱스 포함
-        return value.map(
-          (item, index) =>
-            `${encodeURIComponent(key)}[${index}]=${encodeURIComponent(String(item))}`,
-        );
       }
-    } else if (value !== null && value !== undefined) {
-      return [
-        `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
-      ];
+      return value.map(
+        (item, index) =>
+          `${encodeURIComponent(key)}[${index}]=${encodeURIComponent(String(item))}`,
+      );
     }
-    return [];
+    if (value === null || value === undefined) {
+      return [];
+    }
+    if (typeof value === 'object') {
+      const nested: string[] = [];
+      for (const [subKey, subValue] of Object.entries(value)) {
+        nested.push(...processValue(`${key}[${subKey}]`, subValue));
+      }
+      return nested;
+    }
+    return [`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`];
   };
 
   const pairs: string[] = [];
@@ -72,8 +73,6 @@ export default function stringifyQuery(
 
   const queryString = pairs.join('&');
 
-  // 쿼리 스트링이 있으면 기본적으로 '?' 접두사를 붙임
-  // addQueryPrefix가 명시적으로 false로 설정된 경우에만 접두사 없이 반환
   if (queryString) {
     return options.addQueryPrefix === false ? queryString : `?${queryString}`;
   }

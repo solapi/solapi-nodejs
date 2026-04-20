@@ -1,55 +1,46 @@
-import {formatWithTransfer} from '@lib/stringDateTrasnfer';
-import {DatePayloadType} from '../common/datePayload';
+import {formatWithTransfer} from '@lib/stringDateTransfer';
+import {Schema} from 'effect';
+import {type DatePayloadType} from '../common/datePayload';
 
-export interface GetBlacksRequest {
-  /**
-   * @description 080 수신거부를 요청한 수신번호
-   */
-  senderNumber?: string;
+export const getBlacksRequestSchema = Schema.Struct({
+  senderNumber: Schema.optional(Schema.String),
+  startKey: Schema.optional(Schema.String),
+  limit: Schema.optional(Schema.Number),
+  startDate: Schema.optional(Schema.Union(Schema.String, Schema.DateFromSelf)),
+  endDate: Schema.optional(Schema.Union(Schema.String, Schema.DateFromSelf)),
+});
+export type GetBlacksRequest = Schema.Schema.Type<
+  typeof getBlacksRequestSchema
+>;
 
-  /**
-   * @description 페이지네이션 조회 키
-   */
-  startKey?: string;
-
-  /**
-   * @description 조회 시 제한할 건 수 (기본: 20, 최대: 500)
-   */
-  limit?: number;
-
-  /**
-   * @description 조회할 시작 날짜
-   */
-  startDate?: string | Date;
-
-  /**
-   * @description 조회할 종료 날짜
-   */
-  endDate?: string | Date;
-}
-
-export class GetBlacksFinalizeRequest implements GetBlacksRequest {
-  type = 'DENIAL' as const;
+export type GetBlacksFinalizedPayload = {
+  type: 'DENIAL';
   senderNumber?: string;
   startKey?: string;
   limit?: number;
   dateCreated?: DatePayloadType;
+};
 
-  constructor(parameter: GetBlacksRequest) {
-    this.type = 'DENIAL';
-    this.senderNumber = parameter.senderNumber;
-    this.startKey = parameter.startKey;
-    this.limit = parameter.limit;
+export function finalizeGetBlacksRequest(
+  data?: GetBlacksRequest,
+): GetBlacksFinalizedPayload {
+  if (!data) return {type: 'DENIAL'};
 
-    if (parameter.startDate != undefined) {
-      this.dateCreated = Object.assign(this.dateCreated ?? {}, {
-        gte: formatWithTransfer(parameter.startDate),
-      });
-    }
-    if (parameter.endDate != undefined) {
-      this.dateCreated = Object.assign(this.dateCreated ?? {}, {
-        lte: formatWithTransfer(parameter.endDate),
-      });
-    }
+  const payload: GetBlacksFinalizedPayload = {type: 'DENIAL'};
+  payload.senderNumber = data.senderNumber;
+  payload.startKey = data.startKey;
+  payload.limit = data.limit;
+
+  if (data.startDate != null) {
+    payload.dateCreated = Object.assign(payload.dateCreated ?? {}, {
+      gte: formatWithTransfer(data.startDate),
+    });
   }
+  if (data.endDate != null) {
+    payload.dateCreated = Object.assign(payload.dateCreated ?? {}, {
+      lte: formatWithTransfer(data.endDate),
+    });
+  }
+
+  return payload;
 }

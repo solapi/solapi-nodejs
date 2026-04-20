@@ -1,139 +1,170 @@
-export type Count = {
-  total: number;
-  sentTotal: number;
-  sentFailed: number;
-  sentSuccess: number;
-  sentPending: number;
-  sentReplacement: number;
-  refund: number;
-  registeredFailed: number;
-  registeredSuccess: number;
-};
+import {Schema} from 'effect';
 
-type CountryChargeStatus = Record<string, number>;
+export const countSchema = Schema.Struct({
+  total: Schema.Number,
+  sentTotal: Schema.Number,
+  sentFailed: Schema.Number,
+  sentSuccess: Schema.Number,
+  sentPending: Schema.Number,
+  sentReplacement: Schema.Number,
+  refund: Schema.Number,
+  registeredFailed: Schema.Number,
+  registeredSuccess: Schema.Number,
+});
+export type Count = Schema.Schema.Type<typeof countSchema>;
 
-export type CountForCharge = {
-  sms: CountryChargeStatus;
-  lms: CountryChargeStatus;
-  mms: CountryChargeStatus;
-  ata: CountryChargeStatus;
-  cta: CountryChargeStatus;
-  cti: CountryChargeStatus;
-  nsa: CountryChargeStatus;
-  rcs_sms: CountryChargeStatus;
-  rcs_lms: CountryChargeStatus;
-  rcs_mms: CountryChargeStatus;
-  rcs_tpl: CountryChargeStatus;
-};
+const countryChargeStatusSchema = Schema.Record({
+  key: Schema.String,
+  value: Schema.Number,
+});
 
-export type CommonCashResponse = {
-  requested: number;
-  replacement: number;
-  refund: number;
-  sum: number;
-};
+export const countForChargeSchema = Schema.Struct({
+  sms: countryChargeStatusSchema,
+  lms: countryChargeStatusSchema,
+  mms: countryChargeStatusSchema,
+  ata: countryChargeStatusSchema,
+  cta: countryChargeStatusSchema,
+  cti: countryChargeStatusSchema,
+  nsa: countryChargeStatusSchema,
+  rcs_sms: countryChargeStatusSchema,
+  rcs_lms: countryChargeStatusSchema,
+  rcs_mms: countryChargeStatusSchema,
+  rcs_tpl: countryChargeStatusSchema,
+  rcs_itpl: Schema.optional(countryChargeStatusSchema),
+  rcs_ltpl: Schema.optional(countryChargeStatusSchema),
+  fax: Schema.optional(countryChargeStatusSchema),
+  voice: Schema.optional(countryChargeStatusSchema),
+  bms_text: Schema.optional(countryChargeStatusSchema),
+  bms_image: Schema.optional(countryChargeStatusSchema),
+  bms_wide: Schema.optional(countryChargeStatusSchema),
+  bms_wide_item_list: Schema.optional(countryChargeStatusSchema),
+  bms_carousel_feed: Schema.optional(countryChargeStatusSchema),
+  bms_premium_video: Schema.optional(countryChargeStatusSchema),
+  bms_commerce: Schema.optional(countryChargeStatusSchema),
+  bms_carousel_commerce: Schema.optional(countryChargeStatusSchema),
+  bms_free: Schema.optional(countryChargeStatusSchema),
+});
+export type CountForCharge = Schema.Schema.Type<typeof countForChargeSchema>;
 
-export type MessageTypeRecord = {
-  sms: number;
-  lms: number;
-  mms: number;
-  ata: number;
-  cta: number;
-  cti: number;
-  nsa: number;
-  rcs_sms: number;
-  rcs_lms: number;
-  rcs_mms: number;
-  rcs_tpl: number;
-};
+export const commonCashResponseSchema = Schema.Struct({
+  requested: Schema.Number,
+  replacement: Schema.Number,
+  refund: Schema.Number,
+  sum: Schema.Number,
+});
+export type CommonCashResponse = Schema.Schema.Type<
+  typeof commonCashResponseSchema
+>;
 
-export type App = {
-  profit: MessageTypeRecord;
-  appId: string | null | undefined;
-};
-
-export type Log = Array<object>;
-
-export type GroupId = string;
-
-export type Group = {
-  count: {
-    total: number;
-    sentTotal: number;
-    sentFailed: number;
-    sentSuccess: number;
-    sentPending: number;
-    sentReplacement: number;
-    refund: number;
-    registeredFailed: number;
-    registeredSuccess: number;
-  };
-  balance: CommonCashResponse;
-  point: CommonCashResponse;
-  app: App;
-  sdkVersion: string;
-  osPlatform: string;
-  log: Log;
-  status: string;
-  scheduledDate?: string;
-  dateSent?: string;
-  dateCompleted?: string;
-  isRefunded: boolean;
-  groupId: GroupId;
-  accountId: string;
-  countForCharge: CountForCharge;
-  dateCreated: string;
-  dateUpdated: string;
-};
-
-export type HandleKey = string;
-
-export type Black = {
-  handleKey: HandleKey;
-  type: 'DENIAL';
-  senderNumber: string;
-  recipientNumber: string;
-  dateCreated: string;
-  dateUpdated: string;
-};
-
-export type BlockGroup = {
-  blockGroupId: string;
-  accountId: string;
-  status: 'INACTIVE' | 'ACTIVE';
-  name: string;
-  useAll: boolean;
-  senderNumbers: string[];
-  dateCreated: string;
-  dateUpdated: string;
-};
-
-export type BlockNumber = {
-  blockNumberId: string;
-  accountId: string;
-  memo: string;
-  phoneNumber: string;
-  blockGroupIds: string[];
-  dateCreated: string;
-  dateUpdated: string;
-};
+export const messageTypeRecordSchema = Schema.Struct({
+  sms: Schema.Number,
+  lms: Schema.Number,
+  mms: Schema.Number,
+  ata: Schema.Number,
+  cta: Schema.Number,
+  cti: Schema.Number,
+  nsa: Schema.Number,
+  rcs_sms: Schema.Number,
+  rcs_lms: Schema.Number,
+  rcs_mms: Schema.Number,
+  rcs_tpl: Schema.Number,
+  rcs_itpl: Schema.optional(Schema.Number),
+  rcs_ltpl: Schema.optional(Schema.Number),
+  fax: Schema.optional(Schema.Number),
+  voice: Schema.optional(Schema.Number),
+  bms_text: Schema.optional(Schema.Number),
+  bms_image: Schema.optional(Schema.Number),
+  bms_wide: Schema.optional(Schema.Number),
+  bms_wide_item_list: Schema.optional(Schema.Number),
+  bms_carousel_feed: Schema.optional(Schema.Number),
+  bms_premium_video: Schema.optional(Schema.Number),
+  bms_commerce: Schema.optional(Schema.Number),
+  bms_carousel_commerce: Schema.optional(Schema.Number),
+  bms_free: Schema.optional(Schema.Number),
+});
+export type MessageTypeRecord = Schema.Schema.Type<
+  typeof messageTypeRecordSchema
+>;
 
 /**
- * @description 검색 조건 파라미터
- * @see https://docs.solapi.com/api-reference/overview#operator
+ * 통계 dayPeriod.statusCode 같이 status code 별로 **일부 메시지 타입만** 카운트를 내려주는
+ * sparse 응답용. MessageTypeRecord의 타입 정보(`sms`/`lms` 등 개별 키)를 유지하면서도
+ * 모든 키를 optional로 풀어 서버가 한두 필드만 내려줘도 decode가 통과하도록 한다.
  */
-export type OperatorType =
-  | 'eq'
-  | 'gte'
-  | 'lte'
-  | 'ne'
-  | 'in'
-  | 'like'
-  | 'gt'
-  | 'lt';
+export const partialMessageTypeRecordSchema = Schema.partial(
+  messageTypeRecordSchema,
+);
+export type PartialMessageTypeRecord = Schema.Schema.Type<
+  typeof partialMessageTypeRecordSchema
+>;
 
-/**
- * @description 검색 조건 파라미터
- * @see https://developers.solapi.com/references/#operator
- */
-export type DateOperatorType = 'eq' | 'gte' | 'lte' | 'gt' | 'lt';
+export const appSchema = Schema.Struct({
+  profit: messageTypeRecordSchema,
+  appId: Schema.NullishOr(Schema.String),
+});
+export type App = Schema.Schema.Type<typeof appSchema>;
+
+export const logSchema = Schema.Array(
+  Schema.Record({key: Schema.String, value: Schema.Unknown}),
+);
+export type Log = Schema.Schema.Type<typeof logSchema>;
+
+export const groupIdSchema = Schema.String;
+export type GroupId = Schema.Schema.Type<typeof groupIdSchema>;
+
+export const groupSchema = Schema.Struct({
+  count: countSchema,
+  balance: commonCashResponseSchema,
+  point: commonCashResponseSchema,
+  app: appSchema,
+  sdkVersion: Schema.NullishOr(Schema.String),
+  osPlatform: Schema.NullishOr(Schema.String),
+  log: logSchema,
+  status: Schema.String,
+  scheduledDate: Schema.NullishOr(Schema.String),
+  dateSent: Schema.NullishOr(Schema.String),
+  dateCompleted: Schema.NullishOr(Schema.String),
+  isRefunded: Schema.Boolean,
+  groupId: groupIdSchema,
+  accountId: Schema.String,
+  countForCharge: countForChargeSchema,
+  dateCreated: Schema.String,
+  dateUpdated: Schema.String,
+});
+export type Group = Schema.Schema.Type<typeof groupSchema>;
+
+export const handleKeySchema = Schema.String;
+export type HandleKey = Schema.Schema.Type<typeof handleKeySchema>;
+
+export const blackSchema = Schema.Struct({
+  handleKey: handleKeySchema,
+  type: Schema.Literal('DENIAL'),
+  senderNumber: Schema.String,
+  recipientNumber: Schema.String,
+  dateCreated: Schema.String,
+  dateUpdated: Schema.String,
+});
+export type Black = Schema.Schema.Type<typeof blackSchema>;
+
+export const blockGroupSchema = Schema.Struct({
+  blockGroupId: Schema.String,
+  accountId: Schema.String,
+  status: Schema.Literal('INACTIVE', 'ACTIVE'),
+  name: Schema.NullishOr(Schema.String),
+  useAll: Schema.Boolean,
+  senderNumbers: Schema.Array(Schema.String),
+  dateCreated: Schema.String,
+  dateUpdated: Schema.String,
+});
+export type BlockGroup = Schema.Schema.Type<typeof blockGroupSchema>;
+
+export const blockNumberSchema = Schema.Struct({
+  blockNumberId: Schema.String,
+  accountId: Schema.String,
+  memo: Schema.String,
+  phoneNumber: Schema.String,
+  blockGroupIds: Schema.Array(Schema.String),
+  dateCreated: Schema.String,
+  dateUpdated: Schema.String,
+});
+export type BlockNumber = Schema.Schema.Type<typeof blockNumberSchema>;

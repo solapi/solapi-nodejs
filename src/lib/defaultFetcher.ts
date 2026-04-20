@@ -1,66 +1,145 @@
 import {Data, Effect, Match, pipe, Schedule} from 'effect';
 import {
+  ApiKeyError,
   ClientError,
   DefaultError,
-  ErrorResponse,
+  isErrorResponse,
   NetworkError,
   ServerError,
 } from '../errors/defaultError';
 import getAuthInfo, {AuthenticationParameter} from './authenticator';
-import {runSafePromise} from './effectErrorHandler';
 
 type DefaultRequest = {
   url: string;
   method: string;
 };
 
-// Effect Data 타입으로 RetryableError 정의
+const ERROR_MESSAGE_PREVIEW_LENGTH = 200;
+const RETRYABLE_ERROR_KEYWORDS = [
+  'aborted',
+  'refused',
+  'reset',
+  'econn',
+] as const;
+
 class RetryableError extends Data.TaggedError('RetryableError')<{
   readonly error?: unknown;
 }> {}
 
-const handleOkResponse = <R>(res: Response) =>
-  Effect.tryPromise({
-    try: async (): Promise<R> => {
-      const responseText = await res.text();
-      return responseText ? JSON.parse(responseText) : ({} as R);
-    },
-    catch: e =>
-      new DefaultError({
-        errorCode: 'ParseError',
-        errorMessage: (e as Error).message,
-        context: {
-          responseStatus: res.status,
-          responseUrl: res.url,
-        },
-      }),
+const toMessage = (e: unknown): string =>
+  e instanceof Error ? e.message : String(e);
+
+const isRetryableNetworkError = (error: Error): boolean => {
+  const cause = error.cause;
+  const causeCode =
+    cause && typeof cause === 'object' && 'code' in cause
+      ? String(cause.code)
+      : '';
+  const message = `${error.message} ${causeCode}`.toLowerCase();
+  return RETRYABLE_ERROR_KEYWORDS.some(keyword => message.includes(keyword));
+};
+
+const makeParseError = (res: Response, message: string) =>
+  new DefaultError({
+    errorCode: 'ParseError',
+    errorMessage: message,
+    context: {responseStatus: res.status, responseUrl: res.url},
   });
+
+const handleOkResponse = <R>(res: Response) =>
+  pipe(
+    Effect.tryPromise({
+      try: () => res.text(),
+      catch: e => makeParseError(res, toMessage(e)),
+    }),
+    Effect.flatMap(responseText => {
+      if (!responseText) {
+        if (res.status === 204) {
+          return Effect.succeed({} as unknown as R);
+        }
+        return Effect.fail(
+          makeParseError(res, 'API returned empty response body'),
+        );
+      }
+      return Effect.try({
+        try: (): R => {
+          const parsed: unknown = JSON.parse(responseText);
+          return parsed as R;
+        },
+        catch: e => makeParseError(res, toMessage(e)),
+      });
+    }),
+  );
 
 const handleClientErrorResponse = (res: Response) =>
   pipe(
     Effect.tryPromise({
-      try: () => res.json() as Promise<ErrorResponse>,
-      catch: e =>
-        new DefaultError({
-          errorCode: 'ParseError',
-          errorMessage: (e as Error).message,
-          context: {
-            responseStatus: res.status,
-            responseUrl: res.url,
-          },
-        }),
+      try: () => res.text(),
+      catch: e => makeParseError(res, toMessage(e)),
     }),
-    Effect.flatMap(error =>
-      Effect.fail(
-        new ClientError({
-          errorCode: error.errorCode,
-          errorMessage: error.errorMessage,
-          httpStatus: res.status,
-          url: res.url,
+    Effect.flatMap(text => {
+      const genericError = new ClientError({
+        errorCode: `HTTP_${res.status}`,
+        errorMessage:
+          text.substring(0, ERROR_MESSAGE_PREVIEW_LENGTH) ||
+          'Client error occurred',
+        httpStatus: res.status,
+        url: res.url,
+      });
+
+      return Effect.flatMap(
+        Effect.try({
+          try: () => JSON.parse(text) as unknown,
+          catch: (e: unknown) =>
+            e instanceof SyntaxError
+              ? genericError
+              : new ClientError({
+                  errorCode: 'ResponseParseError',
+                  errorMessage: toMessage(e),
+                  httpStatus: res.status,
+                  url: res.url,
+                }),
         }),
-      ),
-    ),
+        json =>
+          Effect.fail(
+            isErrorResponse(json)
+              ? new ClientError({
+                  errorCode: json.errorCode,
+                  errorMessage: json.errorMessage,
+                  httpStatus: res.status,
+                  url: res.url,
+                })
+              : genericError,
+          ),
+      );
+    }),
   );
+
+/**
+ * JSON 파싱을 시도하여 적절한 ServerError로 실패하는 Effect를 반환.
+ * 모든 경로가 ServerError로 실패한다 (서버 에러 응답이므로 성공 경로 없음).
+ */
+function parseServerErrorBody(
+  text: string,
+  genericError: ServerError,
+  makeError: (errorCode: string, errorMessage: string) => ServerError,
+): Effect.Effect<never, ServerError> {
+  return Effect.flatMap(
+    Effect.try({
+      try: () => JSON.parse(text) as unknown,
+      catch: (e: unknown) =>
+        e instanceof SyntaxError
+          ? genericError
+          : makeError('ResponseParseError', toMessage(e)),
+    }),
+    json =>
+      Effect.fail(
+        isErrorResponse(json)
+          ? makeError(json.errorCode, json.errorMessage)
+          : genericError,
+      ),
+  );
+}
 
 const handleServerErrorResponse = (res: Response) =>
   pipe(
@@ -69,134 +148,101 @@ const handleServerErrorResponse = (res: Response) =>
       catch: e =>
         new DefaultError({
           errorCode: 'ResponseReadError',
-          errorMessage: (e as Error).message,
-          context: {
-            responseStatus: res.status,
-            responseUrl: res.url,
-          },
+          errorMessage: toMessage(e),
+          context: {responseStatus: res.status, responseUrl: res.url},
         }),
     }),
     Effect.flatMap(text => {
       const isProduction = process.env.NODE_ENV === 'production';
-
-      // JSON 파싱 시도
-      try {
-        const json = JSON.parse(text) as Partial<ErrorResponse>;
-        if (json.errorCode && json.errorMessage) {
-          return Effect.fail(
-            new ServerError({
-              errorCode: json.errorCode,
-              errorMessage: json.errorMessage,
-              httpStatus: res.status,
-              url: res.url,
-              responseBody: isProduction ? undefined : text,
-            }),
-          );
-        }
-      } catch {
-        // JSON 파싱 실패 시 무시하고 fallback
-      }
-
-      // JSON이 아니거나 필드가 없는 경우
-      return Effect.fail(
+      const makeError = (
+        errorCode: string,
+        errorMessage: string,
+      ): ServerError =>
         new ServerError({
-          errorCode: `HTTP_${res.status}`,
-          errorMessage: text.substring(0, 200) || 'Server error occurred',
+          errorCode,
+          errorMessage,
           httpStatus: res.status,
           url: res.url,
           responseBody: isProduction ? undefined : text,
-        }),
+        });
+
+      const genericError = makeError(
+        `HTTP_${res.status}`,
+        text.substring(0, ERROR_MESSAGE_PREVIEW_LENGTH) ||
+          'Server error occurred',
       );
+
+      return parseServerErrorBody(text, genericError, makeError);
     }),
   );
 
 /**
- * 공용 API 클라이언트 함수
- * @throws DefaultError 발송 실패 등 API 상의 다양한 오류를 표시합니다.
- * @param authParameter API 인증을 위한 파라미터
- * @param request API URI, HTTP method 정의
- * @param data API에 요청할 request body 데이터
+ * raw Effect를 반환하는 API 클라이언트 함수 (서비스 레이어에서 Effect 합성용)
  */
-export default async function defaultFetcher<T, R>(
+export function defaultFetcherEffect<T, R>(
   authParameter: AuthenticationParameter,
   request: DefaultRequest,
   data?: T,
-): Promise<R> {
-  const authorizationHeaderData = getAuthInfo(authParameter);
+): Effect.Effect<
+  R,
+  ApiKeyError | ClientError | ServerError | NetworkError | DefaultError
+> {
+  const effect = Effect.gen(function* () {
+    const authorizationHeaderData = yield* getAuthInfo(authParameter);
 
-  const effect = Effect.gen(function* (_) {
-    const body = yield* _(
-      Effect.try({
-        try: () => (data ? JSON.stringify(data) : undefined),
-        catch: e =>
-          new DefaultError({
-            errorCode: 'JSONStringifyError',
-            errorMessage: (e as Error).message,
-            context: {
-              data,
-            },
-          }),
-      }),
-    );
+    const body = yield* Effect.try({
+      try: () => (data ? JSON.stringify(data) : undefined),
+      catch: e =>
+        new DefaultError({
+          errorCode: 'JSONStringifyError',
+          errorMessage: toMessage(e),
+          context: {data},
+        }),
+    });
 
-    const response = yield* _(
-      Effect.tryPromise({
-        try: () =>
-          fetch(request.url, {
-            headers: {
-              Authorization: authorizationHeaderData,
-              'Content-Type': 'application/json',
-            },
-            body,
-            method: request.method,
-          }),
-        catch: (error: unknown) => {
-          if (error instanceof Error) {
-            const cause = error.cause;
-            const causeCode =
-              cause && typeof cause === 'object' && 'code' in cause
-                ? String(cause.code)
-                : '';
-            const message = (error.message + ' ' + causeCode).toLowerCase();
-            const isRetryable =
-              message.includes('aborted') ||
-              message.includes('refused') ||
-              message.includes('reset') ||
-              message.includes('econn');
-            if (isRetryable) {
-              return new RetryableError({error});
-            }
-            return new NetworkError({
-              url: request.url,
-              method: request.method,
-              cause: error.message,
-              isRetryable: false,
-            });
+    const response = yield* Effect.tryPromise({
+      try: () =>
+        fetch(request.url, {
+          headers: {
+            Authorization: authorizationHeaderData,
+            'Content-Type': 'application/json',
+          },
+          body,
+          method: request.method,
+        }),
+      catch: (error: unknown) => {
+        if (error instanceof Error) {
+          if (isRetryableNetworkError(error)) {
+            return new RetryableError({error});
           }
           return new NetworkError({
             url: request.url,
             method: request.method,
-            cause: String(error),
+            cause: error.message,
             isRetryable: false,
           });
-        },
-      }),
-    );
+        }
+        return new NetworkError({
+          url: request.url,
+          method: request.method,
+          cause: String(error),
+          isRetryable: false,
+        });
+      },
+    });
 
-    return yield* _(
-      pipe(
-        Match.value(response),
-        Match.when(
-          res => res.status === 503,
-          () => Effect.fail(new RetryableError({error: 'Service Unavailable'})),
-        ),
-        Match.when(
-          res => res.status >= 400 && res.status < 500,
-          handleClientErrorResponse,
-        ),
-        Match.when(res => !res.ok, handleServerErrorResponse),
-        Match.orElse(handleOkResponse<R>),
+    return yield* pipe(
+      Match.value(response),
+      Match.when(
+        res => res.status === 503,
+        () => Effect.fail(new RetryableError({error: 'Service Unavailable'})),
       ),
+      Match.when(
+        res => res.status >= 400 && res.status < 500,
+        handleClientErrorResponse,
+      ),
+      Match.when(res => !res.ok, handleServerErrorResponse),
+      Match.orElse(handleOkResponse<R>),
     );
   });
 
@@ -209,7 +255,7 @@ export default async function defaultFetcher<T, R>(
     ),
   );
 
-  const program = pipe(
+  return pipe(
     effect,
     Effect.retry(policy),
     Effect.catchTag('RetryableError', () =>
@@ -226,7 +272,4 @@ export default async function defaultFetcher<T, R>(
       ),
     ),
   );
-
-  // runSafePromise를 사용하여 에러 포맷팅 적용
-  return runSafePromise(program);
 }

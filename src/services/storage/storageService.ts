@@ -1,16 +1,14 @@
-import fileToBase64 from '@lib/fileToBase64';
+import {runSafePromise} from '@lib/effectErrorHandler';
+import {fileToBase64Effect} from '@lib/fileToBase64';
 import {
   FileType,
   FileUploadRequest,
 } from '@models/requests/messages/groupMessageRequest';
 import {FileUploadResponse} from '@models/responses/messageResponses';
+import * as Effect from 'effect/Effect';
 import DefaultService from '../defaultService';
 
 export default class StorageService extends DefaultService {
-  constructor(apiKey: string, apiSecret: string) {
-    super(apiKey, apiSecret);
-  }
-
   /**
    * 파일(이미지) 업로드
    * 카카오 친구톡 이미지는 500kb, MMS는 200kb, 발신번호 서류 인증용 파일은 2mb의 제한이 있음
@@ -25,17 +23,15 @@ export default class StorageService extends DefaultService {
     name?: string,
     link?: string,
   ): Promise<FileUploadResponse> {
-    const encodedFile = await fileToBase64(filePath);
-    const parameter: FileUploadRequest = {
-      file: encodedFile,
-      type: fileType,
-      name,
-      link,
-    };
-    return this.request<FileUploadRequest, FileUploadResponse>({
-      httpMethod: 'POST',
-      url: 'storage/v1/files',
-      body: parameter,
-    });
+    const reqEffect = this.requestEffect.bind(this);
+    return runSafePromise(
+      Effect.flatMap(fileToBase64Effect(filePath), encodedFile =>
+        reqEffect<FileUploadRequest, FileUploadResponse>({
+          httpMethod: 'POST',
+          url: 'storage/v1/files',
+          body: {file: encodedFile, type: fileType, name, link},
+        }),
+      ),
+    );
   }
 }

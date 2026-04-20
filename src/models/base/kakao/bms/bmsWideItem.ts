@@ -63,12 +63,3 @@ export const bmsSubWideItemSchema = Schema.Struct({
 export type BmsSubWideItemSchema = Schema.Schema.Type<
   typeof bmsSubWideItemSchema
 >;
-
-/**
- * @deprecated bmsMainWideItemSchema 또는 bmsSubWideItemSchema 사용 권장
- * BMS 와이드 아이템 통합 스키마 (하위 호환성)
- */
-export const bmsWideItemSchema = bmsSubWideItemSchema;
-
-export type BmsWideItem = BmsSubWideItem;
-export type BmsWideItemSchema = BmsSubWideItemSchema;

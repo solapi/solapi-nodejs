@@ -1,6 +1,8 @@
 {
   "include": ["src/**/*", "test/**/*"],
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+
     /* Language and Environment */
     "target": "ES2022",
     "lib": ["ES2022"],
@@ -36,12 +38,23 @@
       "@models/requests/messages/*": ["src/models/requests/messages/*"],
       "@lib/*": ["src/lib/*"],
       "@internal-types/*": ["src/types/*"],
-      "@services/*": ["src/services/*"]
+      "@services/*": ["src/services/*"],
+      "@errors/*": ["src/errors/*"]
     },
 
     /* Additional Type Checking */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+
+    /* Effect Language Service */
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "diagnosticSeverity": {
+          "preferSchemaOverJson": "off"
+        }
+      }
+    ]
   }
 }

@@ -6,10 +6,12 @@ describe('StorageService E2E', () => {
   let storageService: StorageService;
 
   beforeAll(() => {
-    const apiKey = process.env.API_KEY;
-    const apiSecret = process.env.API_SECRET;
+    const apiKey = process.env.SOLAPI_API_KEY;
+    const apiSecret = process.env.SOLAPI_API_SECRET;
     if (!apiKey || !apiSecret) {
-      throw new Error('API_KEY and API_SECRET must be provided in .env file');
+      throw new Error(
+        'SOLAPI_API_KEY and SOLAPI_API_SECRET must be provided in .env file',
+      );
     }
     storageService = new StorageService(apiKey, apiSecret);
   });

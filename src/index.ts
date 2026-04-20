@@ -1,15 +1,15 @@
 import CashService from '@services/cash/cashService';
-import DefaultService from '@services/defaultService';
 import IamService from '@services/iam/iamService';
 import KakaoChannelService from '@services/kakao/channels/kakaoChannelService';
 import KakaoTemplateService from '@services/kakao/templates/kakaoTemplateService';
 import GroupService from '@services/messages/groupService';
 import MessageService from '@services/messages/messageService';
 import StorageService from '@services/storage/storageService';
-
-type Writable<T> = {-readonly [P in keyof T]: T[P]};
+import {ApiKeyError} from './errors/defaultError';
 
 export * from './errors/defaultError';
+export * from './models/index';
+export * from './types/index';
 
 /**
  * SOLAPI 메시지 서비스
@@ -19,22 +19,12 @@ export * from './errors/defaultError';
  * @see https://developers.solapi.com/category/nodejs
  */
 export class SolapiMessageService {
-  private readonly cashService: CashService;
-  private readonly iamService: IamService;
-  private readonly kakaoChannelService: KakaoChannelService;
-  private readonly kakaoTemplateService: KakaoTemplateService;
-  private readonly groupService: GroupService;
-  private readonly messageService: MessageService;
-  private readonly storageService: StorageService;
-
-  // CashService 위임
   /**
    * 잔액조회
    * @returns GetBalanceResponse
    */
   readonly getBalance: typeof CashService.prototype.getBalance;
 
-  // IamService 위임
   /**
    * 080 수신 거부 조회
    * @param data 080 수신 거부 상세 조회용 request 데이터
@@ -56,7 +46,6 @@ export class SolapiMessageService {
    */
   readonly getBlockNumbers: typeof IamService.prototype.getBlockNumbers;
 
-  // KakaoChannelService 위임
   /**
    * 카카오 채널 카테고리 조회
    */
@@ -91,7 +80,6 @@ export class SolapiMessageService {
    */
   readonly removeKakaoChannel: typeof KakaoChannelService.prototype.removeKakaoChannel;
 
-  // KakaoTemplateService 위임
   /**
    * 카카오 템플릿 카테고리 조회
    */
@@ -142,7 +130,6 @@ export class SolapiMessageService {
    */
   readonly removeKakaoAlimtalkTemplate: typeof KakaoTemplateService.prototype.removeKakaoAlimtalkTemplate;
 
-  // GroupService 위임
   /**
    * 그룹 생성
    * @param allowDuplicates 생성할 그룹이 중복 수신번호를 허용하는지 여부를 확인합니다.
@@ -211,15 +198,6 @@ export class SolapiMessageService {
    */
   readonly removeGroup: typeof GroupService.prototype.removeGroup;
 
-  // MessageService 위임
-  /**
-   * 단일 메시지 발송 기능
-   * @param message 메시지(문자, 알림톡 등)
-   * @param appId appstore용 app id
-   */
-  // TODO: temporary remove
-  readonly sendOne: typeof MessageService.prototype.sendOne;
-
   /**
    * 메시지 발송 기능, sendMany 함수보다 개선된 오류 표시 기능등을 제공합니다.
    * 한번의 요청으로 최대 10,000건까지 발송할 수 있습니다.
@@ -243,7 +221,6 @@ export class SolapiMessageService {
    */
   readonly getStatistics: typeof MessageService.prototype.getStatistics;
 
-  // StorageService 위임
   /**
    * 파일(이미지) 업로드
    * 카카오 친구톡 이미지는 500kb, MMS는 200kb, 발신번호 서류 인증용 파일은 2mb의 제한이 있음
@@ -255,43 +232,86 @@ export class SolapiMessageService {
   readonly uploadFile: typeof StorageService.prototype.uploadFile;
 
   constructor(apiKey: string, apiSecret: string) {
-    this.cashService = new CashService(apiKey, apiSecret);
-    this.iamService = new IamService(apiKey, apiSecret);
-    this.kakaoChannelService = new KakaoChannelService(apiKey, apiSecret);
-    this.kakaoTemplateService = new KakaoTemplateService(apiKey, apiSecret);
-    this.groupService = new GroupService(apiKey, apiSecret);
-    this.messageService = new MessageService(apiKey, apiSecret);
-    this.storageService = new StorageService(apiKey, apiSecret);
+    if (!apiKey || !apiSecret) {
+      throw new ApiKeyError({
+        message: 'API Key와 API Secret은 필수입니다.',
+      });
+    }
 
-    this.bindServices([
-      this.cashService,
-      this.iamService,
-      this.kakaoChannelService,
-      this.kakaoTemplateService,
-      this.groupService,
-      this.messageService,
-      this.storageService,
-    ]);
-  }
+    const cashService = new CashService(apiKey, apiSecret);
+    const iamService = new IamService(apiKey, apiSecret);
+    const kakaoChannelService = new KakaoChannelService(apiKey, apiSecret);
+    const kakaoTemplateService = new KakaoTemplateService(apiKey, apiSecret);
+    const groupService = new GroupService(apiKey, apiSecret);
+    const messageService = new MessageService(apiKey, apiSecret);
+    const storageService = new StorageService(apiKey, apiSecret);
 
-  private bindServices(services: DefaultService[]) {
-    for (const service of services) {
-      const proto = Object.getPrototypeOf(service);
-      const methodNames = Object.getOwnPropertyNames(proto).filter(
-        name =>
-          name !== 'constructor' &&
-          typeof (proto as Record<string, unknown>)[name] === 'function',
+    this.getBalance = cashService.getBalance.bind(cashService);
+
+    this.getBlacks = iamService.getBlacks.bind(iamService);
+    this.getBlockGroups = iamService.getBlockGroups.bind(iamService);
+    this.getBlockNumbers = iamService.getBlockNumbers.bind(iamService);
+
+    this.getKakaoChannelCategories =
+      kakaoChannelService.getKakaoChannelCategories.bind(kakaoChannelService);
+    this.getKakaoChannels =
+      kakaoChannelService.getKakaoChannels.bind(kakaoChannelService);
+    this.getKakaoChannel =
+      kakaoChannelService.getKakaoChannel.bind(kakaoChannelService);
+    this.requestKakaoChannelToken =
+      kakaoChannelService.requestKakaoChannelToken.bind(kakaoChannelService);
+    this.createKakaoChannel =
+      kakaoChannelService.createKakaoChannel.bind(kakaoChannelService);
+    this.removeKakaoChannel =
+      kakaoChannelService.removeKakaoChannel.bind(kakaoChannelService);
+
+    this.getKakaoAlimtalkTemplateCategories =
+      kakaoTemplateService.getKakaoAlimtalkTemplateCategories.bind(
+        kakaoTemplateService,
+      );
+    this.createKakaoAlimtalkTemplate =
+      kakaoTemplateService.createKakaoAlimtalkTemplate.bind(
+        kakaoTemplateService,
+      );
+    this.getKakaoAlimtalkTemplates =
+      kakaoTemplateService.getKakaoAlimtalkTemplates.bind(kakaoTemplateService);
+    this.getKakaoAlimtalkTemplate =
+      kakaoTemplateService.getKakaoAlimtalkTemplate.bind(kakaoTemplateService);
+    this.cancelInspectionKakaoAlimtalkTemplate =
+      kakaoTemplateService.cancelInspectionKakaoAlimtalkTemplate.bind(
+        kakaoTemplateService,
+      );
+    this.updateKakaoAlimtalkTemplate =
+      kakaoTemplateService.updateKakaoAlimtalkTemplate.bind(
+        kakaoTemplateService,
+      );
+    this.updateKakaoAlimtalkTemplateName =
+      kakaoTemplateService.updateKakaoAlimtalkTemplateName.bind(
+        kakaoTemplateService,
+      );
+    this.removeKakaoAlimtalkTemplate =
+      kakaoTemplateService.removeKakaoAlimtalkTemplate.bind(
+        kakaoTemplateService,
       );
 
-      for (const name of methodNames) {
-        const key = name as keyof SolapiMessageService;
-        const method = (
-          service as unknown as Record<string, (...args: unknown[]) => unknown>
-        )[name];
-        (this as Writable<SolapiMessageService>)[key] = method.bind(
-          service,
-        ) as never;
-      }
-    }
+    this.createGroup = groupService.createGroup.bind(groupService);
+    this.addMessagesToGroup =
+      groupService.addMessagesToGroup.bind(groupService);
+    this.sendGroup = groupService.sendGroup.bind(groupService);
+    this.reserveGroup = groupService.reserveGroup.bind(groupService);
+    this.removeReservationToGroup =
+      groupService.removeReservationToGroup.bind(groupService);
+    this.getGroups = groupService.getGroups.bind(groupService);
+    this.getGroup = groupService.getGroup.bind(groupService);
+    this.getGroupMessages = groupService.getGroupMessages.bind(groupService);
+    this.removeGroupMessages =
+      groupService.removeGroupMessages.bind(groupService);
+    this.removeGroup = groupService.removeGroup.bind(groupService);
+
+    this.send = messageService.send.bind(messageService);
+    this.getMessages = messageService.getMessages.bind(messageService);
+    this.getStatistics = messageService.getStatistics.bind(messageService);
+
+    this.uploadFile = storageService.uploadFile.bind(storageService);
   }
 }

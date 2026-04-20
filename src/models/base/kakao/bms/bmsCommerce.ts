@@ -17,10 +17,11 @@ export type BmsCommerce = {
  * - string 타입: parseFloat로 변환, 유효하지 않으면 검증 실패
  *
  * API 호환성: 기존 number 입력 및 string 입력 모두 허용
- * 출력 타입: number
+ * 출력 타입: number, 입력 타입: number | string
  *
- * Note: 타입 어설션을 사용하여 Encoded 타입을 number로 강제합니다.
- * 이는 기존 API 타입 호환성을 유지하면서 런타임에서 문자열 입력도 허용하기 위함입니다.
+ * Why: Encoded 타입을 number로 강제하여 공개 API 타입 호환성 유지.
+ * transformOrFail의 추론 Encoded 타입은 number | string이지만,
+ * downstream 스키마 체인(kakaoOption → sendMessage)에서 number를 기대함.
  */
 const NumberOrNumericString: Schema.Schema<number, number> =
   Schema.transformOrFail(
@@ -48,6 +49,24 @@ const NumberOrNumericString: Schema.Schema<number, number> =
       },
       encode: n => ParseResult.succeed(n),
     },
+  ) as Schema.Schema<number, number>;
+
+/**
+ * 커머스 가격 필드 범위 제약 (서버 검증 규칙과 일치)
+ */
+const COMMERCE_PRICE_MAX = 99_999_999;
+const DISCOUNT_RATE_MAX = 100;
+
+const numberInRange = (
+  fieldName: string,
+  min: number,
+  max: number,
+): Schema.Schema<number, number> =>
+  NumberOrNumericString.pipe(
+    Schema.filter(n => n >= min && n <= max, {
+      message: () =>
+        `${fieldName} 값이 잘못되었습니다. ${min} 이상 ${max} 이하의 숫자여야 합니다.`,
+    }),
   ) as Schema.Schema<number, number>;
 
 /**
@@ -118,10 +137,16 @@ const validateCommercePricingCombination = (commerce: {
  */
 export const bmsCommerceSchema = Schema.Struct({
   title: Schema.String,
-  regularPrice: NumberOrNumericString,
-  discountPrice: Schema.optional(NumberOrNumericString),
-  discountRate: Schema.optional(NumberOrNumericString),
-  discountFixed: Schema.optional(NumberOrNumericString),
+  regularPrice: numberInRange('regularPrice', 0, COMMERCE_PRICE_MAX),
+  discountPrice: Schema.optional(
+    numberInRange('discountPrice', 0, COMMERCE_PRICE_MAX),
+  ),
+  discountRate: Schema.optional(
+    numberInRange('discountRate', 0, DISCOUNT_RATE_MAX),
+  ),
+  discountFixed: Schema.optional(
+    numberInRange('discountFixed', 0, COMMERCE_PRICE_MAX),
+  ),
 }).pipe(Schema.filter(validateCommercePricingCombination));
 
 export type BmsCommerceSchema = Schema.Schema.Type<typeof bmsCommerceSchema>;
