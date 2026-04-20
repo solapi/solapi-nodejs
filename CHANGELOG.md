@@ -1,5 +1,14 @@
 # Changelog
 
+## [6.0.1](https://github.com/solapi/solapi-nodejs/compare/solapi-v6.0.0...solapi-v6.0.1) (2026-04-20)
+
+
+### Bug Fixes
+
+* **build:** resolve typedoc type errors and add tsc gate ([0b42f25](https://github.com/solapi/solapi-nodejs/commit/0b42f25682639f6ddd4be1d18aba817d0bcf16f5))
+* **build:** resolve typedoc type errors and add tsc gate to CI ([734a9be](https://github.com/solapi/solapi-nodejs/commit/734a9bef54944d50e98da702a2089b23265b0bbf))
+* **docs:** restore GitHub Pages deployment for v6.0.0 ([bec855e](https://github.com/solapi/solapi-nodejs/commit/bec855ea123003e3de5f242560b6b1f118841c9e))
+
 ## [6.0.0](https://github.com/solapi/solapi-nodejs/compare/solapi-v5.5.4...solapi-v6.0.0) (2026-04-20)
 
 
