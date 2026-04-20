@@ -45,7 +45,7 @@ export const safeDateTransfer = (
                 message: error instanceof Error ? error.message : String(error),
               }),
       })
-    : Effect.void;
+    : Effect.succeed<Date | undefined>(undefined);
 
 /**
  * formatWithTransfer를 Effect로 감싸 InvalidDateError가 Defect가 되지 않도록 합니다.
