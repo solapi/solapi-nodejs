@@ -276,3 +276,22 @@ jobs:
 
           ---
           > **WARNING**: npm publish failed. Package was NOT published to npm." || true
+
+  trigger-docs:
+    name: Trigger Docs Build
+    needs: [release-please, publish]
+    if: >-
+      needs.release-please.result == 'success'
+      && needs.release-please.outputs.release_created == 'true'
+      && needs.publish.result == 'success'
+      && github.ref_name == 'master'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch build-docs workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: gh workflow run build-docs.yaml --repo "$REPO" --ref "$TAG"
