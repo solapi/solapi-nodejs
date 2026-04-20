@@ -2,10 +2,10 @@ import path from 'path';
 import type {
   BmsCarouselCommerceItemSchema,
   BmsCarouselFeedItemSchema,
+  BmsChatBubbleType,
   BmsMainWideItemSchema,
   BmsSubWideItemSchema,
 } from '@/models/base/kakao/bms';
-import type {BmsChatBubbleType} from '@/models/base/kakao/kakaoOption';
 import type {FileType} from '@/models/requests/messages/groupMessageRequest';
 import type StorageService from '@/services/storage/storageService';
 

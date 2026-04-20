@@ -27,14 +27,14 @@ describe('validateCouponDescription', () => {
   });
 
   it.each([
-    ['TEXT', 12, true],
-    ['IMAGE', 12, true],
-    ['COMMERCE', 12, true],
-    ['CAROUSEL_FEED', 12, true],
-    ['CAROUSEL_COMMERCE', 12, true],
-    ['PREMIUM_VIDEO', 12, true],
-    ['WIDE', 18, true],
-    ['WIDE_ITEM_LIST', 18, true],
+    ['TEXT', 12],
+    ['IMAGE', 12],
+    ['COMMERCE', 12],
+    ['CAROUSEL_FEED', 12],
+    ['CAROUSEL_COMMERCE', 12],
+    ['PREMIUM_VIDEO', 12],
+    ['WIDE', 18],
+    ['WIDE_ITEM_LIST', 18],
   ] as const)('should accept coupon description at exact max length for %s (%d chars)', (chatBubbleType, maxLen) => {
     const result = validateCouponDescription({
       chatBubbleType,
