@@ -693,15 +693,19 @@ export const validateAcceptableFields = (
   const acceptable = BMS_ACCEPTABLE_FIELDS[type];
   const allowed = new Set<string>([...acceptable, ...RESERVED_FIELDS]);
 
-  const record = bms as unknown as Record<string, unknown>;
-  for (const key of Object.keys(record)) {
-    if (record[key] == null) continue;
+  // 타입에 선언되지 않은 key를 dynamic 순회하므로 index access는 피할 수 없음.
+  // Object.keys는 runtime key만 반환하므로 allowed 검사에 직접 사용
+  for (const key of Object.keys(bms)) {
+    if (getField(bms, key) == null) continue;
     if (!allowed.has(key)) {
       return `${type}타입 에서는 ${acceptable.join(', ')} 값만 사용이 가능합니다.`;
     }
   }
   return true;
 };
+
+const getField = <T>(obj: T, key: string): unknown =>
+  (obj as {readonly [k: string]: unknown})[key];
 
 const BMS_IMAGE_ID_MAX = 32;
 
