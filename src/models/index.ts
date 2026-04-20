@@ -51,9 +51,7 @@ export {
 } from './base/kakao/kakaoChannel';
 
 export {
-  type BmsChatBubbleType,
   baseKakaoOptionSchema,
-  bmsChatBubbleTypeSchema,
   type KakaoOptionBmsSchema,
   transformVariables,
   VariableValidationError,

@@ -6,11 +6,12 @@ const wonDiscountPattern = /^([1-9]\d{0,7})원 할인 쿠폰$/;
 // 퍼센트 할인 쿠폰: 1~100%
 const percentDiscountPattern = /^([1-9]\d?|100)% 할인 쿠폰$/;
 
-// 무료 쿠폰: 앞 1~7자 (공백 포함 가능)
-const freeCouponPattern = /^.{1,7} 무료 쿠폰$/;
+// 무료 쿠폰: 앞 1~7자 (공백 금지)
+// Why: 공백 허용 시 서버 검증에서 거부됨 (서버는 prefix에서 공백 문자 금지)
+const freeCouponPattern = /^\S{1,7} 무료 쿠폰$/;
 
-// UP 쿠폰: 앞 1~7자 (공백 포함 가능)
-const upCouponPattern = /^.{1,7} UP 쿠폰$/;
+// UP 쿠폰: 앞 1~7자 (공백 금지)
+const upCouponPattern = /^\S{1,7} UP 쿠폰$/;
 
 const isValidCouponTitle = (title: string): boolean => {
   // 1. 배송비 할인 쿠폰 (고정)

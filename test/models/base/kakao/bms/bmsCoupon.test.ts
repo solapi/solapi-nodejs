@@ -15,7 +15,6 @@ describe('BMS Coupon Schema', () => {
       '배송비 할인 쿠폰',
       '신규가입 무료 쿠폰',
       '포인트 UP 쿠폰',
-      '신규 가입 무료 쿠폰', // 공백 포함 7자
     ];
 
     it.each(validTitles)('should accept valid title: %s', title => {
@@ -31,6 +30,8 @@ describe('BMS Coupon Schema', () => {
       '101% 할인 쿠폰', // 100 초과
       '12345678 무료 쿠폰', // 8자 이상
       '12345678 UP 쿠폰', // 8자 이상
+      '신규 가입 무료 쿠폰', // prefix에 공백 포함 불가 (레퍼런스 /^[^\s]{1,7}$/)
+      '내 폰 UP 쿠폰', // prefix에 공백 포함 불가
     ];
 
     it.each(invalidTitles)('should reject invalid title: %s', title => {

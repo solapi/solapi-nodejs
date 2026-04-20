@@ -19,8 +19,9 @@ describe('BMS Option Schema in KakaoOption', () => {
       expect(result._tag).toBe('Right');
     });
 
-    it('should accept BMS_TEXT with optional header', () => {
-      const validBmsText = {
+    it('should reject BMS_TEXT with header (not in TEXT acceptable fields)', () => {
+      // TEXT 타입 서버 허용 필드: adult, content, buttons, coupon
+      const invalidBmsText = {
         pfId: 'test-pf-id',
         bms: {
           targeting: 'M',
@@ -29,10 +30,11 @@ describe('BMS Option Schema in KakaoOption', () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(baseKakaoOptionSchema)(
-        validBmsText,
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(invalidBmsText);
+      }).toThrow(
+        'TEXT타입 에서는 adult, content, buttons, coupon 값만 사용이 가능합니다.',
       );
-      expect(result._tag).toBe('Right');
     });
 
     it('should accept valid BMS_IMAGE message with imageId', () => {
@@ -287,6 +289,18 @@ describe('BMS Option Schema in KakaoOption', () => {
                   },
                 ],
               },
+              {
+                header: '캐러셀 2',
+                content: '내용 2',
+                imageId: 'img-2',
+                buttons: [
+                  {
+                    name: '자세히',
+                    linkType: 'WL',
+                    linkMobile: 'https://example.com/2',
+                  },
+                ],
+              },
             ],
           },
         },
@@ -333,6 +347,20 @@ describe('BMS Option Schema in KakaoOption', () => {
                     name: '구매',
                     linkType: 'WL',
                     linkMobile: 'https://shop.example.com/1',
+                  },
+                ],
+              },
+              {
+                commerce: {
+                  title: '상품 2',
+                  regularPrice: 20000,
+                },
+                imageId: 'img-2',
+                buttons: [
+                  {
+                    name: '구매',
+                    linkType: 'WL',
+                    linkMobile: 'https://shop.example.com/2',
                   },
                 ],
               },
@@ -505,14 +533,26 @@ describe('BMS Option Schema in KakaoOption', () => {
             carousel: {
               list: [
                 {
-                  header: '헤더',
-                  content: '내용',
+                  header: '헤더1',
+                  content: '내용1',
                   imageId: 'img-1',
                   buttons: [
                     {
                       name: '버튼',
                       linkType: 'WL',
-                      linkMobile: 'https://example.com',
+                      linkMobile: 'https://example.com/1',
+                    },
+                  ],
+                },
+                {
+                  header: '헤더2',
+                  content: '내용2',
+                  imageId: 'img-2',
+                  buttons: [
+                    {
+                      name: '버튼',
+                      linkType: 'WL',
+                      linkMobile: 'https://example.com/2',
                     },
                   ],
                 },
@@ -526,13 +566,24 @@ describe('BMS Option Schema in KakaoOption', () => {
             carousel: {
               list: [
                 {
-                  commerce: {title: '상품', regularPrice: 10000},
+                  commerce: {title: '상품1', regularPrice: 10000},
                   imageId: 'img-1',
                   buttons: [
                     {
                       name: '구매',
                       linkType: 'WL',
-                      linkMobile: 'https://example.com',
+                      linkMobile: 'https://example.com/1',
+                    },
+                  ],
+                },
+                {
+                  commerce: {title: '상품2', regularPrice: 20000},
+                  imageId: 'img-2',
+                  buttons: [
+                    {
+                      name: '구매',
+                      linkType: 'WL',
+                      linkMobile: 'https://example.com/2',
                     },
                   ],
                 },
@@ -640,12 +691,22 @@ describe('BMS Option Schema in KakaoOption', () => {
       expect(result._tag).toBe('Right');
     });
 
-    it('should accept BMS with additionalContent', () => {
+    it('should accept COMMERCE with additionalContent (allowed field)', () => {
+      // additionalContent는 COMMERCE/CAROUSEL_COMMERCE만 허용
       const bmsWithAdditionalContent = {
         pfId: 'test-pf-id',
         bms: {
           targeting: 'I',
-          chatBubbleType: 'TEXT',
+          chatBubbleType: 'COMMERCE',
+          imageId: 'img-1',
+          commerce: {title: '상품', regularPrice: 10000},
+          buttons: [
+            {
+              name: '구매',
+              linkType: 'WL',
+              linkMobile: 'https://example.com',
+            },
+          ],
           additionalContent: '추가 내용',
         },
       };
@@ -654,6 +715,296 @@ describe('BMS Option Schema in KakaoOption', () => {
         bmsWithAdditionalContent,
       );
       expect(result._tag).toBe('Right');
+    });
+  });
+
+  describe('쿠폰 설명 길이 사전 검증', () => {
+    it('should reject BMS_FREE TEXT with coupon description 13 chars (regression: sdk-testing 1011)', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'TEXT',
+          coupon: {
+            title: '10000원 할인 쿠폰',
+            description: '이것은 13자짜리 설명입',
+          },
+        },
+      };
+
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow('쿠폰 설명은 최대 12자 이하로 입력해주세요.');
+    });
+
+    it('should accept TEXT with coupon description of 12 chars (boundary)', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'TEXT',
+          coupon: {
+            title: '10000원 할인 쿠폰',
+            description: 'x'.repeat(12),
+          },
+        },
+      };
+
+      const result = Schema.decodeUnknownEither(baseKakaoOptionSchema)(bms);
+      expect(result._tag).toBe('Right');
+    });
+
+    it('should accept WIDE with coupon description of 18 chars (boundary)', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'WIDE',
+          imageId: 'img-1',
+          coupon: {
+            title: '배송비 할인 쿠폰',
+            description: 'x'.repeat(18),
+          },
+        },
+      };
+
+      const result = Schema.decodeUnknownEither(baseKakaoOptionSchema)(bms);
+      expect(result._tag).toBe('Right');
+    });
+
+    it('should reject WIDE with coupon description of 19 chars', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'WIDE',
+          imageId: 'img-1',
+          coupon: {
+            title: '배송비 할인 쿠폰',
+            description: 'x'.repeat(19),
+          },
+        },
+      };
+
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow('쿠폰 설명은 최대 18자 이하로 입력해주세요.');
+    });
+  });
+
+  describe('버튼/텍스트 사전 검증 (통합)', () => {
+    it('should reject TEXT with 6 buttons', () => {
+      const buttons = Array.from({length: 6}, (_, i) => ({
+        name: `btn${i}`,
+        linkType: 'WL',
+        linkMobile: 'https://example.com',
+      }));
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {targeting: 'I', chatBubbleType: 'TEXT', buttons},
+      };
+
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow('TEXT 타입에서는 최대 5개의 버튼만 사용할 수 있습니다.');
+    });
+
+    it('should reject TEXT with button.name over 14 chars', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'TEXT',
+          buttons: [
+            {
+              name: 'x'.repeat(15),
+              linkType: 'WL',
+              linkMobile: 'https://example.com',
+            },
+          ],
+        },
+      };
+
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow('TEXT 타입 button.name은 최대 14자 이하로 입력해주세요.');
+    });
+
+    it('should reject COMMERCE with BK button (disallowed linkType)', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'COMMERCE',
+          imageId: 'img-commerce',
+          commerce: {title: '상품', regularPrice: 10000},
+          buttons: [{name: '봇', linkType: 'BK'}],
+        },
+      };
+
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow(
+        'COMMERCE 타입에서는 WL, AL 타입의 버튼만 사용할 수 있습니다.',
+      );
+    });
+
+    it('should reject WIDE_ITEM_LIST with header over 20 chars', () => {
+      // header는 WIDE_ITEM_LIST/PREMIUM_VIDEO만 허용
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'WIDE_ITEM_LIST',
+          header: 'x'.repeat(21),
+          mainWideItem: {
+            imageId: 'img-main',
+            linkMobile: 'https://example.com/main',
+          },
+          subWideItemList: [
+            {
+              title: '서브 1',
+              imageId: 'img-sub-1',
+              linkMobile: 'https://example.com/sub1',
+            },
+            {
+              title: '서브 2',
+              imageId: 'img-sub-2',
+              linkMobile: 'https://example.com/sub2',
+            },
+            {
+              title: '서브 3',
+              imageId: 'img-sub-3',
+              linkMobile: 'https://example.com/sub3',
+            },
+          ],
+        },
+      };
+
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow('WIDE_ITEM_LIST 타입 header은 최대 20자 이하로 입력해주세요.');
+    });
+
+    it('should reject CAROUSEL_FEED with single list item (below 2-min without head)', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'N',
+          chatBubbleType: 'CAROUSEL_FEED',
+          carousel: {
+            list: [
+              {
+                header: 'h',
+                content: 'c',
+                imageId: 'img-1',
+                buttons: [
+                  {
+                    name: 'btn',
+                    linkType: 'WL',
+                    linkMobile: 'https://example.com',
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow('캐러셀 리스트는 최소 2개, 최대 6개까지 가능합니다.');
+    });
+  });
+
+  describe('줄바꿈/링크/가격/carousel.head 사전 검증 (통합)', () => {
+    it('should reject PREMIUM_VIDEO with header containing newline', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'PREMIUM_VIDEO',
+          video: {videoUrl: 'https://tv.kakao.com/v/123'},
+          header: '제목\n부제',
+        },
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow(
+        'PREMIUM_VIDEO 타입 header은 줄바꿈 최대 0개 까지 가능합니다.',
+      );
+    });
+
+    it('should reject button with malformed linkMobile', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'TEXT',
+          buttons: [{name: 'b', linkType: 'WL', linkMobile: 'not-a-url'}],
+        },
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow(
+        'linkMobile 값이 잘못되었습니다. 올바른 형식은 웹 링크 형식이어야 합니다.',
+      );
+    });
+
+    it('should reject COMMERCE with regularPrice over 99999999', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'I',
+          chatBubbleType: 'COMMERCE',
+          imageId: 'img-1',
+          commerce: {title: '상품', regularPrice: 100_000_000},
+          buttons: [
+            {name: '구매', linkType: 'WL', linkMobile: 'https://example.com'},
+          ],
+        },
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow(
+        'regularPrice 값이 잘못되었습니다. 0 이상 99999999 이하의 숫자여야 합니다.',
+      );
+    });
+
+    it('should reject CAROUSEL_COMMERCE.head with linkPc but no linkMobile', () => {
+      const bms = {
+        pfId: 'test-pf-id',
+        bms: {
+          targeting: 'M',
+          chatBubbleType: 'CAROUSEL_COMMERCE',
+          carousel: {
+            head: {
+              header: 'h',
+              content: 'c',
+              imageId: 'img-head',
+              linkPc: 'https://example.com/pc',
+            },
+            list: [
+              {
+                commerce: {title: '상품1', regularPrice: 10000},
+                imageId: 'img-1',
+                buttons: [
+                  {
+                    name: '구매',
+                    linkType: 'WL',
+                    linkMobile: 'https://example.com/1',
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      };
+      expect(() => {
+        Schema.decodeUnknownSync(baseKakaoOptionSchema)(bms);
+      }).toThrow(
+        'linkPc, linkAndroid, linkIos 중 하나라도 있으면 linkMobile 값이 필수입니다.',
+      );
     });
   });
 });
