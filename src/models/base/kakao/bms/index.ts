@@ -39,12 +39,43 @@ export {
   bmsCarouselHeadSchema,
   bmsCarouselTailSchema,
 } from './bmsCarousel';
-
+export {
+  type BmsChatBubbleType,
+  bmsChatBubbleTypeSchema,
+} from './bmsChatBubbleType';
 export {
   type BmsCommerce,
   type BmsCommerceSchema,
   bmsCommerceSchema,
 } from './bmsCommerce';
+export {
+  BMS_ACCEPTABLE_FIELDS,
+  BMS_ADDITIONAL_CONTENT_MAX,
+  BMS_ALLOWED_LINK_TYPES,
+  BMS_BUTTON_COUNT,
+  BMS_BUTTON_NAME_MAX,
+  BMS_CAROUSEL_COMMERCE_ADDITIONAL_CONTENT_MAX,
+  BMS_CAROUSEL_FEED_ITEM_CONTENT_MAX,
+  BMS_CAROUSEL_HEAD_CONTENT_MAX,
+  BMS_CAROUSEL_LIST_RANGE,
+  BMS_CONTENT_MAX,
+  BMS_COUPON_DESCRIPTION_MAX,
+  BMS_HEADER_MAX,
+  BMS_MAIN_WIDE_ITEM_TITLE_MAX,
+  BMS_SUB_WIDE_ITEM_TITLE_MAX,
+  type BmsConstraintInput,
+  validateAcceptableFields,
+  validateAllowedLinkTypes,
+  validateButtonCount,
+  validateButtonNames,
+  validateCarouselListCount,
+  validateCouponDescription,
+  validateForbiddenVariables,
+  validateImageIdLength,
+  validateLinks,
+  validateNewlineLimits,
+  validateTextLengths,
+} from './bmsConstraints';
 export {
   type BmsCoupon,
   type BmsCouponSchema,
