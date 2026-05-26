@@ -48,8 +48,8 @@
     "effect": "^3.21.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.11",
-    "@effect/language-service": "^0.85.1",
+    "@biomejs/biome": "2.4.15",
+    "@effect/language-service": "^0.86.1",
     "@effect/vitest": "^0.29.0",
     "@types/node": "^25.5.2",
     "dotenv": "^17.4.1",
