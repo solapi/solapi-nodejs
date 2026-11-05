@@ -95,7 +95,7 @@ export type GetGroupsResponse = Schema.Schema.Type<
   typeof getGroupsResponseSchema
 >;
 
-const statisticsPeriodResultSchema = Schema.Struct({
+const statisticsPeriodResultFields = {
   total: Schema.Number,
   sms: Schema.Number,
   lms: Schema.Number,
@@ -121,7 +121,21 @@ const statisticsPeriodResultSchema = Schema.Struct({
   bms_commerce: Schema.optional(Schema.Number),
   bms_carousel_commerce: Schema.optional(Schema.Number),
   bms_free: Schema.optional(Schema.Number),
+};
+const statisticsPeriodResultSchema = Schema.Struct(
+  statisticsPeriodResultFields,
+);
+type StatisticsPeriodResult = Schema.Schema.Type<
+  typeof statisticsPeriodResultSchema
+>;
+const emptyStatisticsPeriodResult = (): StatisticsPeriodResult =>
+  Object.fromEntries(
+    Object.keys(statisticsPeriodResultFields).map(key => [key, 0]),
+  ) as StatisticsPeriodResult;
+const optionalPeriodResult = Schema.optionalWith(statisticsPeriodResultSchema, {
+  default: emptyStatisticsPeriodResult,
 });
+const optionalZero = Schema.optionalWith(Schema.Number, {default: () => 0});
 
 const refundSchema = Schema.Struct({
   balance: Schema.Number,
@@ -170,17 +184,20 @@ const monthPeriodSchema = Schema.Struct({
   failed: statisticsPeriodResultSchema,
 });
 
+// 통계 문서가 없는 계정·기간은 서버가 빈 객체 {} 를 돌려주므로 모든 필드를 기본값으로 채운다
 export const getStatisticsResponseSchema = Schema.Struct({
-  balance: Schema.Number,
-  point: Schema.Number,
+  balance: optionalZero,
+  point: optionalZero,
   deposit: Schema.optional(Schema.Number),
-  monthlyBalanceAvg: Schema.Number,
-  monthlyPointAvg: Schema.Number,
+  monthlyBalanceAvg: optionalZero,
+  monthlyPointAvg: optionalZero,
   monthlyDepositAvg: Schema.optional(Schema.Number),
-  monthPeriod: Schema.Array(monthPeriodSchema),
-  total: statisticsPeriodResultSchema,
-  successed: statisticsPeriodResultSchema,
-  failed: statisticsPeriodResultSchema,
+  monthPeriod: Schema.optionalWith(Schema.Array(monthPeriodSchema), {
+    default: () => [],
+  }),
+  total: optionalPeriodResult,
+  successed: optionalPeriodResult,
+  failed: optionalPeriodResult,
   dailyBalanceAvg: Schema.optional(Schema.Number),
   dailyPointAvg: Schema.optional(Schema.Number),
   dailyTotalCountAvg: Schema.optional(Schema.Number),
