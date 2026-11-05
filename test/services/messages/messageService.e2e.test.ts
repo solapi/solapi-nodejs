@@ -45,6 +45,7 @@ import {
 } from '@test/lib/test-layers';
 import {Config, Console, Effect} from 'effect';
 import path from 'path';
+import {retryWithBackoff} from '../../lib/retry-utils';
 
 describe('MessageService E2E', () => {
   it.effect('should return messages', () =>
@@ -436,10 +437,12 @@ describe('MessageService E2E', () => {
         expect(result.groupInfo).toBeDefined();
         expect(result.groupInfo.count.total).toBeGreaterThan(0);
 
-        // 예약 직후 취소 처리
+        // 고속접수 그룹은 조회/취소 API 에 수백 ms 뒤 반영되므로 재시도
         const groupId = result.groupInfo.groupId;
         const cancelResult = yield* Effect.tryPromise(() =>
-          groupService.removeReservationToGroup(groupId),
+          retryWithBackoff(() =>
+            groupService.removeReservationToGroup(groupId),
+          ),
         );
         expect(cancelResult).toBeDefined();
       }).pipe(Effect.provide(MessageTestServicesLive)),

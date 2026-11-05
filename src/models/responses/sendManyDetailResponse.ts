@@ -56,3 +56,32 @@ export const detailGroupMessageResponseSchema = Schema.Struct({
 export type DetailGroupMessageResponse = Schema.Schema.Type<
   typeof detailGroupMessageResponseSchema
 >;
+
+// 고속접수(send-many/fast) 응답은 폐기된 친구톡(cta/cti) 과금 필드를 내려주지 않으므로
+// 기존 send-many/detail 응답 계약 유지를 위해 빈 값으로 채운다.
+export const withFastSendDefaults = (
+  response: DetailGroupMessageResponse,
+): DetailGroupMessageResponse => {
+  const {groupInfo} = response;
+  const {countForCharge, app} = groupInfo;
+  return {
+    ...response,
+    groupInfo: {
+      ...groupInfo,
+      isRefunded: groupInfo.isRefunded ?? false,
+      countForCharge: {
+        ...countForCharge,
+        cta: countForCharge.cta ?? {},
+        cti: countForCharge.cti ?? {},
+      },
+      app: {
+        ...app,
+        profit: {
+          ...app.profit,
+          cta: app.profit.cta ?? 0,
+          cti: app.profit.cti ?? 0,
+        },
+      },
+    },
+  };
+};
