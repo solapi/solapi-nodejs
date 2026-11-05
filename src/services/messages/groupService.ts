@@ -176,6 +176,7 @@ export default class GroupService extends DefaultService {
 
   /**
    * 그룹 내 메시지 목록 조회
+   * 고속접수 조회 경로는 접수 직후에도 메시지를 반환하며, 일반 그룹도 동일한 형식으로 조회된다.
    * @param groupId 생성 된 Group ID
    * @param data startkey, limit 등 쿼리 조건 파라미터
    */
@@ -190,7 +191,7 @@ export default class GroupService extends DefaultService {
     return runSafePromise(
       this.requestEffect({
         httpMethod: 'GET',
-        url: `messages/v4/groups/${groupId}/messages${parameter}`,
+        url: `messages/v4/groups/fast/${groupId}/messages${parameter}`,
         responseSchema: getMessagesResponseSchema,
       }),
     );

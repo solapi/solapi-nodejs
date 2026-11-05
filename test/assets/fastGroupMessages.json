@@ -1,0 +1,443 @@
+{
+  "startKey": null,
+  "limit": 2,
+  "messageList": {
+    "M4V20261105153408TQH6NMEMFZNIWIZ": {
+      "_id": "M4V20261105153408TQH6NMEMFZNIWIZ",
+      "accountId": "00000000000000",
+      "autoTypeDetect": true,
+      "clusterKey": null,
+      "country": "82",
+      "currentQueue": "agent_simulator",
+      "customFields": {},
+      "dateCreated": "2026-11-05T06:34:08.298Z",
+      "dateProcessed": "2026-11-05T06:34:09.172Z",
+      "dateReceived": "2026-11-05T06:34:09.000Z",
+      "dateReported": "2026-11-05T06:34:09.000Z",
+      "dateUpdated": "2026-11-05T06:34:10.114Z",
+      "faxOptions": {
+        "fileIds": []
+      },
+      "faxPageCount": 0,
+      "from": "01000000000",
+      "groupId": "G4V202611051534087P91669DDW55VZ6",
+      "imageId": null,
+      "kakaoOptions": {
+        "senderKey": null,
+        "templateCode": null,
+        "templateId": null,
+        "buttonName": null,
+        "buttonUrl": null,
+        "disableSms": false,
+        "buttons": [],
+        "pfId": null,
+        "imageId": null,
+        "title": null,
+        "adFlag": false,
+        "quickReplies": [],
+        "header": null,
+        "highlight": {
+          "title": null,
+          "description": null,
+          "imageId": null
+        },
+        "item": {
+          "list": [],
+          "summary": {
+            "title": null,
+            "description": null
+          }
+        },
+        "bms": {
+          "targeting": null,
+          "chatBubbleType": null,
+          "adult": false,
+          "header": null,
+          "imageId": null,
+          "imageLink": null,
+          "additionalContent": null,
+          "carousel": {
+            "head": {
+              "header": null,
+              "content": null,
+              "imageId": null,
+              "imageLink": null,
+              "linkPc": null,
+              "linkMobile": null,
+              "linkAndroid": null,
+              "linkIos": null
+            },
+            "list": [],
+            "tail": {
+              "linkPc": null,
+              "linkMobile": null,
+              "linkAndroid": null,
+              "linkIos": null
+            }
+          },
+          "mainWideItem": {
+            "title": null,
+            "imageId": null,
+            "linkMobile": null,
+            "linkPc": null,
+            "linkAndroid": null,
+            "linkIos": null
+          },
+          "subWideItemList": [],
+          "buttons": [],
+          "coupon": {
+            "title": null,
+            "description": null,
+            "linkMobile": null,
+            "linkPc": null,
+            "linkAndroid": null,
+            "linkIos": null
+          },
+          "commerce": {
+            "title": null,
+            "regularPrice": null,
+            "discountPrice": null,
+            "discountRate": null,
+            "discountFixed": null
+          }
+        }
+      },
+      "log": [
+        {
+          "createAt": "2026-11-05T06:34:08.298Z",
+          "message": "메시지가 접수 완료 처리되었습니다."
+        },
+        {
+          "createAt": "2026-11-05T06:34:08.984Z",
+          "message": "agent_simulator (으)로 배정되었습니다."
+        },
+        {
+          "createAt": "2026-11-05T06:34:10.114Z",
+          "message": "메시지 전송이 실패(3058) 처리 되었습니다. 연동처 결과: 202 - 착신 가입자 없음 전송 실패",
+          "originalData": {
+            "MESSAGE_ID": "M4V20261105153408TQH6NMEMFZNIWIZ",
+            "MSG_ID": 22420,
+            "SEND_DATE": "20261105153409",
+            "DELIVER_DATE": "20261105153409",
+            "REPORT_RES_DATE": "20261105153409",
+            "RESULT": 0,
+            "TELCOINFO": "01190",
+            "TCS_RESULT": 202,
+            "messageType": "SMS"
+          }
+        }
+      ],
+      "messageId": "M4V20261105153408TQH6NMEMFZNIWIZ",
+      "naverOptions": {
+        "talkId": null,
+        "templateId": null,
+        "disableSms": false,
+        "buttons": []
+      },
+      "networkCode": "45005",
+      "originCode": null,
+      "queues": [
+        {
+          "uniqId": "svc-agent-simulator_22420_M4V20261105153408TQH6NMEMFZNIWIZ",
+          "name": "agent_simulator",
+          "statusCode": "3058"
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_1",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_2",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_3",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_4",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_5",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_6",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_7",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_8",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_9",
+          "statusCode": null
+        }
+      ],
+      "rcsOptions": {
+        "brandId": null,
+        "templateId": null,
+        "mmsType": null,
+        "copyAllowed": true,
+        "commercialType": false,
+        "additionalBody": [],
+        "buttons": [],
+        "disableSms": false
+      },
+      "replacement": false,
+      "replacements": [],
+      "resendCount": 0,
+      "status": "COMPLETE",
+      "statusCode": "3058",
+      "subject": null,
+      "text": "list-compare 3",
+      "to": "01000000000",
+      "type": "SMS",
+      "unavailableSenderNumber": false,
+      "voiceDuration": 0,
+      "voiceOptions": {
+        "voiceType": null,
+        "headerMessage": null,
+        "tailMessage": null,
+        "replyRange": null,
+        "counselorNumber": null
+      },
+      "voiceReplied": 0,
+      "reason": "전송경로 없음",
+      "networkName": "SKT"
+    },
+    "M4V20261105153408SKSXHHOQBDRJWMN": {
+      "_id": "M4V20261105153408SKSXHHOQBDRJWMN",
+      "accountId": "00000000000000",
+      "autoTypeDetect": true,
+      "clusterKey": null,
+      "country": "82",
+      "currentQueue": "agent_simulator",
+      "customFields": {},
+      "dateCreated": "2026-11-05T06:34:08.298Z",
+      "dateProcessed": "2026-11-05T06:34:09.395Z",
+      "dateReceived": "2026-11-05T06:34:09.000Z",
+      "dateReported": "2026-11-05T06:34:09.000Z",
+      "dateUpdated": "2026-11-05T06:34:10.115Z",
+      "faxOptions": {
+        "fileIds": []
+      },
+      "faxPageCount": 0,
+      "from": "01000000000",
+      "groupId": "G4V202611051534087P91669DDW55VZ6",
+      "imageId": null,
+      "kakaoOptions": {
+        "senderKey": null,
+        "templateCode": null,
+        "templateId": null,
+        "buttonName": null,
+        "buttonUrl": null,
+        "disableSms": false,
+        "buttons": [],
+        "pfId": null,
+        "imageId": null,
+        "title": null,
+        "adFlag": false,
+        "quickReplies": [],
+        "header": null,
+        "highlight": {
+          "title": null,
+          "description": null,
+          "imageId": null
+        },
+        "item": {
+          "list": [],
+          "summary": {
+            "title": null,
+            "description": null
+          }
+        },
+        "bms": {
+          "targeting": null,
+          "chatBubbleType": null,
+          "adult": false,
+          "header": null,
+          "imageId": null,
+          "imageLink": null,
+          "additionalContent": null,
+          "carousel": {
+            "head": {
+              "header": null,
+              "content": null,
+              "imageId": null,
+              "imageLink": null,
+              "linkPc": null,
+              "linkMobile": null,
+              "linkAndroid": null,
+              "linkIos": null
+            },
+            "list": [],
+            "tail": {
+              "linkPc": null,
+              "linkMobile": null,
+              "linkAndroid": null,
+              "linkIos": null
+            }
+          },
+          "mainWideItem": {
+            "title": null,
+            "imageId": null,
+            "linkMobile": null,
+            "linkPc": null,
+            "linkAndroid": null,
+            "linkIos": null
+          },
+          "subWideItemList": [],
+          "buttons": [],
+          "coupon": {
+            "title": null,
+            "description": null,
+            "linkMobile": null,
+            "linkPc": null,
+            "linkAndroid": null,
+            "linkIos": null
+          },
+          "commerce": {
+            "title": null,
+            "regularPrice": null,
+            "discountPrice": null,
+            "discountRate": null,
+            "discountFixed": null
+          }
+        }
+      },
+      "log": [
+        {
+          "createAt": "2026-11-05T06:34:08.298Z",
+          "message": "메시지가 접수 완료 처리되었습니다."
+        },
+        {
+          "createAt": "2026-11-05T06:34:08.984Z",
+          "message": "agent_simulator (으)로 배정되었습니다."
+        },
+        {
+          "createAt": "2026-11-05T06:34:10.115Z",
+          "message": "메시지 전송이 실패(3058) 처리 되었습니다. 연동처 결과: 202 - 착신 가입자 없음 전송 실패",
+          "originalData": {
+            "MESSAGE_ID": "M4V20261105153408SKSXHHOQBDRJWMN",
+            "MSG_ID": 22421,
+            "SEND_DATE": "20261105153409",
+            "DELIVER_DATE": "20261105153409",
+            "REPORT_RES_DATE": "20261105153409",
+            "RESULT": 0,
+            "TELCOINFO": "01190",
+            "TCS_RESULT": 202,
+            "messageType": "SMS"
+          }
+        }
+      ],
+      "messageId": "M4V20261105153408SKSXHHOQBDRJWMN",
+      "naverOptions": {
+        "talkId": null,
+        "templateId": null,
+        "disableSms": false,
+        "buttons": []
+      },
+      "networkCode": "45005",
+      "originCode": null,
+      "queues": [
+        {
+          "uniqId": "svc-agent-simulator_22421_M4V20261105153408SKSXHHOQBDRJWMN",
+          "name": "agent_simulator",
+          "statusCode": "3058"
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_1",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_2",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_3",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_4",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_5",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_6",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_7",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_8",
+          "statusCode": null
+        },
+        {
+          "uniqId": null,
+          "name": "agent_simulator_9",
+          "statusCode": null
+        }
+      ],
+      "rcsOptions": {
+        "brandId": null,
+        "templateId": null,
+        "mmsType": null,
+        "copyAllowed": true,
+        "commercialType": false,
+        "additionalBody": [],
+        "buttons": [],
+        "disableSms": false
+      },
+      "replacement": false,
+      "replacements": [],
+      "resendCount": 0,
+      "status": "COMPLETE",
+      "statusCode": "3058",
+      "subject": null,
+      "text": "list-compare 1",
+      "to": "01000000000",
+      "type": "SMS",
+      "unavailableSenderNumber": false,
+      "voiceDuration": 0,
+      "voiceOptions": {
+        "voiceType": null,
+        "headerMessage": null,
+        "tailMessage": null,
+        "replyRange": null,
+        "counselorNumber": null
+      },
+      "voiceReplied": 0,
+      "reason": "전송경로 없음",
+      "networkName": "SKT"
+    }
+  },
+  "nextKey": "M4V20261105153408HO57I4VRN0WY7TE"
+}
