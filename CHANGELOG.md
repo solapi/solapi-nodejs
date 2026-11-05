@@ -1,5 +1,20 @@
 # Changelog
 
+## [6.1.0](https://github.com/solapi/solapi-nodejs/compare/solapi-v6.0.1...solapi-v6.1.0) (2026-11-05)
+
+
+### Features
+
+* **messages:** read getGroupMessages from the fast intake list route ([4397354](https://github.com/solapi/solapi-nodejs/commit/439735405dac9f3d1aac8704801d5e4976df9b98))
+* **messages:** read getGroupMessages from the fast intake list route ([6aa46ce](https://github.com/solapi/solapi-nodejs/commit/6aa46ce240b0f749a0c999c9146bc82e46b018a2))
+* **messages:** switch send and getGroup to fast intake endpoints ([c17cf79](https://github.com/solapi/solapi-nodejs/commit/c17cf79e6515d06330d11556b18e21de7bcdffb1))
+* **messages:** switch send and getGroup to fast intake endpoints ([17a5ff4](https://github.com/solapi/solapi-nodejs/commit/17a5ff41f87f24b7eae788f622d7e53bf28eae85))
+
+
+### Bug Fixes
+
+* **types:** default missing cta/cti charge fields in group responses ([0747387](https://github.com/solapi/solapi-nodejs/commit/074738729fa9c1345a0b2d245d5cedb5a5441956))
+
 ## [6.0.1](https://github.com/solapi/solapi-nodejs/compare/solapi-v6.0.0...solapi-v6.0.1) (2026-04-20)
 
 
