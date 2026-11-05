@@ -34,6 +34,14 @@ describe('GroupService E2E', () => {
     await expect(groupService.getGroup(nonExistentGroupId)).rejects.toThrow();
   });
 
+  it('should return an empty list for a non-existent group', async () => {
+    const result = await groupService.getGroupMessages(
+      'G4V00000000000000000000000000000',
+    );
+    expect(result.messageList).toEqual({});
+    expect(result.limit).toBe(20);
+  });
+
   it('should handle the full lifecycle of a group', async () => {
     // 1. Create a group
     const groupId = await groupService.createGroup();
@@ -46,6 +54,11 @@ describe('GroupService E2E', () => {
       text: 'test message',
     };
     await groupService.addMessagesToGroup(groupId, message);
+
+    // 고속접수 조회 경로는 접수 직후에도 메시지 목록을 돌려준다
+    const immediate = await groupService.getGroupMessages(groupId, {limit: 20});
+    expect(Object.keys(immediate.messageList)).toHaveLength(1);
+    expect(immediate.limit).toBe(20);
 
     // 3. Get the group info (retry to handle eventual consistency)
     const groupInfo = await retryWithBackoff(

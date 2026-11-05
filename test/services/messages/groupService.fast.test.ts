@@ -4,8 +4,11 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import GroupService from '@/services/messages/groupService';
 
 const fixturePath = join(__dirname, '../../assets/fastGroup.json');
+const listFixturePath = join(__dirname, '../../assets/fastGroupMessages.json');
 const loadGroup = (): Record<string, unknown> =>
   JSON.parse(readFileSync(fixturePath, 'utf-8'));
+const loadGroupMessages = (): Record<string, unknown> =>
+  JSON.parse(readFileSync(listFixturePath, 'utf-8'));
 
 const jsonResponse = (body: unknown) =>
   new Response(JSON.stringify(body), {
@@ -61,6 +64,23 @@ describe('GroupService fast intake group decoding', () => {
     const decoded = result.groupList[group.groupId as string];
     expect(decoded.countForCharge.cta).toEqual({});
     expect(decoded.app.profit.cti).toBe(0);
+  });
+
+  it('getGroupMessages should read the fast list route and decode the page', async () => {
+    const page = loadGroupMessages();
+    fetchMock.mockResolvedValue(jsonResponse(page));
+    const groupId = 'G4V202611051534087P91669DDW55VZ6';
+
+    const result = await service.getGroupMessages(groupId, {limit: 2});
+
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
+      `https://api.solapi.com/messages/v4/groups/fast/${groupId}/messages?limit=2`,
+    );
+    expect(result.limit).toBe(2);
+    expect(result.nextKey).toBe(page.nextKey);
+    expect(Object.keys(result.messageList)).toEqual(
+      Object.keys(page.messageList as object),
+    );
   });
 
   it('getGroup should keep cta/cti values when the server returns them', async () => {
