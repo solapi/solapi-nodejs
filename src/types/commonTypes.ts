@@ -18,13 +18,14 @@ const countryChargeStatusSchema = Schema.Record({
   value: Schema.Number,
 });
 
+// 고속접수(v4-fast) 그룹은 폐기된 친구톡(cta/cti) 키 없이 저장되므로 조회 응답에서 기본값으로 채운다.
 export const countForChargeSchema = Schema.Struct({
   sms: countryChargeStatusSchema,
   lms: countryChargeStatusSchema,
   mms: countryChargeStatusSchema,
   ata: countryChargeStatusSchema,
-  cta: countryChargeStatusSchema,
-  cti: countryChargeStatusSchema,
+  cta: Schema.optionalWith(countryChargeStatusSchema, {default: () => ({})}),
+  cti: Schema.optionalWith(countryChargeStatusSchema, {default: () => ({})}),
   nsa: countryChargeStatusSchema,
   rcs_sms: countryChargeStatusSchema,
   rcs_lms: countryChargeStatusSchema,
@@ -56,7 +57,7 @@ export type CommonCashResponse = Schema.Schema.Type<
   typeof commonCashResponseSchema
 >;
 
-export const messageTypeRecordSchema = Schema.Struct({
+const messageTypeRecordFields = {
   sms: Schema.Number,
   lms: Schema.Number,
   mms: Schema.Number,
@@ -81,6 +82,11 @@ export const messageTypeRecordSchema = Schema.Struct({
   bms_commerce: Schema.optional(Schema.Number),
   bms_carousel_commerce: Schema.optional(Schema.Number),
   bms_free: Schema.optional(Schema.Number),
+};
+export const messageTypeRecordSchema = Schema.Struct({
+  ...messageTypeRecordFields,
+  cta: Schema.optionalWith(Schema.Number, {default: () => 0}),
+  cti: Schema.optionalWith(Schema.Number, {default: () => 0}),
 });
 export type MessageTypeRecord = Schema.Schema.Type<
   typeof messageTypeRecordSchema
@@ -92,7 +98,7 @@ export type MessageTypeRecord = Schema.Schema.Type<
  * 모든 키를 optional로 풀어 서버가 한두 필드만 내려줘도 decode가 통과하도록 한다.
  */
 export const partialMessageTypeRecordSchema = Schema.partial(
-  messageTypeRecordSchema,
+  Schema.Struct(messageTypeRecordFields),
 );
 export type PartialMessageTypeRecord = Schema.Schema.Type<
   typeof partialMessageTypeRecordSchema

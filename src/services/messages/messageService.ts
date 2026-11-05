@@ -26,7 +26,10 @@ import {
   getMessagesResponseSchema,
   getStatisticsResponseSchema,
 } from '@models/responses/messageResponses';
-import {DetailGroupMessageResponse} from '@models/responses/sendManyDetailResponse';
+import {
+  type DetailGroupMessageResponse,
+  withFastSendDefaults,
+} from '@models/responses/sendManyDetailResponse';
 import * as Effect from 'effect/Effect';
 import {
   BadRequestError,
@@ -84,14 +87,16 @@ export default class MessageService extends DefaultService {
           parameterObject,
         );
 
-        const response = yield* reqEffect<
-          MultipleMessageSendingRequestSchema,
-          DetailGroupMessageResponse
-        >({
-          httpMethod: 'POST',
-          url: 'messages/v4/send-many/detail',
-          body: parameter,
-        });
+        const response = withFastSendDefaults(
+          yield* reqEffect<
+            MultipleMessageSendingRequestSchema,
+            DetailGroupMessageResponse
+          >({
+            httpMethod: 'POST',
+            url: 'messages/v4/send-many/fast',
+            body: parameter,
+          }),
+        );
 
         const {count} = response.groupInfo;
         const failedAll =

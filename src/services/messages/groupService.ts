@@ -161,13 +161,14 @@ export default class GroupService extends DefaultService {
 
   /**
    * 단일 그룹정보 조회
+   * 고속접수 조회 경로는 접수 직후에도 그룹을 반환하며, 일반 그룹도 동일한 형식으로 조회된다.
    * @param groupId 그룹 ID
    */
   async getGroup(groupId: GroupId): Promise<GroupMessageResponse> {
     return runSafePromise(
       this.requestEffect({
         httpMethod: 'GET',
-        url: `messages/v4/groups/${groupId}`,
+        url: `messages/v4/groups/fast/${groupId}`,
         responseSchema: groupMessageResponseSchema,
       }),
     );
