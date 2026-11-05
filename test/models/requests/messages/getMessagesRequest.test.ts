@@ -1,4 +1,4 @@
-import {Schema} from 'effect';
+import {Either, Schema} from 'effect';
 import {describe, expect, it} from 'vitest';
 import {InvalidDateError} from '@/errors/defaultError';
 import {
@@ -106,5 +106,81 @@ describe('finalizeGetMessagesRequest', () => {
     expect(result.groupId).toBe('GRP456');
     expect(result.limit).toBe(50);
     expect(result.startKey).toBe('key123');
+  });
+});
+
+describe('getMessagesRequestSchema advanced search (#183)', () => {
+  const decode = Schema.decodeUnknownEither(getMessagesRequestSchema);
+
+  it('should accept matching criteria, cond and value arrays', () => {
+    const result = decode({
+      criteria: ['type', 'statusCode'],
+      cond: ['eq', 'eq'],
+      value: ['SMS', '2000'],
+    });
+    expect(Either.isRight(result)).toBe(true);
+  });
+
+  it('should accept a single string for each field', () => {
+    const result = decode({criteria: 'to', cond: 'eq', value: '01000000000'});
+    expect(Either.isRight(result)).toBe(true);
+  });
+
+  const rejected: Array<[unknown, string]> = [
+    [{criteria: ['type'], cond: ['eq']}, 'value 누락'],
+    [{criteria: ['type'], cond: ['eq', 'ne'], value: ['SMS']}, '개수 불일치'],
+    [
+      {criteria: ['type'], cond: ['like'], value: ['SMS']},
+      '허용되지 않는 cond',
+    ],
+    [
+      {criteria: ['text'], cond: ['eq'], value: ['hi']},
+      '허용되지 않는 criteria',
+    ],
+    [{criteria: ['to'], cond: ['eq'], value: ['010,020']}, 'value 에 쉼표'],
+  ];
+  it.each(rejected)('should reject %j (%s)', input => {
+    expect(Either.isLeft(decode(input))).toBe(true);
+  });
+
+  it('should accept an empty criteria set', () => {
+    expect(Either.isRight(decode({criteria: [], cond: [], value: []}))).toBe(
+      true,
+    );
+  });
+});
+
+describe('finalizeGetMessagesRequest advanced search (#183)', () => {
+  it('should join criteria, cond and value with commas', () => {
+    const payload = finalizeGetMessagesRequest({
+      limit: 5,
+      criteria: ['type', 'dateCreated'],
+      cond: ['eq', 'gte'],
+      value: ['SMS', '2026-11-05'],
+    });
+    expect(payload.criteria).toBe('type,dateCreated');
+    expect(payload.cond).toBe('eq,gte');
+    expect(payload.value).toBe('SMS,2026-11-05');
+    expect(payload.limit).toBe(5);
+  });
+
+  it('should pass single strings through unchanged', () => {
+    const payload = finalizeGetMessagesRequest({
+      criteria: 'groupId',
+      cond: 'eq',
+      value: 'G4V0',
+    });
+    expect(payload).toMatchObject({
+      criteria: 'groupId',
+      cond: 'eq',
+      value: 'G4V0',
+    });
+  });
+
+  it('should omit search keys when criteria is empty', () => {
+    const payload = finalizeGetMessagesRequest({limit: 1});
+    expect(payload).not.toHaveProperty('criteria');
+    expect(payload).not.toHaveProperty('cond');
+    expect(payload).not.toHaveProperty('value');
   });
 });
